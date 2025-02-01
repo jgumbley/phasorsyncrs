@@ -1,6 +1,6 @@
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use phasorsyncrs::{create_shared_state, get_user_name, handle_device_list, Args};
+use phasorsyncrs::{create_shared_state, handle_device_list, Args};
 use std::{thread, time::Duration};
 
 fn run_timing_simulation(state: phasorsyncrs::SharedState) {
@@ -65,9 +65,6 @@ fn main() {
         return;
     }
 
-    // Get name either from args or through interactive prompt
-    let name = get_user_name(args.name);
-
     // Show a fancy progress bar
     let pb = ProgressBar::new(100);
     pb.set_style(
@@ -85,9 +82,6 @@ fn main() {
         thread::sleep(Duration::from_millis(20));
     }
     pb.finish_with_message("Loading complete!");
-
-    // Display the greeting
-    println!("\nHello, {}! Welcome to PhasorSyncRS!", name);
 
     // Create shared state
     let shared_state = create_shared_state();
