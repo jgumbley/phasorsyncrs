@@ -13,17 +13,17 @@ PhasorSyncRS requires realtime MIDI I/O with:
 
 ## Decision
 
-Implement a Linux-native MIDI stack using:
+Implement a cross-platform MIDI stack using:
 
-1. **Core Layer**: `alsa-rs` (v0.7+)
-   - Direct ALSA API access via safe Rust bindings
-   - Zero-copy buffer management
-   - Real-time thread priority configuration
+1. **Core Layer**: `rtmidi-rs` (v0.5+)
+   - Cross-platform MIDI API (Linux/Windows/macOS)
+   - Built-in real-time scheduling support
+   - Automatic port discovery and management
 
-2. **Protocol Layer**: Custom implementation
-   - `bytes` crate for efficient buffer handling
-   - `nom` for message validation/parsing
-   - Lock-free ring buffers (heapless crate)
+2. **Protocol Layer**: Type-safe abstraction
+   - `midi-message` crate for standard message types
+   - Custom message validation/parsing
+   - Lock-free channels (crossbeam crate)
 
 3. **Testing**: Mockable interface
    ```rust
@@ -37,20 +37,16 @@ Implement a Linux-native MIDI stack using:
 ## Implementation Strategy
 
 ```rust
-// src/midi/alsa.rs
-pub struct AlsaMidi {
-    seq: alsa::Seq,
-    in_port: i32,
-    out_port: i32,
+// src/midi/rtmidi.rs
+pub struct RtMidiEngine {
+    input: RtMidiIn,
+    output: RtMidiOut,
 }
 
-impl MidiEngine for AlsaMidi {
-    fn send(&mut self, data: &[u8]) -> Result<(), AlsaError> {
-        let ev = alsa::seq::Event::new();
-        // ALSA-specific event packing
-        self.seq.event_output(ev)?;
-        self.seq.drain_output()?;
-        Ok(())
+impl MidiEngine for RtMidiEngine {
+    fn send(&mut self, msg: MidiMessage) -> Result<()> {
+        let data = msg.to_midi_bytes();
+        self.output.send_message(&data).map_err(Into::into)
     }
 }
 ```
@@ -59,21 +55,39 @@ impl MidiEngine for AlsaMidi {
 
 | Technique               | Benefit                      | ADR Alignment        |
 |-------------------------|------------------------------|----------------------|
-| Realtime thread prio    | Guaranteed scheduling        | ADR00 §4            |
-| Preallocated buffers    | No heap allocation in hot path | ADR00 §4.1         |
-| Lock-free structures    | Concurrent access without locks | ADR00 §4.1        |
+| Lock-free channels      | Cross-platform concurrency   | ADR00 §4            |
+| Automatic buffer mgmt   | Zero-copy across OS layers    | ADR00 §4.1         |
+| Batch processing        | Reduced syscall overhead     | ADR00 §4.1        |
+
+## Message Abstraction (Consolidated from ADR04)
+
+Implement a higher-level `MidiMessage` enum for type safety:
+```rust
+pub enum MidiMessage {
+    NoteOn { channel: u8, note: u8, velocity: u8 },
+    NoteOff { channel: u8, note: u8, velocity: u8 },
+    ControlChange { channel: u8, controller: u8, value: u8 },
+    // ... other variants
+}
+```
+
+### Benefits:
+- Type-safe API prevents invalid messages
+- Self-documenting message structure
+- Simplified testing and mocking
+- Automatic serialization/deserialization via `midi-message` crate
 
 ## Consequences
 
 - **Pros**:
-  - Native Linux performance (μs-level latency)
-  - Direct hardware access without abstraction layers
-  - Mockable interface enables full TDD (ADR01)
+  - Cross-platform compatibility
+  - Modern type-safe API
+  - Reduced unsafe code surface
+  - Maintains TDD capabilities (ADR01)
   
 - **Cons**:
-  - Linux-specific implementation
-  - Requires ALSA development headers
-  - Increased unsafe code surface
+  - Slightly higher abstraction overhead
+  - Requires MIDI driver packages on Windows/macOS
 
 ## Alternatives Considered
 
