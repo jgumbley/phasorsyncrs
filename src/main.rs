@@ -55,14 +55,30 @@ fn main() {
     // Parse command line arguments
     let args = Args::parse();
 
+    // Get list of available devices
+    let devices = handle_device_list();
+
     // Handle device listing if requested
     if args.device_list {
-        let devices = handle_device_list();
         println!("Available MIDI devices:");
         for device in devices {
             println!("  - {}", device);
         }
         return;
+    }
+
+    // Validate device if specified
+    if let Some(device_name) = &args.bind_to_device {
+        if !devices.iter().any(|d| d.contains(device_name)) {
+            eprintln!(
+                "Error: Device '{}' not found in available devices:",
+                device_name
+            );
+            for device in devices {
+                eprintln!("  - {}", device);
+            }
+            std::process::exit(1);
+        }
     }
 
     // Show a fancy progress bar

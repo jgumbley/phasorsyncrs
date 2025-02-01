@@ -37,6 +37,10 @@ pub struct Args {
     /// List available MIDI devices
     #[arg(long)]
     pub device_list: bool,
+
+    /// Bind to specific MIDI device
+    #[arg(long)]
+    pub bind_to_device: Option<String>,
 }
 
 /// Handle listing of MIDI devices

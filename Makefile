@@ -15,6 +15,9 @@ run: build
 list-devices: build
 	$(CARGO) run -- --device-list
 
+run-oxi: build
+	$(CARGO) run -- --bind-to-device "doesnt exist"
+
 build: lint test
 	$(CARGO) build
 
