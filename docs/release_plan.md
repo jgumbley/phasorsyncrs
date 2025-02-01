@@ -1,4 +1,4 @@
-# MidiMoke Release Plan v0.1
+# PhasorSyncRS Release Plan v0.1
 
 ## Phase 1: Core Foundation (2 Weeks)
 - [ ] Create cargo workspace with modular structure
@@ -17,9 +17,9 @@
 ## Phase 2: Round-Trip Verification (3 Weeks)
 - [ ] Unit tests for MIDI message parsing/generation
 - [ ] Hardware validation checklist:
-  - ✅ Roland A-300PRO
-  - ✅ Korg nanoKONTROL2
-  - ✅ Arturia KeyStep Pro
+  - ✅ OXI OX1
+  - ✅ Teenage Engineering OPZ
+  - ✅ Elektron Digitakt
 - [ ] Latency profiling framework
 - [ ] Error recovery system design
 

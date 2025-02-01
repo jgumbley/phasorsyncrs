@@ -1,4 +1,4 @@
-# Midimoke Rust Migration Report
+# Midimoke->PhasorSyncRS Rust Migration Report
 
 ## Overview
 This report outlines the key considerations for migrating the Python implementation of Midimoke to Rust. It identifies constructive patterns to preserve, critical errors to avoid, and areas requiring clarification.

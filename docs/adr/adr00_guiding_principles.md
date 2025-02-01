@@ -5,7 +5,7 @@
 
 ## Context
 
-MidiMoke is a Rust-based framework designed for bidirectional MIDI communication with a vision for future extensions (e.g., real-time music theory, neurofeedback, non-linear time, and quantum interfaces). The project must meet strict performance constraints (e.g., <2ms latency on Raspberry Pi 4) while remaining highly extensible and maintainable.
+PhasorSyncRS is a Rust-based framework designed for bidirectional MIDI communication with a vision for future extensions (e.g., real-time music theory, neurofeedback, non-linear time, and quantum interfaces). The project must meet strict performance constraints (e.g., <2ms latency on Raspberry Pi 4) while remaining highly extensible and maintainable.
 
 ## Decision
 
@@ -50,4 +50,4 @@ We will adhere to the following core guiding principles:
 
 ## Conclusion
 
-Adopting these core guiding principles will establish a robust, agile, and extensible foundation for MidiMoke. These principles, rooted in the Unix philosophy and XP practices, will guide architectural decisions throughout the project's lifecycle and enable the system to evolve while maintaining high performance and quality.
+Adopting these core guiding principles will establish a robust, agile, and extensible foundation for PhasorSyncRS. These principles, rooted in the Unix philosophy and XP practices, will guide architectural decisions throughout the project's lifecycle and enable the system to evolve while maintaining high performance and quality.
