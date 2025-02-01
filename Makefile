@@ -16,7 +16,7 @@ list-devices: build
 	$(CARGO) run -- --device-list
 
 run-oxi: build
-	$(CARGO) run -- --bind-to-device "doesnt exist"
+	$(CARGO) run -- --bind-to-device "OXI ONE - OXI ONE MIDI 1"
 
 build: lint test
 	$(CARGO) build
