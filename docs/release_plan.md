@@ -36,16 +36,6 @@
   - Windows x86_64
   - macOS aarch64
 
-## Architectural Guardrails
-1. **Interface Stability**
-   - Semantic versioning from v0.1.0
-   - Feature flags for experimental components
-
-2. **Testing Strategy**
-   - Hardware simulation layer
-   - Fuzz testing for MIDI parsing
-   - Golden file comparisons
-
 3. **Performance Constraints**
    - Zero heap allocation in hot paths
    - Lock-free data structures for real-time threads
