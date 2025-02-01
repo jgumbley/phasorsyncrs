@@ -1,37 +1,43 @@
 # Makefile for Rust project
 
-# Targets for common development tasks
-
 # Dependencies
 
 CARGO ?= cargo
 
 # Targets
 
-run: build
+.PHONY: run build test check fmt clippy doc unittest lint clean
 
+# Main targets
+run: build
 	$(CARGO) run
 
-build:
-
+build: lint test
 	$(CARGO) build
 
-test:
-
+# Testing targets
+test: unittest
 	$(CARGO) test
 
-check:
+unittest:
+	$(CARGO) test
 
+# Code quality targets
+lint: fmt clippy
+	@echo "Linting complete"
+
+check:
 	$(CARGO) check
 
 fmt:
-
-	$(CARGO) fmt
+	$(CARGO) fmt --all -- --check
 
 clippy:
-
-	$(CARGO) clippy
+	$(CARGO) clippy -- -D warnings
 
 doc:
-
 	$(CARGO) doc
+
+# Cleanup
+clean:
+	$(CARGO) clean
