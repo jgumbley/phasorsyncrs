@@ -44,6 +44,10 @@ pub struct Args {
 }
 
 /// Handle listing of MIDI devices
+///
+/// This currently uses the default MIDI implementation.
+/// In the future, this will be updated to use a specific MidiEngine implementation.
 pub fn handle_device_list() -> Vec<String> {
+    // TODO: Replace with proper MidiEngine implementation
     midi::list_devices()
 }
