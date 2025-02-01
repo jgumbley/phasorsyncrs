@@ -1,5 +1,68 @@
 //! ALSA-specific MIDI implementation
 
+use crate::midi::engine::{MidiEngine, MidiMessage, Result};
+
+#[cfg(not(feature = "test-mock"))]
+pub struct AlsaMidiEngine {
+    #[allow(dead_code)]
+    device_name: Option<String>,
+}
+
+#[cfg(not(feature = "test-mock"))]
+impl AlsaMidiEngine {
+    pub fn new(device_name: Option<String>) -> Result<Self> {
+        Ok(AlsaMidiEngine { device_name })
+    }
+}
+
+#[cfg(not(feature = "test-mock"))]
+impl MidiEngine for AlsaMidiEngine {
+    fn send(&mut self, _msg: MidiMessage) -> Result<()> {
+        // TODO: Implement real MIDI output
+        Ok(())
+    }
+
+    fn recv(&mut self) -> Result<MidiMessage> {
+        // TODO: Implement real MIDI input
+        Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "MIDI input not yet implemented",
+        )))
+    }
+
+    fn list_devices(&self) -> Vec<String> {
+        list_devices()
+    }
+}
+
+#[cfg(feature = "test-mock")]
+pub struct AlsaMidiEngine {
+    #[allow(dead_code)]
+    device_name: Option<String>,
+}
+
+#[cfg(feature = "test-mock")]
+impl AlsaMidiEngine {
+    pub fn new(device_name: Option<String>) -> Result<Self> {
+        Ok(AlsaMidiEngine { device_name })
+    }
+}
+
+#[cfg(feature = "test-mock")]
+impl MidiEngine for AlsaMidiEngine {
+    fn send(&mut self, _msg: MidiMessage) -> Result<()> {
+        Ok(())
+    }
+
+    fn recv(&mut self) -> Result<MidiMessage> {
+        Ok(MidiMessage::Clock)
+    }
+
+    fn list_devices(&self) -> Vec<String> {
+        list_devices()
+    }
+}
+
 #[cfg(not(feature = "test-mock"))]
 pub fn list_devices() -> Vec<String> {
     let seq = match alsa::Seq::open(None, None, false) {

@@ -1,6 +1,6 @@
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use phasorsyncrs::{create_shared_state, handle_device_list, Args};
+use phasorsyncrs::{create_shared_state, handle_device_list, midi::AlsaMidiEngine, Args};
 use std::{thread, time::Duration};
 
 fn run_timing_simulation(state: phasorsyncrs::SharedState) {
@@ -51,6 +51,26 @@ fn run_state_inspector(state: phasorsyncrs::SharedState) {
     });
 }
 
+fn run_midi_input(mut engine: AlsaMidiEngine, _state: phasorsyncrs::SharedState) {
+    use phasorsyncrs::midi::MidiEngine;
+
+    thread::spawn(move || {
+        println!("MIDI input thread started");
+        loop {
+            match engine.recv() {
+                Ok(msg) => {
+                    println!("Received MIDI message: {:?}", msg);
+                    // TODO: Handle different MIDI message types
+                }
+                Err(e) => {
+                    eprintln!("Error receiving MIDI message: {}", e);
+                    break;
+                }
+            }
+        }
+    });
+}
+
 fn main() {
     // Parse command line arguments
     let args = Args::parse();
@@ -81,38 +101,71 @@ fn main() {
         }
     }
 
-    // Show a fancy progress bar
-    let pb = ProgressBar::new(100);
-    pb.set_style(
-        ProgressStyle::default_bar()
-            .template(
-                "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})",
-            )
-            .unwrap()
-            .progress_chars("#>-"),
-    );
+    // Initialize MIDI engine if device binding is requested
+    if let Some(device_name) = &args.bind_to_device {
+        match AlsaMidiEngine::new(Some(device_name.clone())) {
+            Ok(engine) => {
+                println!("Successfully connected to MIDI device: {}", device_name);
+                // Create shared state
+                let shared_state = create_shared_state();
 
-    // Simulate some work
-    for i in 0..100 {
-        pb.set_position(i + 1);
-        thread::sleep(Duration::from_millis(20));
-    }
-    pb.finish_with_message("Loading complete!");
+                // Start the MIDI input thread
+                let midi_state = shared_state.clone();
+                run_midi_input(engine, midi_state);
 
-    // Create shared state
-    let shared_state = create_shared_state();
+                // Start the timing simulation thread
+                let timing_state = shared_state.clone();
+                run_timing_simulation(timing_state);
 
-    // Start the timing simulation thread
-    let timing_state = shared_state.clone();
-    run_timing_simulation(timing_state);
+                // Start the inspector thread
+                let inspector_state = shared_state.clone();
+                run_state_inspector(inspector_state);
 
-    // Start the inspector thread
-    let inspector_state = shared_state.clone();
-    run_state_inspector(inspector_state);
+                // Keep the main thread running
+                println!("\nPress Ctrl+C to exit...");
+                loop {
+                    thread::sleep(Duration::from_secs(1));
+                }
+            }
+            Err(e) => {
+                eprintln!("Error connecting to MIDI device: {}", e);
+                std::process::exit(1);
+            }
+        }
+    } else {
+        // Show a fancy progress bar
+        let pb = ProgressBar::new(100);
+        pb.set_style(
+            ProgressStyle::default_bar()
+                .template(
+                    "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})",
+                )
+                .unwrap()
+                .progress_chars("#>-"),
+        );
 
-    // Keep the main thread running
-    println!("\nPress Ctrl+C to exit...");
-    loop {
-        thread::sleep(Duration::from_secs(1));
+        // Simulate some work
+        for i in 0..100 {
+            pb.set_position(i + 1);
+            thread::sleep(Duration::from_millis(20));
+        }
+        pb.finish_with_message("Loading complete!");
+
+        // Create shared state
+        let shared_state = create_shared_state();
+
+        // Start the timing simulation thread
+        let timing_state = shared_state.clone();
+        run_timing_simulation(timing_state);
+
+        // Start the inspector thread
+        let inspector_state = shared_state.clone();
+        run_state_inspector(inspector_state);
+
+        // Keep the main thread running
+        println!("\nPress Ctrl+C to exit...");
+        loop {
+            thread::sleep(Duration::from_secs(1));
+        }
     }
 }

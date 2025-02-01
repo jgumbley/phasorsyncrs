@@ -10,5 +10,8 @@ pub use engine::{MidiEngine, MidiMessage, Result};
 // Re-export clock types
 pub use clock::{BpmCalculator, ClockGenerator, ClockMessage};
 
+// Re-export ALSA implementation
+pub use alsa::AlsaMidiEngine;
+
 // Re-export device listing function
 pub use alsa::list_devices;
