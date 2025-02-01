@@ -20,10 +20,10 @@ build: lint test
 
 # Testing targets
 test: fmt unittest
-	$(CARGO) test
+	$(CARGO) test --features test-mock
 
 unittest:
-	$(CARGO) test
+	$(CARGO) test --features test-mock
 
 # Code quality targets
 lint: fmt clippy
