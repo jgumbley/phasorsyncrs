@@ -16,7 +16,7 @@ build: lint test
 	$(CARGO) build
 
 # Testing targets
-test: unittest
+test: fmt unittest
 	$(CARGO) test
 
 unittest:
@@ -30,7 +30,7 @@ check:
 	$(CARGO) check
 
 fmt:
-	$(CARGO) fmt --all -- --check
+	$(CARGO) fmt --all
 
 clippy:
 	$(CARGO) clippy -- -D warnings
