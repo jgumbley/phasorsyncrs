@@ -1,11 +1,21 @@
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use phasorsyncrs::{get_user_name, Args};
+use phasorsyncrs::{get_user_name, handle_device_list, Args};
 use std::{thread, time::Duration};
 
 fn main() {
     // Parse command line arguments
     let args = Args::parse();
+
+    // Handle device listing if requested
+    if args.device_list {
+        let devices = handle_device_list();
+        println!("Available MIDI devices:");
+        for device in devices {
+            println!("  - {}", device);
+        }
+        return;
+    }
 
     // Get name either from args or through interactive prompt
     let name = get_user_name(args.name);

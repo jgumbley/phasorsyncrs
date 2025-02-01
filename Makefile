@@ -6,11 +6,14 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc unittest lint clean
+.PHONY: run build test check fmt clippy doc unittest lint clean list-devices
 
 # Main targets
 run: build
 	$(CARGO) run
+
+list-devices: build
+	$(CARGO) run -- --device-list
 
 build: lint test
 	$(CARGO) build
