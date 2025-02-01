@@ -8,6 +8,10 @@ CARGO ?= cargo
 
 # Targets
 
+run: build
+
+	$(CARGO) run
+
 build:
 
 	$(CARGO) build
