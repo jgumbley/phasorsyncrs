@@ -2,6 +2,7 @@ use clap::Parser;
 use std::sync::{Arc, Mutex};
 
 pub mod midi;
+use crate::midi::{DefaultMidiEngine, MidiEngine};
 
 #[derive(Debug, Clone)]
 pub struct TransportState {
@@ -45,9 +46,11 @@ pub struct Args {
 
 /// Handle listing of MIDI devices
 ///
-/// This currently uses the default MIDI implementation.
-/// In the future, this will be updated to use a specific MidiEngine implementation.
+/// Uses the default MIDI engine implementation to list available MIDI devices.
 pub fn handle_device_list() -> Vec<String> {
-    // TODO: Replace with proper MidiEngine implementation
-    midi::list_devices()
+    if let Ok(engine) = DefaultMidiEngine::new(None) {
+        engine.list_devices()
+    } else {
+        Vec::new()
+    }
 }

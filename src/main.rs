@@ -1,6 +1,6 @@
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use phasorsyncrs::{create_shared_state, handle_device_list, midi::AlsaMidiEngine, Args};
+use phasorsyncrs::{create_shared_state, handle_device_list, midi::MidirEngine, Args};
 use std::{thread, time::Duration};
 
 fn run_timing_simulation(state: phasorsyncrs::SharedState) {
@@ -51,7 +51,7 @@ fn run_state_inspector(state: phasorsyncrs::SharedState) {
     });
 }
 
-fn run_midi_input(mut engine: AlsaMidiEngine, _state: phasorsyncrs::SharedState) {
+fn run_midi_input(mut engine: MidirEngine, _state: phasorsyncrs::SharedState) {
     use phasorsyncrs::midi::MidiEngine;
 
     thread::spawn(move || {
@@ -103,7 +103,7 @@ fn main() {
 
     // Initialize MIDI engine if device binding is requested
     if let Some(device_name) = &args.bind_to_device {
-        match AlsaMidiEngine::new(Some(device_name.clone())) {
+        match MidirEngine::new(Some(device_name.clone())) {
             Ok(engine) => {
                 println!("Successfully connected to MIDI device: {}", device_name);
                 // Create shared state

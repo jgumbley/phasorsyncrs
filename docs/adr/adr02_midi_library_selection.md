@@ -13,12 +13,12 @@ PhasorSyncRS requires realtime MIDI I/O with:
 
 ## Decision
 
-Implement a cross-platform MIDI stack using:
+Implement a Linux-optimized MIDI stack using:
 
-1. **Core Layer**: `rtmidi-rs` (v0.5+)
-   - Cross-platform MIDI API (Linux/Windows/macOS)
-   - Built-in real-time scheduling support
-   - Automatic port discovery and management
+1. **Core Layer**: `midir` (v0.6+)
+   - Actively maintained Rust bindings
+   - ALSA backend with real-time priorities
+   - Port discovery via OS-native APIs
 
 2. **Protocol Layer**: Type-safe abstraction
    - `midi-message` crate for standard message types
