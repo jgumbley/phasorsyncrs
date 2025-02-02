@@ -1,56 +1,38 @@
-use clap::Parser;
-use std::sync::{Arc, Mutex};
-
+pub mod cli;
 pub mod midi;
-use crate::midi::{DefaultMidiEngine, MidiEngine};
+pub mod transport;
+pub mod ui;
 
-#[derive(Debug, Clone)]
-pub struct TransportState {
-    pub bpm: f64,
-    pub tick_count: u64,
+use midi::{DefaultMidiEngine, MidiEngine};
+use std::sync::{Arc, Mutex}; // Import both trait and default implementation
+
+// Re-export Args for convenience
+pub use cli::Args;
+
+#[derive(Debug)]
+pub struct Transport {
+    pub bpm: f32,
+    pub tick_count: u32,
     pub beat: u32,
     pub bar: u32,
     pub is_playing: bool,
 }
 
-impl Default for TransportState {
-    fn default() -> Self {
-        Self {
-            bpm: 120.0,
-            tick_count: 0,
-            beat: 1,
-            bar: 1,
-            is_playing: false,
-        }
-    }
-}
-
-pub type SharedState = Arc<Mutex<TransportState>>;
+pub type SharedState = Arc<Mutex<Transport>>;
 
 pub fn create_shared_state() -> SharedState {
-    Arc::new(Mutex::new(TransportState::default()))
+    Arc::new(Mutex::new(Transport {
+        bpm: 120.0,
+        tick_count: 0,
+        beat: 1,
+        bar: 1,
+        is_playing: false,
+    }))
 }
 
-/// Simple CLI demonstration
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-pub struct Args {
-    /// List available MIDI devices
-    #[arg(long)]
-    pub device_list: bool,
-
-    /// Bind to specific MIDI device
-    #[arg(long)]
-    pub bind_to_device: Option<String>,
-}
-
-/// Handle listing of MIDI devices
-///
-/// Uses the default MIDI engine implementation to list available MIDI devices.
 pub fn handle_device_list() -> Vec<String> {
-    if let Ok(engine) = DefaultMidiEngine::new(None) {
-        engine.list_devices()
-    } else {
-        Vec::new()
+    match DefaultMidiEngine::new(None) {
+        Ok(engine) => engine.list_devices(),
+        Err(_) => vec!["No MIDI devices found".to_string()],
     }
 }
