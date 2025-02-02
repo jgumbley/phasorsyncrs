@@ -4,7 +4,7 @@ use phasorsyncrs::{
     create_scheduler, create_shared_state, handle_device_list,
     midi::{run_external_clock, DefaultMidiEngine},
     transport::run_timing_simulation,
-    ui::{create_progress_bar, run_loading_simulation, run_state_inspector},
+    ui::run_state_inspector,
     Scheduler,
 };
 use std::{thread, time::Duration};
@@ -72,10 +72,6 @@ fn main() {
             }
         }
     } else {
-        // Show a fancy progress bar
-        let pb = create_progress_bar();
-        run_loading_simulation(&pb);
-
         // Create shared state
         let shared_state = create_shared_state();
 
