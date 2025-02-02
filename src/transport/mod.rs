@@ -3,26 +3,57 @@ use std::{thread, time::Duration};
 
 pub const TICKS_PER_BEAT: u32 = 24; // MIDI standard PPQ
 
+#[derive(Debug)]
+pub struct Transport {
+    pub bpm: f32,
+    pub tick_count: u32,
+    pub beat: u32,
+    pub bar: u32,
+    pub is_playing: bool,
+}
+
+impl Default for Transport {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Transport {
+    pub fn new() -> Self {
+        Self {
+            bpm: 120.0,
+            tick_count: 0,
+            beat: 1,
+            bar: 1,
+            is_playing: false,
+        }
+    }
+
+    pub fn tick(&mut self) {
+        if !self.is_playing {
+            self.is_playing = true;
+        }
+
+        self.tick_count += 1;
+
+        // Update beat and bar
+        if self.tick_count % TICKS_PER_BEAT == 0 {
+            self.beat += 1;
+            if self.beat > 4 {
+                // Assuming 4/4 time signature
+                self.beat = 1;
+                self.bar += 1;
+            }
+        }
+    }
+}
+
 pub fn run_timing_simulation(state: SharedState) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         loop {
             {
                 let mut transport = state.lock().unwrap();
-                if !transport.is_playing {
-                    transport.is_playing = true;
-                }
-
-                transport.tick_count += 1;
-
-                // Update beat and bar
-                if transport.tick_count % TICKS_PER_BEAT == 0 {
-                    transport.beat += 1;
-                    if transport.beat > 4 {
-                        // Assuming 4/4 time signature
-                        transport.beat = 1;
-                        transport.bar += 1;
-                    }
-                }
+                transport.tick();
             }
 
             // Sleep for duration based on BPM
