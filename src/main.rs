@@ -2,8 +2,8 @@ use clap::Parser;
 use phasorsyncrs::{
     cli::{validate_device, Args},
     create_scheduler, create_shared_state, handle_device_list,
-    midi::DefaultMidiEngine,
-    transport::{run_midi_input, run_timing_simulation},
+    midi::{run_external_clock, DefaultMidiEngine},
+    transport::run_timing_simulation,
     ui::{create_progress_bar, run_loading_simulation, run_state_inspector},
     Scheduler,
 };
@@ -44,17 +44,11 @@ fn main() {
                 // Create shared state
                 let shared_state = create_shared_state();
 
-                // Start the MIDI input thread
-                let midi_state = shared_state.clone();
+                // Start the external clock thread
+                let clock_state = shared_state.clone();
                 let midi_engine = engine;
                 scheduler.spawn(move || {
-                    run_midi_input(midi_engine, midi_state);
-                });
-
-                // Start the timing simulation thread
-                let timing_state = shared_state.clone();
-                scheduler.spawn(move || {
-                    run_timing_simulation(timing_state);
+                    run_external_clock(midi_engine, clock_state);
                 });
 
                 // Start the inspector thread

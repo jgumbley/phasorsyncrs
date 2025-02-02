@@ -2,6 +2,7 @@
 
 mod clock;
 mod engine;
+mod external_clock;
 pub mod midir_engine;
 #[cfg(feature = "test-mock")]
 pub mod mock_engine;
@@ -11,6 +12,9 @@ pub use engine::{MidiEngine, MidiMessage, Result};
 
 // Re-export clock types
 pub use clock::{BpmCalculator, ClockGenerator, ClockMessage};
+
+// Re-export external clock
+pub use external_clock::{run_external_clock, ExternalClock};
 
 // Re-export midir implementation
 pub use midir_engine::MidirEngine;

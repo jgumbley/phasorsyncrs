@@ -49,6 +49,7 @@ impl MockMidiEngine {
 
 // Mock implementation for testing
 struct MockMidiEngine {
+    #[allow(dead_code)]
     devices: Vec<String>,
 }
 

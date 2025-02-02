@@ -2,18 +2,7 @@
 
 ## Urgent Priority
 
-### 2. MIDI Abstraction Layer Missing (ADR01/ADR02)
-**Files:** src/main.rs, src/midi/midir_engine.rs  
-**Instructions:**
-- Create `src/midi/mod.rs` with:
-  ```rust
-  pub trait MidiEngine: Send {
-      fn send(&amp;mut self, msg: MidiMessage) -> Result<(), MidiError>;
-      fn recv(&amp;self) -> Result<MidiMessage, MidiError>;
-  }
-  ```
-- Update MidirEngine to implement trait
-- Remove direct MidirEngine references from main.rs
+
 
 ## High Priority
 
