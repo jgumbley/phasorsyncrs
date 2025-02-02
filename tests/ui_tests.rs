@@ -2,7 +2,6 @@ use phasorsyncrs::ui::{
     create_bar_progress, create_beat_progress, create_transport_spinner, run_state_inspector,
 };
 use phasorsyncrs::{create_shared_state, midi::run_internal_clock};
-use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
