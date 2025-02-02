@@ -19,12 +19,11 @@ pub fn init_logger() -> Result<(), std::io::Error> {
         .append(true)
         .open(log_dir.join("app.log"))?;
 
-    CombinedLogger::init(vec![WriteLogger::new(
-        LevelFilter::Info,
-        Config::default(),
-        log_file,
-    )])
-    .expect("Failed to initialize logger");
+    // Create config with module path logging enabled
+    let config = Config::default();
+
+    CombinedLogger::init(vec![WriteLogger::new(LevelFilter::Debug, config, log_file)])
+        .expect("Failed to initialize logger");
 
     Ok(())
 }

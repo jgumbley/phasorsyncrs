@@ -7,6 +7,45 @@ use std::thread;
 use std::time::Duration;
 
 #[test]
+fn test_system_message_parsing() {
+    use phasorsyncrs::midi::midir_engine::MidirEngine;
+
+    // Test MIDI Clock message (0xF8)
+    let clock_msg = vec![0xF8];
+    let parsed = MidirEngine::parse_midi_message(&clock_msg);
+    assert_eq!(parsed, Some(MidiMessage::Clock));
+
+    // Test other system messages
+    let start_msg = vec![0xFA];
+    let stop_msg = vec![0xFC];
+    let continue_msg = vec![0xFB];
+
+    assert_eq!(
+        MidirEngine::parse_midi_message(&start_msg),
+        Some(MidiMessage::Start)
+    );
+    assert_eq!(
+        MidirEngine::parse_midi_message(&stop_msg),
+        Some(MidiMessage::Stop)
+    );
+    assert_eq!(
+        MidirEngine::parse_midi_message(&continue_msg),
+        Some(MidiMessage::Continue)
+    );
+
+    // Verify channel messages still work
+    let note_on_msg = vec![0x90, 60, 100]; // Note On, channel 0, note 60, velocity 100
+    assert_eq!(
+        MidirEngine::parse_midi_message(&note_on_msg),
+        Some(MidiMessage::NoteOn {
+            channel: 0,
+            note: 60,
+            velocity: 100
+        })
+    );
+}
+
+#[test]
 fn test_midi_message_equality() {
     // Test MidiMessage enum equality comparisons
     assert_eq!(
