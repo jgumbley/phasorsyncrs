@@ -1,10 +1,11 @@
 use clap::Parser;
 use phasorsyncrs::{
     cli::{validate_device, Args},
-    create_shared_state, handle_device_list,
+    create_scheduler, create_shared_state, handle_device_list,
     midi::MidirEngine,
     transport::{run_midi_input, run_timing_simulation},
     ui::{create_progress_bar, run_loading_simulation, run_state_inspector},
+    Scheduler,
 };
 use std::{thread, time::Duration};
 
@@ -32,6 +33,9 @@ fn main() {
         }
     }
 
+    // Create scheduler for thread management
+    let scheduler = create_scheduler();
+
     // Initialize MIDI engine if device binding is requested
     if let Some(device_name) = &args.bind_to_device {
         match MidirEngine::new(Some(device_name.clone())) {
@@ -42,15 +46,22 @@ fn main() {
 
                 // Start the MIDI input thread
                 let midi_state = shared_state.clone();
-                run_midi_input(engine, midi_state);
+                let midi_engine = engine;
+                scheduler.spawn(move || {
+                    run_midi_input(midi_engine, midi_state);
+                });
 
                 // Start the timing simulation thread
                 let timing_state = shared_state.clone();
-                run_timing_simulation(timing_state);
+                scheduler.spawn(move || {
+                    run_timing_simulation(timing_state);
+                });
 
                 // Start the inspector thread
-                let inspector_state = shared_state.clone();
-                run_state_inspector(inspector_state);
+                let inspector_state = shared_state;
+                scheduler.spawn(move || {
+                    run_state_inspector(inspector_state);
+                });
             }
             Err(e) => {
                 eprintln!("Error connecting to MIDI device: {}", e);
@@ -67,11 +78,15 @@ fn main() {
 
         // Start the timing simulation thread
         let timing_state = shared_state.clone();
-        run_timing_simulation(timing_state);
+        scheduler.spawn(move || {
+            run_timing_simulation(timing_state);
+        });
 
         // Start the inspector thread
-        let inspector_state = shared_state.clone();
-        run_state_inspector(inspector_state);
+        let inspector_state = shared_state;
+        scheduler.spawn(move || {
+            run_state_inspector(inspector_state);
+        });
     }
 
     // Keep the main thread running

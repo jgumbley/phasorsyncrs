@@ -29,6 +29,22 @@ impl Transport {
         }
     }
 
+    pub fn set_tempo(&mut self, bpm: f32) {
+        self.bpm = bpm;
+    }
+
+    pub fn tempo(&self) -> f32 {
+        self.bpm
+    }
+
+    pub fn set_playing(&mut self, playing: bool) {
+        self.is_playing = playing;
+    }
+
+    pub fn is_playing(&self) -> bool {
+        self.is_playing
+    }
+
     pub fn tick(&mut self) {
         if !self.is_playing {
             self.is_playing = true;
