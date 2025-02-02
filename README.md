@@ -1,171 +1,94 @@
 # PhasorSyncRS
 
 [![Rust](https://img.shields.io/badge/rust-1.75+-blue.svg)](https://www.rust-lang.org/)
-
 [![License](https://img.shields.io/badge/license-MIT-orange)](LICENSE)
 
-A real-time MIDI sequencer engine written in Rust, focusing on immutability and temporal precision.
+Real-time MIDI sequencer engine with external clock synchronization and transport state management.
 
-## Key Features
+## Key Features ▶️
 
-- **Event-driven architecture** with precise timing control
+- **External MIDI Clock Sync** - Slave mode synchronization (src/midi/external_clock.rs)
+- **Transport State Management** - Play/stop/position tracking (src/transport/mod.rs)
+- **Mock MIDI Backends** - Testable with `--features test-mock` (src/midi/mock_engine.rs)
+- **Scheduler Core** - Tick-driven event queue (src/scheduler.rs)
+- **CLI Interface** - Interactive transport control (src/cli/mod.rs)
 
-- **Immutable data structures** for thread-safe pattern manipulation
-
-- **Modular design** supporting multiple MIDI transport backends
-
-- **Extensible pattern mutation** system with DSL support
-
-# PhasorSyncRS Product Vision
-
-## Core Objective
-
-Deliver a foundational Rust implementation enabling bidirectional MIDI communication with extensible architecture to support future speculative features including:
-
-- Real-time music theory analysis
-
-- Neurofeedback integration
-
-- Non-linear time representation
-
-- Quantum computing interfaces
-
-## Architectural Principles
-
-1. **Modular Design**
-
-- Decoupled MIDI I/O layer
-
-- Plugin architecture for processing modules
-
-- Event-driven core system
-
-2. **Extensibility First**
-
-- Clean separation between stable interfaces and experimental implementations
-
-- Semantic versioning from initial release
-
-- Comprehensive API documentation
-
-3. **Cross-Domain Foundation**
-
-- Temporal representation system supporting both linear and non-linear models
-
-- Abstract music theory constructs independent of Western notation
-
-- Hardware abstraction layer for MIDI devices
-
-## First Release Requirements
-
-- ✅ Full MIDI 1.0 spec compliance
-
-- ✅ Round-trip verification with 3+ device types
-
-- ✅ Benchmark: <2ms latency on Raspberry Pi 4
-
-- ✅ Extensible event pipeline architecture
-
-- ✅ CI/CD foundation with hardware-in-loop testing
-
-## Dependencies
-
-- **Rustup (for managing Rust toolchain)**
-
-- **Cargo (Rust's package manager and build tool)**
-
-- **Rustfmt (for code formatting)**
-
-- **Clippy (for linter checks)**
-
-To install these tools, follow the instructions at [official Rustup installation guide](https://rustup.rs/).
-
-After installing rustup, you can install the necessary components by running:
-
-rustup component add rustfmt clippy
-
-This will ensure that rustfmt and clippy are available for use.
-
-Then, to initialize the project, run:
-
-cargo init
-
-And to use the Makefile, you can run commands like:
-
-make build
-
-make test
-
-make check
-
-make fmt
-
-make clippy
-
-make doc
-
-## Getting Started
-
-### Prerequisites
-
-- Rust 1.75+ (using [rustup](https://rustup.rs/))
-
-- MIDI-capable hardware or virtual port
-
-### Basic Usage
+## Quick Start 🚀
 
 ```bash
-
-cargo add phasorsyncrs --features rtmidi
-
+# Clone and build
+git clone https://github.com/yourorg/phasorsyncrs.git
+cd phasorsyncrs
+make setup  # Installs rustfmt/clippy
+make run-release --features=rtmidi
 ```
 
-### Basic Usage
+## Code Structure 🗂️
+
+```
+src/
+├── midi/              # MIDI I/O implementations
+│   ├── external_clock.rs - Clock synchronization logic
+│   └── mock_engine.rs    - Test mock implementation
+├── transport/         # Transport state machine
+│   └── mod.rs         - Play/stop/position tracking
+├── ui/                # Status display interfaces
+│   └── mod.rs         - Transport visualization
+└── scheduler.rs       - Core timing engine
+
+tests/
+└── midi_tests.rs      - MIDI I/O validation tests
+```
+
+## Development Flow ⚙️
+
+```bash
+# Test with mock MIDI (no hardware required)
+make test-watch --features=test-mock
+
+# Generate API docs
+make docs
+
+# Run release build with diagnostics
+RUST_LOG=debug make run-release
+```
+
+## Architectural Guidance 🏛️
+
+Key design decisions documented in ADRs:
+
+- [ADR02: MIDI Library Selection](docs/adr/adr02_midi_library_selection.md)
+- [ADR03: Concurrency Model](docs/adr/adr03_structure_concurrency_and_instantiation.md)
+- [Developer Workflow](docs/developer-workflow.md)
+
+## Testing Patterns 🧪
+
+Example from midi_tests.rs:
 
 ```rust
-
-use phasorsyncrs::prelude::*;
-
-fn main() -> Result<(), Box<dyn Error>> {
-
-let mut engine = SequencerEngine::new()
-
-.with_transport(RtMidiTransport::default())?
-
-.with_bpm(120);
-
-engine.load_pattern(Pattern::acid_line())?;
-
-engine.run()?;
-
-Ok(())
-
+#[test]
+fn external_clock_sync() {
+    let mock = MockEngine::new();
+    let mut clock = ExternalClock::new(mock.clone());
+    
+    // Simulate MIDI clock messages
+    mock.send(ClockMessage::Start);
+    assert_eq!(clock.state(), TransportState::Playing);
 }
-
 ```
 
-## Core Concepts
+## Configuration ⚙️
 
-### Temporal Architecture
+Environment variables for development:
 
-- **Tick-driven scheduler** with sub-millisecond resolution
+```bash
+# Enable debug logging
+export RUST_LOG=debug
 
-- **Atomic timing** synchronization using hardware clocks
+# Force mock MIDI backend
+export PHASORSYNC_MIDI_BACKEND=mock
+```
 
-- **Event buffering** with priority queue implementation
+## License 📄
 
-### Pattern System
-
-- **Immutable event sequences** using Arc-based sharing
-
-- **Markov mutation** engine with runtime-configurable rules
-
-- **Polyphonic voice management** with channel allocation
-
-## Development Status
-
-⚠️ Early Alpha - Core sequencing functionality implemented. API subject to change.
-
-## License
-
-MIT License - See [LICENSE](LICENSE) for details
+MIT - See [LICENSE](LICENSE) for details

@@ -155,9 +155,3 @@ struct MarkovMutation {
 1. Establish realtime requirements (Linux RT kernel vs userspace)
 2. Define MIDI recovery policy thresholds
 3. Finalize mutation rule DSL format
-
-## Testing
-To test the prototype:
-
-```bash
-cargo run --features rtmidi --example sync-playback
