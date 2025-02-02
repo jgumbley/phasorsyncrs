@@ -18,6 +18,12 @@ pub fn handle_device_list() -> Vec<String> {
 }
 
 pub fn validate_device(device_name: &str, devices: &[String]) -> Result<(), String> {
+    if device_name.trim().is_empty() {
+        return Err(format!(
+            "Error: Device '{}' not found in available devices:\n",
+            device_name
+        ));
+    }
     if !devices.iter().any(|d| d.contains(device_name)) {
         let mut error_msg = format!(
             "Error: Device '{}' not found in available devices:\n",

@@ -7,9 +7,15 @@ use std::sync::{
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
+/// Trait for handling MIDI clock messages
+pub trait ClockMessageHandler: Send + Sync {
+    fn handle_message(&self, msg: ClockMessage) -> Option<f64>;
+}
+
 /// Generates MIDI clock messages at a fixed BPM
 pub struct ClockGenerator {
     bpm_calculator: Arc<BpmCalculator>,
+    handlers: Vec<Arc<dyn ClockMessageHandler>>,
     running: Arc<AtomicBool>,
     thread_handle: Option<JoinHandle<()>>,
 }
@@ -19,9 +25,15 @@ impl ClockGenerator {
     pub fn new(bpm_calculator: BpmCalculator) -> Self {
         Self {
             bpm_calculator: Arc::new(bpm_calculator),
+            handlers: Vec::new(),
             running: Arc::new(AtomicBool::new(false)),
             thread_handle: None,
         }
+    }
+
+    /// Add a message handler
+    pub fn add_handler(&mut self, handler: Arc<dyn ClockMessageHandler>) {
+        self.handlers.push(handler);
     }
 
     /// Starts the clock at 120 BPM
@@ -32,8 +44,12 @@ impl ClockGenerator {
 
         // Send start message before spawning thread
         self.bpm_calculator.process_message(ClockMessage::Start);
+        for handler in &self.handlers {
+            handler.handle_message(ClockMessage::Start);
+        }
 
         let bpm_calculator = Arc::clone(&self.bpm_calculator);
+        let handlers = self.handlers.clone();
         let running = Arc::clone(&self.running);
 
         self.running.store(true, Ordering::SeqCst);
@@ -45,8 +61,11 @@ impl ClockGenerator {
             while running.load(Ordering::SeqCst) {
                 let tick_start = Instant::now();
 
-                // Send tick message
+                // Send tick message to all handlers
                 bpm_calculator.process_message(ClockMessage::Tick);
+                for handler in &handlers {
+                    handler.handle_message(ClockMessage::Tick);
+                }
 
                 // Calculate sleep duration to maintain precise timing
                 let elapsed = tick_start.elapsed();
@@ -75,6 +94,7 @@ impl ClockGenerator {
 
     /// Returns whether the clock is currently playing
     pub fn is_playing(&self) -> bool {
+        // Consider the clock playing if it was started, even if the thread is stopped
         self.bpm_calculator.is_playing()
     }
 }
@@ -108,6 +128,12 @@ struct BpmState {
 impl Default for BpmCalculator {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl ClockMessageHandler for BpmCalculator {
+    fn handle_message(&self, msg: ClockMessage) -> Option<f64> {
+        self.process_message(msg)
     }
 }
 
@@ -158,11 +184,15 @@ impl BpmCalculator {
                 let now = Instant::now();
                 if let Some(last_time) = state.last_tick_time {
                     let interval = now.duration_since(last_time);
-                    state.intervals.push(interval);
 
-                    // Keep only the most recent intervals within our window
-                    if state.intervals.len() > self.window_size {
-                        state.intervals.remove(0);
+                    // Only include reasonable intervals (filter out extreme values)
+                    if interval.as_micros() > 1000 && interval.as_micros() < 100_000 {
+                        state.intervals.push(interval);
+
+                        // Keep only the most recent intervals within our window
+                        while state.intervals.len() > self.window_size {
+                            state.intervals.remove(0);
+                        }
                     }
                 }
 
@@ -171,8 +201,16 @@ impl BpmCalculator {
 
                 // Need at least a few intervals to calculate meaningful BPM
                 if state.intervals.len() >= 3 {
+                    // Sort intervals and take the median section to avoid outliers
+                    let mut intervals = state.intervals.clone();
+                    intervals.sort_by_key(|d| d.as_nanos());
+
+                    let start_idx = intervals.len() / 4;
+                    let end_idx = (intervals.len() * 3) / 4;
+                    let median_intervals = &intervals[start_idx..end_idx];
+
                     let avg_interval: Duration =
-                        state.intervals.iter().sum::<Duration>() / state.intervals.len() as u32;
+                        median_intervals.iter().sum::<Duration>() / median_intervals.len() as u32;
                     let ticks_per_minute = 60.0 / avg_interval.as_secs_f64();
                     Some(ticks_per_minute / self.ppq as f64)
                 } else {

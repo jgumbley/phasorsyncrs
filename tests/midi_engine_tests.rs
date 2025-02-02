@@ -1,7 +1,8 @@
 #![cfg(feature = "test-mock")]
 
-use phasorsyncrs::midi::{run_external_clock, MidiEngine, MidiMessage};
+use phasorsyncrs::midi::{run_external_clock, MidiEngine, MidiError, MidiMessage};
 use phasorsyncrs::state::TransportState;
+use std::error::Error;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -78,6 +79,63 @@ fn test_midi_message_equality() {
             velocity: 100
         }
     );
+
+    // Test control change messages
+    assert_eq!(
+        MidiMessage::ControlChange {
+            channel: 0,
+            controller: 7,
+            value: 100
+        },
+        MidiMessage::ControlChange {
+            channel: 0,
+            controller: 7,
+            value: 100
+        }
+    );
+
+    // Test program change messages
+    assert_eq!(
+        MidiMessage::ProgramChange {
+            channel: 0,
+            program: 42
+        },
+        MidiMessage::ProgramChange {
+            channel: 0,
+            program: 42
+        }
+    );
+}
+
+#[test]
+fn test_midi_error_display() {
+    let send_error = MidiError::SendError("Failed to send".to_string());
+    let recv_error = MidiError::RecvError("Failed to receive".to_string());
+    let conn_error = MidiError::ConnectionError("Failed to connect".to_string());
+
+    assert_eq!(send_error.to_string(), "MIDI send error: Failed to send");
+    assert_eq!(
+        recv_error.to_string(),
+        "MIDI receive error: Failed to receive"
+    );
+    assert_eq!(
+        conn_error.to_string(),
+        "MIDI connection error: Failed to connect"
+    );
+}
+
+#[test]
+fn test_midi_error_debug() {
+    let error = MidiError::SendError("test error".to_string());
+    let debug_str = format!("{:?}", error);
+    assert!(debug_str.contains("SendError"));
+    assert!(debug_str.contains("test error"));
+}
+
+#[test]
+fn test_midi_error_as_error() {
+    let error = MidiError::SendError("test error".to_string());
+    let _: &dyn Error = &error; // Verify it implements Error trait
 }
 
 // Mock implementation for testing
@@ -105,18 +163,33 @@ impl MockMidiEngine {
             should_timeout: true,
         }
     }
+
+    fn with_error() -> Self {
+        Self {
+            devices: vec![],
+            should_timeout: false,
+        }
+    }
 }
 
 impl MidiEngine for MockMidiEngine {
     fn send(&mut self, _msg: MidiMessage) -> phasorsyncrs::midi::Result<()> {
-        Ok(())
+        if self.devices.is_empty() {
+            Err(MidiError::SendError("No devices available".to_string()))
+        } else {
+            Ok(())
+        }
     }
 
     fn recv(&self) -> phasorsyncrs::midi::Result<MidiMessage> {
         if self.should_timeout {
             thread::sleep(Duration::from_secs(6)); // Sleep longer than the timeout
         }
-        Ok(MidiMessage::Clock)
+        if self.devices.is_empty() {
+            Err(MidiError::RecvError("No devices available".to_string()))
+        } else {
+            Ok(MidiMessage::Clock)
+        }
     }
 }
 
@@ -145,6 +218,29 @@ fn test_mock_midi_engine() {
 }
 
 #[test]
+fn test_midi_engine_errors() {
+    let mut engine = MockMidiEngine::with_error();
+
+    // Test send error
+    let send_result = engine.send(MidiMessage::Clock);
+    assert!(send_result.is_err());
+    if let Err(MidiError::SendError(msg)) = send_result {
+        assert_eq!(msg, "No devices available");
+    } else {
+        panic!("Expected SendError");
+    }
+
+    // Test receive error
+    let recv_result = engine.recv();
+    assert!(recv_result.is_err());
+    if let Err(MidiError::RecvError(msg)) = recv_result {
+        assert_eq!(msg, "No devices available");
+    } else {
+        panic!("Expected RecvError");
+    }
+}
+
+#[test]
 #[ignore = "slow test: involves timeout waiting"]
 fn test_external_clock_timeout() {
     let shared_state = Arc::new(Mutex::new(TransportState::new()));
@@ -152,7 +248,7 @@ fn test_external_clock_timeout() {
 
     // Set initial playing state to true
     {
-        let mut transport = shared_state.lock().unwrap();
+        let transport = shared_state.lock().unwrap();
         transport.set_playing(true);
     }
 
@@ -170,4 +266,23 @@ fn test_external_clock_timeout() {
     assert!(!transport.is_playing());
 
     handle.join().unwrap();
+}
+
+#[test]
+fn test_midi_message_clone() {
+    let msg = MidiMessage::NoteOn {
+        channel: 0,
+        note: 60,
+        velocity: 100,
+    };
+    let cloned = msg.clone();
+    assert_eq!(msg, cloned);
+
+    let msg = MidiMessage::ControlChange {
+        channel: 0,
+        controller: 7,
+        value: 100,
+    };
+    let cloned = msg.clone();
+    assert_eq!(msg, cloned);
 }

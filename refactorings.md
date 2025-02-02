@@ -1,40 +1,5 @@
 # PhasorSyncRS Architectural Refactorings
 
-## Urgent Priority
-
-
-
-## High Priority
-
-### 3. Shared State Management (ADR03 Violation)
-**Files:** src/main.rs, src/lib.rs  
-**Instructions:**
-- Implement atomic reference counting instead of mutex cloning
-- Create state module with:
-  ```rust
-  pub struct TransportState {
-      bpm: AtomicF64,
-      tick_count: AtomicU64,
-      // ... other fields
-  }
-  ```
-
-### 4. Test Coverage Required (ADR01)
-**Files:** All production modules  
-**Instructions:**
-- Add unit tests adjacent to each module:
-  ```rust
-  #[cfg(test)]
-  mod tests {
-      use super::*;
-      
-      #[test]
-      fn transport_ticks_correctly() {
-          // Test tick increments
-      }
-  }
-  ```
-- Create `tests/integration/` directory for hardware tests
 
 ## Medium Priority
 

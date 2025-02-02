@@ -1,10 +1,40 @@
-use phasorsyncrs::midi::{BpmCalculator, ClockGenerator, ClockMessage};
+use phasorsyncrs::midi::{
+    BpmCalculator, ClockGenerator, ClockMessage, ClockMessageHandler, InternalClock,
+};
+use phasorsyncrs::state::TransportState;
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc, Mutex,
+};
 use std::thread;
 use std::time::Duration;
 
 // Increased tolerance to account for system timing variations
 const BPM_TOLERANCE: f64 = 5.0;
 const TEMPO_CHANGE_TOLERANCE: f64 = 8.0;
+
+// Mock handler for testing multiple handlers
+struct MockHandler {
+    received_messages: Arc<Mutex<Vec<ClockMessage>>>,
+    message_count: Arc<AtomicUsize>,
+}
+
+impl MockHandler {
+    fn new() -> Self {
+        Self {
+            received_messages: Arc::new(Mutex::new(Vec::new())),
+            message_count: Arc::new(AtomicUsize::new(0)),
+        }
+    }
+}
+
+impl ClockMessageHandler for MockHandler {
+    fn handle_message(&self, msg: ClockMessage) -> Option<f64> {
+        self.message_count.fetch_add(1, Ordering::SeqCst);
+        self.received_messages.lock().unwrap().push(msg.clone());
+        None
+    }
+}
 
 #[test]
 fn test_bpm_calculator_start_stop() {
@@ -212,8 +242,6 @@ fn test_clock_generator() {
 #[test]
 fn test_external_transport_state() {
     use phasorsyncrs::midi::{ExternalClock, MidiMessage};
-    use phasorsyncrs::state::TransportState;
-    use std::sync::{Arc, Mutex};
 
     let shared_state = Arc::new(Mutex::new(TransportState::new()));
     let mut clock = ExternalClock::new(shared_state.clone());
@@ -262,4 +290,159 @@ fn test_external_transport_state() {
             "Transport should be playing after Continue"
         );
     }
+}
+
+#[test]
+fn test_internal_clock() {
+    let shared_state = Arc::new(Mutex::new(TransportState::new()));
+    let mut clock = InternalClock::new(shared_state.clone());
+
+    // Initially stopped
+    assert!(!clock.is_playing());
+
+    // Start the clock
+    clock.start();
+    assert!(clock.is_playing());
+
+    // Let it run briefly to stabilize
+    thread::sleep(Duration::from_millis(500));
+
+    // Check BPM (should be default 120)
+    if let Some(bpm) = clock.current_bpm() {
+        assert!(
+            (bpm - 120.0).abs() < BPM_TOLERANCE,
+            "Expected ~120 BPM, got {}",
+            bpm
+        );
+    } else {
+        panic!("Expected BPM calculation, got None");
+    }
+
+    // Verify transport state is in sync
+    {
+        let transport = shared_state.lock().unwrap();
+        assert!(transport.is_playing(), "Transport should be playing");
+        assert!(
+            (transport.tempo() - 120.0).abs() < BPM_TOLERANCE,
+            "Transport tempo should match clock BPM"
+        );
+    }
+
+    // Stop the clock
+    clock.stop();
+    assert!(!clock.is_playing());
+
+    // Verify transport state stopped
+    {
+        let transport = shared_state.lock().unwrap();
+        assert!(!transport.is_playing(), "Transport should be stopped");
+    }
+}
+
+#[test]
+fn test_multiple_handlers() {
+    let calc = BpmCalculator::new();
+    let mut generator = ClockGenerator::new(calc);
+
+    // Create multiple mock handlers
+    let handler1 = Arc::new(MockHandler::new());
+    let handler2 = Arc::new(MockHandler::new());
+
+    // Add handlers to generator
+    generator.add_handler(handler1.clone());
+    generator.add_handler(handler2.clone());
+
+    // Start the generator
+    generator.start();
+
+    // Let it run briefly
+    thread::sleep(Duration::from_millis(100));
+
+    // Stop the generator
+    generator.stop();
+
+    // Verify both handlers received messages
+    assert!(handler1.message_count.load(Ordering::SeqCst) > 0);
+    assert!(handler2.message_count.load(Ordering::SeqCst) > 0);
+
+    // Verify handlers received Start message
+    let messages1 = handler1.received_messages.lock().unwrap();
+    let messages2 = handler2.received_messages.lock().unwrap();
+
+    assert!(messages1.contains(&ClockMessage::Start));
+    assert!(messages2.contains(&ClockMessage::Start));
+}
+
+#[test]
+fn test_bpm_calculator_thread_safety() {
+    let calc = Arc::new(BpmCalculator::new());
+    calc.process_message(ClockMessage::Start);
+
+    // Single thread for sending ticks at 120 BPM
+    let tick_calc = calc.clone();
+    let tick_thread = thread::spawn(move || {
+        for _ in 0..100 {
+            tick_calc.process_message(ClockMessage::Tick);
+            thread::sleep(Duration::from_micros(20_833)); // 120 BPM timing
+        }
+    });
+
+    // Multiple threads for reading BPM
+    let mut read_handles = vec![];
+    for _ in 0..4 {
+        let read_calc = calc.clone();
+        read_handles.push(thread::spawn(move || {
+            for _ in 0..25 {
+                let _ = read_calc.process_message(ClockMessage::Tick);
+                thread::sleep(Duration::from_millis(10));
+            }
+        }));
+    }
+
+    // Wait for tick thread to complete
+    tick_thread.join().unwrap();
+
+    // Wait for read threads
+    for handle in read_handles {
+        handle.join().unwrap();
+    }
+
+    // Let the timing stabilize
+    thread::sleep(Duration::from_millis(50));
+
+    // Verify we can still get a reasonable BPM reading
+    if let Some(bpm) = calc.process_message(ClockMessage::Tick) {
+        assert!(
+            (bpm - 120.0).abs() < TEMPO_CHANGE_TOLERANCE,
+            "Expected ~120 BPM after concurrent access, got {}",
+            bpm
+        );
+    }
+}
+
+#[test]
+fn test_clock_generator_restart() {
+    let calc = BpmCalculator::new();
+    let mut generator = ClockGenerator::new(calc);
+    let handler = Arc::new(MockHandler::new());
+    generator.add_handler(handler.clone());
+
+    // First start
+    generator.start();
+    thread::sleep(Duration::from_millis(100));
+    generator.stop();
+
+    let first_count = handler.message_count.load(Ordering::SeqCst);
+    assert!(first_count > 0);
+
+    // Second start
+    generator.start();
+    thread::sleep(Duration::from_millis(100));
+    generator.stop();
+
+    let second_count = handler.message_count.load(Ordering::SeqCst);
+    assert!(
+        second_count > first_count,
+        "Should receive more messages after restart"
+    );
 }

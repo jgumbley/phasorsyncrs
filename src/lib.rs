@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 pub mod cli;
+pub mod logging;
 pub mod midi;
 pub mod scheduler;
 pub mod state;
