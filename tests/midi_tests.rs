@@ -212,10 +212,10 @@ fn test_clock_generator() {
 #[test]
 fn test_external_transport_state() {
     use phasorsyncrs::midi::{ExternalClock, MidiMessage};
-    use phasorsyncrs::transport::Transport;
+    use phasorsyncrs::state::TransportState;
     use std::sync::{Arc, Mutex};
 
-    let shared_state = Arc::new(Mutex::new(Transport::new()));
+    let shared_state = Arc::new(Mutex::new(TransportState::new()));
     let mut clock = ExternalClock::new(shared_state.clone());
 
     // Start playback

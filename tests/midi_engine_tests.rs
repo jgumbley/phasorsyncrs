@@ -1,7 +1,7 @@
 #![cfg(feature = "test-mock")]
 
 use phasorsyncrs::midi::{run_external_clock, MidiEngine, MidiMessage};
-use phasorsyncrs::transport::Transport;
+use phasorsyncrs::state::TransportState;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -147,7 +147,7 @@ fn test_mock_midi_engine() {
 #[test]
 #[ignore = "slow test: involves timeout waiting"]
 fn test_external_clock_timeout() {
-    let shared_state = Arc::new(Mutex::new(Transport::new()));
+    let shared_state = Arc::new(Mutex::new(TransportState::new()));
     let engine = MockMidiEngine::with_timeout();
 
     // Set initial playing state to true

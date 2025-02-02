@@ -39,41 +39,48 @@ impl ExternalClock {
             // Handle transport state changes immediately
             match clock_msg {
                 ClockMessage::Start => {
-                    let mut transport = self.shared_state.lock().unwrap();
-                    transport.set_playing(true);
-                    info!("External MIDI clock started playback");
+                    if let Ok(transport) = self.shared_state.lock() {
+                        transport.set_playing(true);
+                        info!("External MIDI clock started playback");
+                    }
                 }
                 ClockMessage::Stop => {
-                    let mut transport = self.shared_state.lock().unwrap();
-                    transport.set_playing(false);
-                    info!("External MIDI clock stopped playback");
+                    if let Ok(transport) = self.shared_state.lock() {
+                        transport.set_playing(false);
+                        info!("External MIDI clock stopped playback");
+                    }
                 }
                 ClockMessage::Continue => {
-                    let mut transport = self.shared_state.lock().unwrap();
-                    transport.set_playing(true);
-                    info!("External MIDI clock resumed playback");
+                    if let Ok(transport) = self.shared_state.lock() {
+                        transport.set_playing(true);
+                        info!("External MIDI clock resumed playback");
+                    }
                 }
                 _ => {}
             }
 
             // Update BPM calculator and handle ticks
             if let Some(bpm) = self.bpm_calculator.process_message(clock_msg.clone()) {
-                let mut transport = self.shared_state.lock().unwrap();
-                transport.set_tempo(bpm as f32);
-
-                if let ClockMessage::Tick = clock_msg {
-                    transport.tick();
+                if let Ok(mut transport) = self.shared_state.lock() {
+                    transport.set_tempo(bpm);
+                    info!("External MIDI clock tempo updated to {} BPM", bpm);
                 }
 
-                info!("External MIDI clock tempo updated to {} BPM", bpm);
+                // Handle tick in a separate lock to minimize lock contention
+                if let ClockMessage::Tick = clock_msg {
+                    if let Ok(transport) = self.shared_state.lock() {
+                        transport.tick();
+                    }
+                }
             }
         }
     }
 
     fn check_connection_status(&self) -> bool {
         if self.last_message_time.elapsed() > INACTIVITY_TIMEOUT {
-            let mut transport = self.shared_state.lock().unwrap();
-            transport.set_playing(false);
+            if let Ok(transport) = self.shared_state.lock() {
+                transport.set_playing(false);
+            }
             error!(
                 "External MIDI clock connection timeout - no messages received for {:?}. Last message was received at {:?}",
                 INACTIVITY_TIMEOUT,

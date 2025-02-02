@@ -75,6 +75,11 @@ fn main() {
         // Create shared state
         let shared_state = create_shared_state();
 
+        // Set initial playing state to true in local mode
+        if let Ok(state) = shared_state.lock() {
+            state.set_playing(true);
+        }
+
         // Start the timing simulation thread
         let timing_state = shared_state.clone();
         scheduler.spawn(move || {

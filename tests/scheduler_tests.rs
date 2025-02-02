@@ -47,7 +47,7 @@ mod tests {
 
         let state2 = shared_state.clone();
         scheduler.spawn(move || {
-            let mut transport = state2.lock().unwrap();
+            let transport = state2.lock().unwrap();
             transport.set_playing(true);
             task_count_clone.store(true, Ordering::SeqCst);
         });
