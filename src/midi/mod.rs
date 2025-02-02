@@ -2,9 +2,9 @@
 
 mod clock;
 mod engine;
-mod midir_engine;
+pub mod midir_engine;
 #[cfg(feature = "test-mock")]
-mod mock_engine;
+pub mod mock_engine;
 
 // Re-export engine types
 pub use engine::{MidiEngine, MidiMessage, Result};

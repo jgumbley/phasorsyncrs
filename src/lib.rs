@@ -4,7 +4,7 @@ pub mod scheduler;
 pub mod transport;
 pub mod ui;
 
-use midi::{DefaultMidiEngine, MidiEngine};
+use midi::DefaultMidiEngine;
 use scheduler::ThreadScheduler;
 use std::sync::{Arc, Mutex};
 use transport::Transport;
@@ -24,8 +24,5 @@ pub fn create_scheduler() -> ThreadScheduler {
 }
 
 pub fn handle_device_list() -> Vec<String> {
-    match DefaultMidiEngine::new(None) {
-        Ok(engine) => engine.list_devices(),
-        Err(_) => vec!["No MIDI devices found".to_string()],
-    }
+    DefaultMidiEngine::list_devices()
 }

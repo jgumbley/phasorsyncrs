@@ -35,12 +35,11 @@ fn test_midi_message_equality() {
     );
 }
 
-// Mock implementation for testing
-struct MockMidiEngine {
-    devices: Vec<String>,
-}
-
 impl MockMidiEngine {
+    pub fn list_devices() -> Vec<String> {
+        vec!["Mock Device 1".to_string(), "Mock Device 2".to_string()]
+    }
+
     fn new() -> Self {
         Self {
             devices: vec!["Mock Device 1".to_string(), "Mock Device 2".to_string()],
@@ -48,17 +47,18 @@ impl MockMidiEngine {
     }
 }
 
+// Mock implementation for testing
+struct MockMidiEngine {
+    devices: Vec<String>,
+}
+
 impl MidiEngine for MockMidiEngine {
     fn send(&mut self, _msg: MidiMessage) -> phasorsyncrs::midi::Result<()> {
         Ok(())
     }
 
-    fn recv(&mut self) -> phasorsyncrs::midi::Result<MidiMessage> {
+    fn recv(&self) -> phasorsyncrs::midi::Result<MidiMessage> {
         Ok(MidiMessage::Clock)
-    }
-
-    fn list_devices(&self) -> Vec<String> {
-        self.devices.clone()
     }
 }
 
@@ -67,7 +67,7 @@ fn test_mock_midi_engine() {
     let mut engine = MockMidiEngine::new();
 
     // Test device listing
-    let devices = engine.list_devices();
+    let devices = MockMidiEngine::list_devices();
     assert_eq!(devices.len(), 2);
     assert_eq!(devices[0], "Mock Device 1");
     assert_eq!(devices[1], "Mock Device 2");

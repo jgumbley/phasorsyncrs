@@ -2,7 +2,7 @@ use clap::Parser;
 use phasorsyncrs::{
     cli::{validate_device, Args},
     create_scheduler, create_shared_state, handle_device_list,
-    midi::MidirEngine,
+    midi::DefaultMidiEngine,
     transport::{run_midi_input, run_timing_simulation},
     ui::{create_progress_bar, run_loading_simulation, run_state_inspector},
     Scheduler,
@@ -38,7 +38,7 @@ fn main() {
 
     // Initialize MIDI engine if device binding is requested
     if let Some(device_name) = &args.bind_to_device {
-        match MidirEngine::new(Some(device_name.clone())) {
+        match DefaultMidiEngine::new(Some(device_name.clone())) {
             Ok(engine) => {
                 println!("Successfully connected to MIDI device: {}", device_name);
                 // Create shared state

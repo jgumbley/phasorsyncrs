@@ -79,12 +79,10 @@ pub fn run_timing_simulation(state: SharedState) -> thread::JoinHandle<()> {
     })
 }
 
-pub fn run_midi_input(
-    mut engine: crate::midi::MidirEngine,
-    _state: SharedState,
-) -> thread::JoinHandle<()> {
-    use crate::midi::MidiEngine;
-
+pub fn run_midi_input<T>(engine: T, _state: SharedState) -> thread::JoinHandle<()>
+where
+    T: crate::midi::MidiEngine + Send + 'static,
+{
     thread::spawn(move || {
         println!("MIDI input thread started");
         loop {

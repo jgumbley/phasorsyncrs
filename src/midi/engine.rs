@@ -29,13 +29,10 @@ pub enum MidiMessage {
 pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 /// Trait defining the interface for MIDI engine implementations
-pub trait MidiEngine {
+pub trait MidiEngine: Send {
     /// Sends a MIDI message to the device
     fn send(&mut self, msg: MidiMessage) -> Result<()>;
 
     /// Receives a MIDI message from the device
-    fn recv(&mut self) -> Result<MidiMessage>;
-
-    /// Lists available MIDI devices
-    fn list_devices(&self) -> Vec<String>;
+    fn recv(&self) -> Result<MidiMessage>;
 }

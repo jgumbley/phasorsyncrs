@@ -2,21 +2,6 @@
 
 ## Urgent Priority
 
-### 1. Modularize Main Executable (ADR01 Violation)
-**File:** src/main.rs  
-**Instructions:**
-- Extract core functionality into dedicated modules:
-  - `src/cli/`: Move argument parsing and device listing
-  - `src/transport/`: Timing simulation and state management
-  - `src/ui/`: Progress bar and state inspection
-- Convert `run_timing_simulation` to `Transport` struct with `tick()` method
-- Implement `Scheduler` trait for thread management:
-  ```rust
-  pub trait Scheduler {
-      fn spawn<F>(&amp;self, f: F) where F: FnOnce() + Send + 'static;
-  }
-  ```
-
 ### 2. MIDI Abstraction Layer Missing (ADR01/ADR02)
 **Files:** src/main.rs, src/midi/midir_engine.rs  
 **Instructions:**

@@ -13,11 +13,13 @@ impl MidiEngine for MockMidiEngine {
         Ok(())
     }
 
-    fn recv(&mut self) -> Result<MidiMessage> {
+    fn recv(&self) -> Result<MidiMessage> {
         Ok(MidiMessage::Clock)
     }
+}
 
-    fn list_devices(&self) -> Vec<String> {
+impl MockMidiEngine {
+    pub fn list_devices() -> Vec<String> {
         vec!["Mock Device 1".to_string(), "Mock Device 2".to_string()]
     }
 }

@@ -1,12 +1,13 @@
 use crate::midi::{MidiEngine, MidiMessage, Result};
 use midir::{Ignore, MidiInput, MidiInputConnection, MidiOutput, MidiOutputConnection};
 use std::sync::mpsc::{channel, Receiver};
+use std::sync::{Arc, Mutex};
 
 pub struct MidirEngine {
     #[allow(dead_code)]
     input: Option<MidiInputConnection<()>>,
     output: Option<MidiOutputConnection>,
-    rx: Option<Receiver<Vec<u8>>>,
+    rx: Option<Arc<Mutex<Receiver<Vec<u8>>>>>,
 }
 
 impl MidirEngine {
@@ -32,7 +33,7 @@ impl MidirEngine {
                 },
                 (),
             )?;
-            (Some(input), Some(rx))
+            (Some(input), Some(Arc::new(Mutex::new(rx))))
         } else {
             (None, None)
         };
@@ -114,31 +115,9 @@ impl MidirEngine {
             MidiMessage::Continue => vec![0xFB],
         }
     }
-}
 
-impl MidiEngine for MidirEngine {
-    fn send(&mut self, msg: MidiMessage) -> Result<()> {
-        if let Some(output) = &mut self.output {
-            let bytes = Self::message_to_bytes(&msg);
-            output.send(&bytes)?;
-        }
-        Ok(())
-    }
-
-    fn recv(&mut self) -> Result<MidiMessage> {
-        if let Some(rx) = &self.rx {
-            let data = rx.recv()?;
-            if let Some(msg) = Self::parse_midi_message(&data) {
-                Ok(msg)
-            } else {
-                Err("Invalid MIDI message".into())
-            }
-        } else {
-            Err("No input connection".into())
-        }
-    }
-
-    fn list_devices(&self) -> Vec<String> {
+    /// Lists available MIDI devices
+    pub fn list_devices() -> Vec<String> {
         let mut devices = Vec::new();
 
         if let Ok(midi_in) = MidiInput::new("phasorsyncrs-list") {
@@ -151,5 +130,29 @@ impl MidiEngine for MidirEngine {
         }
 
         devices
+    }
+}
+
+impl MidiEngine for MidirEngine {
+    fn send(&mut self, msg: MidiMessage) -> Result<()> {
+        if let Some(output) = &mut self.output {
+            let bytes = Self::message_to_bytes(&msg);
+            output.send(&bytes)?;
+        }
+        Ok(())
+    }
+
+    fn recv(&self) -> Result<MidiMessage> {
+        if let Some(rx) = &self.rx {
+            let rx_guard = rx.lock().map_err(|_| "Failed to lock receiver")?;
+            let data = rx_guard.recv()?;
+            if let Some(msg) = Self::parse_midi_message(&data) {
+                Ok(msg)
+            } else {
+                Err("Invalid MIDI message".into())
+            }
+        } else {
+            Err("No input connection".into())
+        }
     }
 }
