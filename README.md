@@ -17,10 +17,9 @@ Real-time MIDI sequencer engine with external clock synchronization and transpor
 
 ```bash
 # Clone and build
-git clone https://github.com/yourorg/phasorsyncrs.git
+git clone https://github.com/jgumbley/phasorsyncrs
 cd phasorsyncrs
-make setup  # Installs rustfmt/clippy
-make run-release --features=rtmidi
+make run
 ```
 
 ## Code Structure 🗂️
@@ -44,13 +43,10 @@ tests/
 
 ```bash
 # Test with mock MIDI (no hardware required)
-make test-watch --features=test-mock
+make run
 
-# Generate API docs
-make docs
-
-# Run release build with diagnostics
-RUST_LOG=debug make run-release
+# Run bound onto ext device (config in makefile)
+make run-oxi
 ```
 
 ## Architectural Guidance 🏛️
@@ -60,34 +56,6 @@ Key design decisions documented in ADRs:
 - [ADR02: MIDI Library Selection](docs/adr/adr02_midi_library_selection.md)
 - [ADR03: Concurrency Model](docs/adr/adr03_structure_concurrency_and_instantiation.md)
 - [Developer Workflow](docs/developer-workflow.md)
-
-## Testing Patterns 🧪
-
-Example from midi_tests.rs:
-
-```rust
-#[test]
-fn external_clock_sync() {
-    let mock = MockEngine::new();
-    let mut clock = ExternalClock::new(mock.clone());
-    
-    // Simulate MIDI clock messages
-    mock.send(ClockMessage::Start);
-    assert_eq!(clock.state(), TransportState::Playing);
-}
-```
-
-## Configuration ⚙️
-
-Environment variables for development:
-
-```bash
-# Enable debug logging
-export RUST_LOG=debug
-
-# Force mock MIDI backend
-export PHASORSYNC_MIDI_BACKEND=mock
-```
 
 ## License 📄
 
