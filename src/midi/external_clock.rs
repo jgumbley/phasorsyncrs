@@ -1,11 +1,16 @@
 use super::clock::{BpmCalculator, ClockMessage};
 use crate::midi::{MidiEngine, MidiMessage};
 use crate::SharedState;
+use log::{error, info};
 use std::sync::Arc;
+use std::time::{Duration, Instant};
+
+const INACTIVITY_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub struct ExternalClock {
     bpm_calculator: Arc<BpmCalculator>,
     shared_state: SharedState,
+    last_message_time: Instant,
 }
 
 impl ExternalClock {
@@ -13,10 +18,13 @@ impl ExternalClock {
         Self {
             bpm_calculator: Arc::new(BpmCalculator::new()),
             shared_state,
+            last_message_time: Instant::now(),
         }
     }
 
-    pub fn handle_midi_message(&self, msg: MidiMessage) {
+    pub fn handle_midi_message(&mut self, msg: MidiMessage) {
+        self.last_message_time = Instant::now();
+
         // Convert MIDI message to clock message
         let clock_msg = match msg {
             MidiMessage::Clock => Some(ClockMessage::Tick),
@@ -36,11 +44,34 @@ impl ExternalClock {
 
                 match clock_msg {
                     ClockMessage::Tick => transport.tick(),
-                    ClockMessage::Start => transport.set_playing(true),
-                    ClockMessage::Stop => transport.set_playing(false),
-                    ClockMessage::Continue => transport.set_playing(true),
+                    ClockMessage::Start => {
+                        transport.set_playing(true);
+                        info!("External MIDI clock started playback");
+                    }
+                    ClockMessage::Stop => {
+                        transport.set_playing(false);
+                        info!("External MIDI clock stopped playback");
+                    }
+                    ClockMessage::Continue => {
+                        transport.set_playing(true);
+                        info!("External MIDI clock resumed playback");
+                    }
                 }
             }
+        }
+    }
+
+    fn check_connection_status(&self) -> bool {
+        if self.last_message_time.elapsed() > INACTIVITY_TIMEOUT {
+            let mut transport = self.shared_state.lock().unwrap();
+            transport.set_playing(false);
+            error!(
+                "External MIDI clock connection timeout - no messages received for {:?}",
+                INACTIVITY_TIMEOUT
+            );
+            false
+        } else {
+            true
         }
     }
 }
@@ -49,18 +80,49 @@ pub fn run_external_clock<T>(engine: T, shared_state: SharedState)
 where
     T: MidiEngine + Send + 'static,
 {
-    let clock = ExternalClock::new(shared_state);
+    let mut clock = ExternalClock::new(shared_state);
+    info!("External MIDI clock initialized and waiting for input");
 
-    println!("External MIDI clock started");
+    // Create a channel for the receiver thread
+    let (tx, rx) = std::sync::mpsc::channel();
+    let engine = std::sync::Arc::new(std::sync::Mutex::new(engine));
+    let engine_clone = engine.clone();
+
+    // Spawn a thread to handle receiving MIDI messages
+    std::thread::spawn(move || loop {
+        let recv_result = engine_clone.lock().unwrap().recv();
+        match recv_result {
+            Ok(msg) => {
+                if tx.send(msg).is_err() {
+                    break;
+                }
+            }
+            Err(_) => {
+                break;
+            }
+        }
+    });
+
     loop {
-        match engine.recv() {
+        if !clock.check_connection_status() {
+            break;
+        }
+
+        // Wait for a message with timeout
+        match rx.recv_timeout(Duration::from_secs(1)) {
             Ok(msg) => {
                 clock.handle_midi_message(msg);
             }
-            Err(e) => {
-                eprintln!("Error receiving MIDI message: {}", e);
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                // Timeout is handled by check_connection_status on next loop
+                continue;
+            }
+            Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
+                error!("MIDI message receiver thread disconnected");
                 break;
             }
         }
     }
+
+    info!("External MIDI clock stopped");
 }

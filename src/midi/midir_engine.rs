@@ -1,6 +1,6 @@
-use crate::midi::{MidiEngine, MidiMessage, Result};
+use crate::midi::{MidiEngine, MidiError, MidiMessage, Result};
 use midir::{Ignore, MidiInput, MidiInputConnection, MidiOutput, MidiOutputConnection};
-use std::sync::mpsc::{channel, Receiver};
+use std::sync::mpsc::{channel, Receiver, RecvError};
 use std::sync::{Arc, Mutex};
 
 pub struct MidirEngine {
@@ -14,7 +14,8 @@ impl MidirEngine {
     pub fn new(device_name: Option<String>) -> Result<Self> {
         let (input, rx) = if let Some(name) = &device_name {
             // Create and store midi_in instance
-            let mut midi_in = MidiInput::new("phasorsyncrs-in")?;
+            let mut midi_in = MidiInput::new("phasorsyncrs-in")
+                .map_err(|e| MidiError::ConnectionError(e.to_string()))?;
             midi_in.ignore(Ignore::None);
 
             // Find input port by name
@@ -22,17 +23,19 @@ impl MidirEngine {
             let in_port = in_ports
                 .iter()
                 .find(|p| midi_in.port_name(p).unwrap_or_default().contains(name))
-                .ok_or("Input device not found")?;
+                .ok_or_else(|| MidiError::ConnectionError("Input device not found".to_string()))?;
 
             let (tx, rx) = channel();
-            let input = midi_in.connect(
-                in_port,
-                "phasorsyncrs-input",
-                move |_stamp, message, _| {
-                    let _ = tx.send(message.to_vec());
-                },
-                (),
-            )?;
+            let input = midi_in
+                .connect(
+                    in_port,
+                    "phasorsyncrs-input",
+                    move |_stamp, message, _| {
+                        let _ = tx.send(message.to_vec());
+                    },
+                    (),
+                )
+                .map_err(|e| MidiError::ConnectionError(e.to_string()))?;
             (Some(input), Some(Arc::new(Mutex::new(rx))))
         } else {
             (None, None)
@@ -40,15 +43,20 @@ impl MidirEngine {
 
         let output = if let Some(name) = device_name {
             // Create and store midi_out instance
-            let midi_out = MidiOutput::new("phasorsyncrs-out")?;
+            let midi_out = MidiOutput::new("phasorsyncrs-out")
+                .map_err(|e| MidiError::ConnectionError(e.to_string()))?;
 
             // Find output port by name
             let out_ports = midi_out.ports();
             let out_port = out_ports
                 .iter()
                 .find(|p| midi_out.port_name(p).unwrap_or_default().contains(&name))
-                .ok_or("Output device not found")?;
-            Some(midi_out.connect(out_port, "phasorsyncrs-output")?)
+                .ok_or_else(|| MidiError::ConnectionError("Output device not found".to_string()))?;
+            Some(
+                midi_out
+                    .connect(out_port, "phasorsyncrs-output")
+                    .map_err(|e| MidiError::ConnectionError(e.to_string()))?,
+            )
         } else {
             None
         };
@@ -137,22 +145,26 @@ impl MidiEngine for MidirEngine {
     fn send(&mut self, msg: MidiMessage) -> Result<()> {
         if let Some(output) = &mut self.output {
             let bytes = Self::message_to_bytes(&msg);
-            output.send(&bytes)?;
+            output
+                .send(&bytes)
+                .map_err(|e| MidiError::SendError(e.to_string()))?;
         }
         Ok(())
     }
 
     fn recv(&self) -> Result<MidiMessage> {
         if let Some(rx) = &self.rx {
-            let rx_guard = rx.lock().map_err(|_| "Failed to lock receiver")?;
-            let data = rx_guard.recv()?;
+            let rx_guard = rx.lock().map_err(|e| MidiError::RecvError(e.to_string()))?;
+            let data = rx_guard
+                .recv()
+                .map_err(|e: RecvError| MidiError::RecvError(e.to_string()))?;
             if let Some(msg) = Self::parse_midi_message(&data) {
                 Ok(msg)
             } else {
-                Err("Invalid MIDI message".into())
+                Err(MidiError::RecvError("Invalid MIDI message".to_string()))
             }
         } else {
-            Err("No input connection".into())
+            Err(MidiError::RecvError("No input connection".to_string()))
         }
     }
 }

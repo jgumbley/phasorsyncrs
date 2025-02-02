@@ -6,7 +6,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc unittest lint clean list-devices followlog
+.PHONY: run build test check fmt clippy doc unittest slowtest lint clean list-devices followlog
 
 # Main targets
 run: build
@@ -23,10 +23,13 @@ build: lint test
 
 # Testing targets
 test: fmt unittest
-	$(CARGO) test --features test-mock
+	@echo "All tests complete (skipping slow running, run with slowtest)"
 
 unittest:
-	$(CARGO) test --features test-mock
+	$(CARGO) test --features test-mock -- --skip ignored
+
+slowtest:
+	$(CARGO) test --features test-mock -- --ignored
 
 # Code quality targets
 lint: fmt clippy

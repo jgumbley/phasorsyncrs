@@ -1,4 +1,28 @@
 use std::error::Error;
+use std::fmt;
+
+/// Custom error type for MIDI operations
+#[derive(Debug)]
+pub enum MidiError {
+    /// Error when sending a MIDI message
+    SendError(String),
+    /// Error when receiving a MIDI message
+    RecvError(String),
+    /// Error when connecting to a MIDI device
+    ConnectionError(String),
+}
+
+impl fmt::Display for MidiError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            MidiError::SendError(msg) => write!(f, "MIDI send error: {}", msg),
+            MidiError::RecvError(msg) => write!(f, "MIDI receive error: {}", msg),
+            MidiError::ConnectionError(msg) => write!(f, "MIDI connection error: {}", msg),
+        }
+    }
+}
+
+impl Error for MidiError {}
 
 /// Represents a MIDI message that can be sent or received
 #[derive(Debug, Clone, PartialEq)]
@@ -26,7 +50,7 @@ pub enum MidiMessage {
 }
 
 /// Result type for MIDI operations
-pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
+pub type Result<T> = std::result::Result<T, MidiError>;
 
 /// Trait defining the interface for MIDI engine implementations
 pub trait MidiEngine: Send {

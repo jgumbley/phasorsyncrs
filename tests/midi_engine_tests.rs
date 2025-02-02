@@ -1,4 +1,10 @@
-use phasorsyncrs::midi::{MidiEngine, MidiMessage};
+#![cfg(feature = "test-mock")]
+
+use phasorsyncrs::midi::{run_external_clock, MidiEngine, MidiMessage};
+use phasorsyncrs::transport::Transport;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 #[test]
 fn test_midi_message_equality() {
@@ -35,6 +41,13 @@ fn test_midi_message_equality() {
     );
 }
 
+// Mock implementation for testing
+struct MockMidiEngine {
+    #[allow(dead_code)]
+    devices: Vec<String>,
+    should_timeout: bool,
+}
+
 impl MockMidiEngine {
     pub fn list_devices() -> Vec<String> {
         vec!["Mock Device 1".to_string(), "Mock Device 2".to_string()]
@@ -43,14 +56,16 @@ impl MockMidiEngine {
     fn new() -> Self {
         Self {
             devices: vec!["Mock Device 1".to_string(), "Mock Device 2".to_string()],
+            should_timeout: false,
         }
     }
-}
 
-// Mock implementation for testing
-struct MockMidiEngine {
-    #[allow(dead_code)]
-    devices: Vec<String>,
+    fn with_timeout() -> Self {
+        Self {
+            devices: vec!["Mock Device 1".to_string(), "Mock Device 2".to_string()],
+            should_timeout: true,
+        }
+    }
 }
 
 impl MidiEngine for MockMidiEngine {
@@ -59,6 +74,9 @@ impl MidiEngine for MockMidiEngine {
     }
 
     fn recv(&self) -> phasorsyncrs::midi::Result<MidiMessage> {
+        if self.should_timeout {
+            thread::sleep(Duration::from_secs(6)); // Sleep longer than the timeout
+        }
         Ok(MidiMessage::Clock)
     }
 }
@@ -85,4 +103,32 @@ fn test_mock_midi_engine() {
     let result = engine.recv();
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), MidiMessage::Clock);
+}
+
+#[test]
+#[ignore = "slow test: involves timeout waiting"]
+fn test_external_clock_timeout() {
+    let shared_state = Arc::new(Mutex::new(Transport::new()));
+    let engine = MockMidiEngine::with_timeout();
+
+    // Set initial playing state to true
+    {
+        let mut transport = shared_state.lock().unwrap();
+        transport.set_playing(true);
+    }
+
+    // Run the external clock in a separate thread
+    let shared_state_clone = shared_state.clone();
+    let handle = thread::spawn(move || {
+        run_external_clock(engine, shared_state_clone);
+    });
+
+    // Wait for the timeout to occur
+    thread::sleep(Duration::from_secs(7));
+
+    // Verify the transport state was updated
+    let transport = shared_state.lock().unwrap();
+    assert!(!transport.is_playing());
+
+    handle.join().unwrap();
 }

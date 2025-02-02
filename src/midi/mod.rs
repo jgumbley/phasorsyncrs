@@ -8,7 +8,7 @@ pub mod midir_engine;
 pub mod mock_engine;
 
 // Re-export engine types
-pub use engine::{MidiEngine, MidiMessage, Result};
+pub use engine::{MidiEngine, MidiError, MidiMessage, Result};
 
 // Re-export clock types
 pub use clock::{BpmCalculator, ClockGenerator, ClockMessage};
