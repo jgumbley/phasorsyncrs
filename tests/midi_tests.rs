@@ -208,3 +208,58 @@ fn test_clock_generator() {
         panic!("Expected BPM calculation, got None");
     }
 }
+
+#[test]
+fn test_external_transport_state() {
+    use phasorsyncrs::midi::{ExternalClock, MidiMessage};
+    use phasorsyncrs::transport::Transport;
+    use std::sync::{Arc, Mutex};
+
+    let shared_state = Arc::new(Mutex::new(Transport::new()));
+    let mut clock = ExternalClock::new(shared_state.clone());
+
+    // Start playback
+    clock.handle_midi_message(MidiMessage::Start);
+    {
+        let transport = shared_state.lock().unwrap();
+        assert!(
+            transport.is_playing(),
+            "Transport should be playing after Start"
+        );
+    }
+
+    // Send some clock ticks
+    for _ in 0..24 {
+        clock.handle_midi_message(MidiMessage::Clock);
+    }
+
+    // Stop playback
+    clock.handle_midi_message(MidiMessage::Stop);
+    {
+        let transport = shared_state.lock().unwrap();
+        assert!(
+            !transport.is_playing(),
+            "Transport should be stopped after Stop"
+        );
+    }
+
+    // Send more clock ticks while stopped - should not affect playing state
+    for _ in 0..24 {
+        clock.handle_midi_message(MidiMessage::Clock);
+        let transport = shared_state.lock().unwrap();
+        assert!(
+            !transport.is_playing(),
+            "Transport should remain stopped when receiving ticks while stopped"
+        );
+    }
+
+    // Continue playback
+    clock.handle_midi_message(MidiMessage::Continue);
+    {
+        let transport = shared_state.lock().unwrap();
+        assert!(
+            transport.is_playing(),
+            "Transport should be playing after Continue"
+        );
+    }
+}

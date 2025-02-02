@@ -46,8 +46,9 @@ impl Transport {
     }
 
     pub fn tick(&mut self) {
+        // Only process ticks if we're playing
         if !self.is_playing {
-            self.is_playing = true;
+            return;
         }
 
         self.tick_count += 1;

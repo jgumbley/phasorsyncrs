@@ -36,27 +36,36 @@ impl ExternalClock {
 
         // Process clock message if applicable
         if let Some(clock_msg) = clock_msg {
-            // Update BPM calculator
+            // Handle transport state changes immediately
+            match clock_msg {
+                ClockMessage::Start => {
+                    let mut transport = self.shared_state.lock().unwrap();
+                    transport.set_playing(true);
+                    info!("External MIDI clock started playback");
+                }
+                ClockMessage::Stop => {
+                    let mut transport = self.shared_state.lock().unwrap();
+                    transport.set_playing(false);
+                    info!("External MIDI clock stopped playback");
+                }
+                ClockMessage::Continue => {
+                    let mut transport = self.shared_state.lock().unwrap();
+                    transport.set_playing(true);
+                    info!("External MIDI clock resumed playback");
+                }
+                _ => {}
+            }
+
+            // Update BPM calculator and handle ticks
             if let Some(bpm) = self.bpm_calculator.process_message(clock_msg.clone()) {
-                // Update transport state with new BPM and timing info
                 let mut transport = self.shared_state.lock().unwrap();
                 transport.set_tempo(bpm as f32);
 
-                match clock_msg {
-                    ClockMessage::Tick => transport.tick(),
-                    ClockMessage::Start => {
-                        transport.set_playing(true);
-                        info!("External MIDI clock started playback at {} BPM", bpm);
-                    }
-                    ClockMessage::Stop => {
-                        transport.set_playing(false);
-                        info!("External MIDI clock stopped playback");
-                    }
-                    ClockMessage::Continue => {
-                        transport.set_playing(true);
-                        info!("External MIDI clock resumed playback at {} BPM", bpm);
-                    }
+                if let ClockMessage::Tick = clock_msg {
+                    transport.tick();
                 }
+
+                info!("External MIDI clock tempo updated to {} BPM", bpm);
             }
         }
     }
