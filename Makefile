@@ -6,7 +6,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc unittest lint clean list-devices
+.PHONY: run build test check fmt clippy doc unittest lint clean list-devices followlog
 
 # Main targets
 run: build
@@ -43,6 +43,10 @@ clippy:
 
 doc:
 	$(CARGO) doc
+
+# Logging
+followlog:
+	tail -f $(HOME)/.local/share/phasorsyncrs/logs/app.log | ack --passthru WARNING
 
 # Cleanup
 clean:

@@ -8,8 +8,13 @@ use phasorsyncrs::{
     Scheduler,
 };
 use std::{thread, time::Duration};
+mod logging;
 
 fn main() {
+    // Initialize logging
+    logging::init_logger().expect("Logger initialization failed");
+    log::info!("Application starting");
+
     // Parse command line arguments
     let args = Args::parse();
 
@@ -28,6 +33,7 @@ fn main() {
     // Validate device if specified
     if let Some(device_name) = &args.bind_to_device {
         if let Err(error_msg) = validate_device(device_name, &devices) {
+            log::error!("{}", error_msg);
             eprintln!("{}", error_msg);
             std::process::exit(1);
         }
@@ -40,6 +46,7 @@ fn main() {
     if let Some(device_name) = &args.bind_to_device {
         match DefaultMidiEngine::new(Some(device_name.clone())) {
             Ok(engine) => {
+                log::info!("Successfully connected to MIDI device: {}", device_name);
                 println!("Successfully connected to MIDI device: {}", device_name);
                 // Create shared state
                 let shared_state = create_shared_state();
@@ -58,7 +65,9 @@ fn main() {
                 });
             }
             Err(e) => {
-                eprintln!("Error connecting to MIDI device: {}", e);
+                let error_msg = format!("Error connecting to MIDI device: {}", e);
+                log::error!("{}", error_msg);
+                eprintln!("{}", error_msg);
                 std::process::exit(1);
             }
         }
@@ -84,6 +93,7 @@ fn main() {
     }
 
     // Keep the main thread running
+    log::info!("Application running. Press Ctrl+C to exit...");
     println!("\nPress Ctrl+C to exit...");
     loop {
         thread::sleep(Duration::from_secs(1));
