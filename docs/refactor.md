@@ -1,147 +1,80 @@
-# MIDI Clock Subsystem Refactor Recommendations
+# MIDI Clock Subsystem Refactor (Revised Minimal Plan)
 
-## Current Structural Issues
-1. **Duplicated Transport Logic**
-- Internal clock (`internal_clock.rs`) contains direct transport state management
-- External clock (`external_clock.rs`) duplicates similar transport handling
-- Both implement `MidiClock` trait but with different state management paths
-
-2. **Divergent Message Processing**
-- Internal: Generates ClockMessages via thread
-- External: Converts MIDI messages to ClockMessages
-- Common processing logic not shared between implementations
-
-3. **Trait Implementation Inconsistencies**
-- `handle_message` used differently between implementations
-- BPM calculation responsibilities split between components
-
-## Proposed Restructuring
-
-### 1. Unified Message Processing Core
+## Current Progress Status
+✅ Completed Core Structure:
 ```rust
-// src/midi/clock/core.rs
-pub struct ClockCore {
-    bpm_calculator: BpmCalculator,
-    transport_handler: Arc<TransportHandler>,
-    message_converter: Arc<dyn MessageConverter>,
+src/midi/clock/core.rs
+src/midi/clock/mod.rs
+```
+
+🚧 Remaining Critical Path:
+1. Remove duplicate transport logic from:
+   - `src/midi/internal_clock.rs` (lines 45-78)
+   - `src/midi/external_clock.rs` (lines 32-65)
+2. Centralize BPM calculation in `ClockCore`
+
+## Revised Implementation Steps
+
+### Phase 1a: Transport Handler Finalization (1-2 hours)
+```rust
+// Remove from internal_clock.rs
+- fn handle_transport_message(&mut self, msg: ClockMessage) {
+-     // Duplicated logic
+- }
+
+// Remove from external_clock.rs  
+- fn process_transport_state(&mut self) {
+-     // Duplicated logic
+- }
+```
+
+### Phase 1b: BPM Unification (2-3 hours)
+```rust
+// In core.rs
+pub fn calculate_bpm(&mut self) -> Option<f64> {
+    // Consolidated calculation
 }
 
-impl ClockCore {
-    pub fn process_message(&mut self, raw_msg: impl MessageType) {
-        let clock_msg = self.message_converter.convert(raw_msg);
-        self.transport_handler.handle(clock_msg.clone());
-        self.bpm_calculator.process(clock_msg);
+// Remove from:
+- internal_clock.rs: calculate_timing()
+- external_clock.rs: estimate_external_bpm()
+```
+
+### Phase 2: Safe Trait Migration
+```rust
+// Transitional implementation
+trait LegacyMidiClock {
+    // Existing interface
+}
+
+impl LegacyMidiClock for InternalClock {
+    // Delegate to ClockCore
+    fn is_playing(&self) -> bool {
+        self.core.lock().unwrap().is_playing()
     }
 }
 ```
 
-### 2. Generic Message Source Abstraction
-```rust
-// src/midi/clock/source.rs
-pub trait ClockSource {
-    type Message;
-    
-    fn start(&mut self, core: Arc<Mutex<ClockCore>>);
-    fn stop(&mut self);
-    fn message_stream(&mut self) -> impl Stream<Item = Self::Message>;
-}
+## Validation Protocol
+1. Run after each phase:
+```bash
+cargo test --test midi_engine_tests
+cargo test --test scheduler_tests
 ```
 
-### 3. Implement for Both Clock Types
-```rust
-// Internal clock would use:
-struct ThreadedGeneratorSource {
-    generator: ClockGenerator,
-    // Contains message generation thread
-}
-
-// External clock would use: 
-struct MidiInputSource<T: MidiEngine> {
-    engine: T,
-    // Contains MIDI input listening thread
-}
+2. Manual verification steps:
+```bash
+# Start internal clock
+cargo run -- internal-clock --bpm 120
+# Send external MIDI clock messages
+midi-send clock-start
 ```
 
-### 4. Revised Trait Hierarchy
-```mermaid
-classDiagram
-    class MidiClock {
-        <<interface>>
-        +start()
-        +stop()
-        +is_playing() bool
-        +current_bpm() Option~f64~
-    }
-    
-    class ClockCore {
-        -bpm_calculator: BpmCalculator
-        -transport_handler
-        +process_message()
-    }
-    
-    class ClockSource {
-        <<interface>>
-        +start()
-        +stop()
-        +message_stream()
-    }
-    
-    MidiClock <|-- InternalClock
-    MidiClock <|-- ExternalClock
-    ClockSource <|.. ThreadedGeneratorSource
-    ClockSource <|.. MidiInputSource
-    ClockCore *-- MidiClock
+## Rollback Plan
+Revert to tag `pre-clock-refactor` if tests fail:
+```bash
+git checkout pre-clock-refactor -- src/midi/clock/
 ```
 
-## Implementation Strategy
-
-1. **Phase 1: Core Abstraction (Completed)**
-- Create `clock/core` module with shared processing logic [x]
-- Extract common transport handling from both implementations [x]
-- Implement unified BPM calculation flow [x]
-
-2. **Phase 2: Source Implementation**
-```rust
-// Internal clock would become:
-struct InternalClock {
-    core: Arc<Mutex<ClockCore>>,
-    source: ThreadedGeneratorSource,
-}
-
-// External clock would become:
-struct ExternalClock<T: MidiEngine> {
-    core: Arc<Mutex<ClockCore>>,
-    source: MidiInputSource<T>,
-}
-```
-
-3. **Phase 3: Trait Unification**
-- Remove duplicate method implementations from both clocks
-- Move common trait defaults to `ClockCore` 
-- Specialize only where absolutely necessary
-
-## Benefits
-1. **Reduced Code Duplication**
-- Transport state handling reduced by ~70%
-- BPM calculation logic centralized
-
-2. **Consistent Behavior**
-- Same message processing pipeline for both clock types
-- Identical transport state transitions
-
-3. **Improved Testability**
-- Core logic can be tested independently
-- Mock message sources easily implemented
-
-4. **Future Extensibility**
-- New clock types can be added with minimal code
-- Message processing pipeline modifications affect all implementations
-
-## Migration Checklist
-- [x] Create `clock/core` module with shared types
-- [ ] Extract common transport handler from both implementations
-- [ ] Implement unified BPM calculation flow
-- [ ] Implement ClockSource trait for both input types
-- [ ] Refactor MidiClock trait methods to use core
-- [ ] Update thread spawning logic to use generic sources
-- [ ] Validate through MIDI engine test suite
+## Estimated Completion
+3-4 hours of focused work vs original 2-day estimate
