@@ -2,8 +2,7 @@ use clap::Parser;
 use phasorsyncrs::{
     cli::{validate_device, Args},
     create_scheduler, create_shared_state, handle_device_list,
-    midi::{run_external_clock, DefaultMidiEngine},
-    transport::run_timing_simulation,
+    midi::{run_external_clock, DefaultMidiEngine, InternalEngine},
     Scheduler, SharedState,
 };
 use std::{thread, time::Duration};
@@ -92,9 +91,8 @@ fn initialize_local_mode<T: Scheduler>(scheduler: &T, shared_state: &SharedState
     }
 
     let timing_state = shared_state.clone();
-    scheduler.spawn(move || {
-        run_timing_simulation(timing_state);
-    });
+    let engine = InternalEngine::new(timing_state);
+    let _tick_thread = engine.start_tick_generator(120.0);
 
     scheduler.spawn_state_inspector(shared_state);
 }

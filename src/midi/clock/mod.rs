@@ -1,11 +1,7 @@
 //! MIDI clock and BPM calculation functionality
 pub mod core;
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use std::thread::{self, JoinHandle};
+use crate::midi::MidiMessage;
 use std::time::{Duration, Instant};
 
 /// Represents different types of MIDI clock messages
@@ -16,6 +12,18 @@ pub enum ClockMessage {
     Start,
     Stop,
     Continue,
+}
+
+impl From<MidiMessage> for ClockMessage {
+    fn from(msg: MidiMessage) -> Self {
+        match msg {
+            MidiMessage::Clock => ClockMessage::Tick,
+            MidiMessage::Start => ClockMessage::Start,
+            MidiMessage::Stop => ClockMessage::Stop,
+            MidiMessage::Continue => ClockMessage::Continue,
+            _ => ClockMessage::Tick, // Default for other MIDI messages
+        }
+    }
 }
 
 /// Trait for handling MIDI clock messages
@@ -155,92 +163,5 @@ impl BpmCalculator {
         while state.intervals.len() > self.window_size {
             state.intervals.remove(0);
         }
-    }
-}
-
-/// Generates MIDI clock messages at a fixed BPM
-pub struct ClockGenerator {
-    bpm_calculator: Arc<BpmCalculator>,
-    handlers: Vec<Arc<dyn ClockMessageHandler>>,
-    running: Arc<AtomicBool>,
-    thread_handle: Option<JoinHandle<()>>,
-}
-
-impl ClockGenerator {
-    /// Creates a new clock generator that will send messages to the provided BpmCalculator
-    pub fn new(bpm_calculator: Arc<BpmCalculator>) -> Self {
-        Self {
-            bpm_calculator,
-            handlers: Vec::new(),
-            running: Arc::new(AtomicBool::new(false)),
-            thread_handle: None,
-        }
-    }
-
-    /// Add a message handler
-    pub fn add_handler(&mut self, handler: Arc<dyn ClockMessageHandler>) {
-        self.handlers.push(handler);
-    }
-
-    /// Starts the clock at 120 BPM
-    pub fn start(&mut self) {
-        if self.thread_handle.is_some() {
-            return; // Already running
-        }
-
-        // Send start message before spawning thread
-        self.bpm_calculator.process_message(ClockMessage::Start);
-        for handler in &self.handlers {
-            handler.handle_message(ClockMessage::Start);
-        }
-
-        let bpm_calculator = Arc::clone(&self.bpm_calculator);
-        let handlers = self.handlers.clone();
-        let running = Arc::clone(&self.running);
-
-        self.running.store(true, Ordering::SeqCst);
-
-        self.thread_handle = Some(thread::spawn(move || {
-            // Calculate tick interval: (60 seconds / 120 BPM) / 24 ticks per beat
-            let tick_interval = Duration::from_micros(20_833); // 20.833ms per tick at 120 BPM
-
-            while running.load(Ordering::SeqCst) {
-                let tick_start = Instant::now();
-
-                // Send tick message to all handlers
-                bpm_calculator.process_message(ClockMessage::Tick);
-                for handler in &handlers {
-                    handler.handle_message(ClockMessage::Tick);
-                }
-
-                // Calculate sleep duration to maintain precise timing
-                let elapsed = tick_start.elapsed();
-                if elapsed < tick_interval {
-                    thread::sleep(tick_interval - elapsed);
-                }
-            }
-        }));
-    }
-
-    /// Stops the clock thread but maintains the playing state
-    pub fn stop(&mut self) {
-        // Set running to false to stop the thread
-        self.running.store(false, Ordering::SeqCst);
-
-        // Wait for thread to finish
-        if let Some(handle) = self.thread_handle.take() {
-            let _ = handle.join();
-        }
-    }
-
-    /// Returns the current BPM if available
-    pub fn current_bpm(&self) -> Option<f64> {
-        self.bpm_calculator.current_bpm()
-    }
-
-    /// Returns whether the clock is currently playing
-    pub fn is_playing(&self) -> bool {
-        // Consider the clock playing if it was started, even if the thread is stopped
-        self.bpm_calculator.is_playing()
     }
 }

@@ -1,7 +1,6 @@
-//! Transport and timing functionality
+//! Transport functionality
 //!
-//! This module handles the transport and timing aspects of PhasorSync, including:
-//! - MIDI timing simulation
+//! This module handles the transport aspects of PhasorSync, including:
 //! - MIDI input processing
 //! - Transport state management
 //!
@@ -9,7 +8,8 @@
 //! for timing resolution.
 
 mod input;
-mod timing;
 
 pub use input::run_midi_input;
-pub use timing::{run_timing_simulation, TICKS_PER_BEAT};
+
+// MIDI standard timing resolution
+pub const TICKS_PER_BEAT: u32 = 24;

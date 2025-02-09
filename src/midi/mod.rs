@@ -10,12 +10,13 @@
 //! - [`MidiEngine`] trait for sending and receiving MIDI messages
 //! - [`MidirEngine`] for real MIDI device communication
 //! - [`MockMidiEngine`] for testing
-//! - [`ClockGenerator`] and [`BpmCalculator`] for MIDI timing
+//! - [`BpmCalculator`] for MIDI timing
 //!
 mod clock;
 mod engine;
 mod external_clock;
 mod internal_clock;
+mod internal_engine;
 pub mod midir_engine; // Make the module public
 pub mod mock_engine; // Make the module public
 
@@ -23,11 +24,12 @@ pub mod mock_engine; // Make the module public
 pub use engine::{MidiEngine, MidiError, MidiMessage, Result};
 
 // Re-export concrete implementations
+pub use internal_engine::InternalEngine;
 pub use midir_engine::MidirEngine;
 pub use mock_engine::MockMidiEngine;
 
 // Re-export clock functionality
-pub use clock::{BpmCalculator, ClockGenerator, ClockMessage, ClockMessageHandler};
+pub use clock::{BpmCalculator, ClockMessage, ClockMessageHandler};
 
 // Re-export internal clock functionality
 pub use internal_clock::InternalClock;

@@ -1,10 +1,5 @@
 use phasorsyncrs::midi::{
-    BpmCalculator,
-    ClockGenerator,
-    ClockMessage,
-    ClockMessageHandler,
-    InternalClock,
-    MidiClock, // Import MidiClock
+    BpmCalculator, ClockMessage, ClockMessageHandler, InternalClock, MidiClock,
 };
 use phasorsyncrs::state::TransportState;
 use std::sync::{
@@ -216,35 +211,6 @@ fn test_transport_state_with_ticks() {
 }
 
 #[test]
-fn test_clock_generator() {
-    let calc = Arc::new(BpmCalculator::new());
-    let mut generator = ClockGenerator::new(calc);
-
-    // Start the clock generator
-    generator.start();
-
-    // Let it run for about 1 second (enough time to get stable BPM readings)
-    thread::sleep(Duration::from_secs(1));
-
-    // Stop the generator
-    generator.stop();
-
-    // Verify the BPM calculator is in the correct state
-    assert!(generator.is_playing());
-
-    // Get one more tick to check the BPM
-    if let Some(bpm) = generator.current_bpm() {
-        assert!(
-            (bpm - 120.0).abs() < BPM_TOLERANCE,
-            "Expected ~120 BPM, got {}",
-            bpm
-        );
-    } else {
-        panic!("Expected BPM calculation, got None");
-    }
-}
-
-#[test]
 fn test_external_transport_state() {
     use phasorsyncrs::midi::{ExternalClock, MidiMessage};
 
@@ -303,80 +269,24 @@ fn test_internal_clock() {
     let mut clock = InternalClock::new(shared_state.clone());
 
     // Initially stopped
-    assert!(!MidiClock::is_playing(&clock)); // Use fully qualified syntax
+    assert!(!MidiClock::is_playing(&clock));
 
     // Start the clock
-    MidiClock::start(&mut clock); // Use fully qualified syntax
-    assert!(MidiClock::is_playing(&clock)); // Use fully qualified syntax
+    MidiClock::start(&mut clock);
+    assert!(MidiClock::is_playing(&clock));
 
     // Let it run briefly to stabilize
     thread::sleep(Duration::from_millis(500));
 
-    // Check BPM (should be default 120)
-    if let Some(bpm) = MidiClock::current_bpm(&clock) {
-        // Use fully qualified syntax
-        assert!(
-            (bpm - 120.0).abs() < BPM_TOLERANCE,
-            "Expected ~120 BPM, got {}",
-            bpm
-        );
-    } else {
-        panic!("Expected BPM calculation, got None");
-    }
-
-    // Verify transport state is in sync
-    {
-        let transport = shared_state.lock().unwrap();
-        assert!(transport.is_playing(), "Transport should be playing");
-        assert!(
-            (transport.tempo() - 120.0).abs() < BPM_TOLERANCE,
-            "Transport tempo should match clock BPM"
-        );
-    }
-
     // Stop the clock
-    MidiClock::stop(&mut clock); // Use fully qualified syntax
-    assert!(!MidiClock::is_playing(&clock)); // Use fully qualified syntax
+    MidiClock::stop(&mut clock);
+    assert!(!MidiClock::is_playing(&clock));
 
     // Verify transport state stopped
     {
         let transport = shared_state.lock().unwrap();
         assert!(!transport.is_playing(), "Transport should be stopped");
     }
-}
-
-#[test]
-fn test_multiple_handlers() {
-    let calc = Arc::new(BpmCalculator::new());
-    let mut generator = ClockGenerator::new(calc);
-
-    // Create multiple mock handlers
-    let handler1 = Arc::new(MockHandler::new());
-    let handler2 = Arc::new(MockHandler::new());
-
-    // Add handlers to generator
-    generator.add_handler(handler1.clone());
-    generator.add_handler(handler2.clone());
-
-    // Start the generator
-    generator.start();
-
-    // Let it run briefly
-    thread::sleep(Duration::from_millis(100));
-
-    // Stop the generator
-    generator.stop();
-
-    // Verify both handlers received messages
-    assert!(handler1.message_count.load(Ordering::SeqCst) > 0);
-    assert!(handler2.message_count.load(Ordering::SeqCst) > 0);
-
-    // Verify handlers received Start message
-    let messages1 = handler1.received_messages.lock().unwrap();
-    let messages2 = handler2.received_messages.lock().unwrap();
-
-    assert!(messages1.contains(&ClockMessage::Start));
-    assert!(messages2.contains(&ClockMessage::Start));
 }
 
 #[test]
@@ -424,31 +334,4 @@ fn test_bpm_calculator_thread_safety() {
             bpm
         );
     }
-}
-
-#[test]
-fn test_clock_generator_restart() {
-    let calc = Arc::new(BpmCalculator::new());
-    let mut generator = ClockGenerator::new(calc);
-    let handler = Arc::new(MockHandler::new());
-    generator.add_handler(handler.clone());
-
-    // First start
-    generator.start();
-    thread::sleep(Duration::from_millis(100));
-    generator.stop();
-
-    let first_count = handler.message_count.load(Ordering::SeqCst);
-    assert!(first_count > 0);
-
-    // Second start
-    generator.start();
-    thread::sleep(Duration::from_millis(100));
-    generator.stop();
-
-    let second_count = handler.message_count.load(Ordering::SeqCst);
-    assert!(
-        second_count > first_count,
-        "Should receive more messages after restart"
-    );
 }

@@ -14,7 +14,6 @@ use state::TransportState;
 // Re-export Args for convenience
 pub use cli::Args;
 pub use scheduler::Scheduler;
-pub use transport::run_timing_simulation;
 
 pub type SharedState = Arc<Mutex<TransportState>>;
 

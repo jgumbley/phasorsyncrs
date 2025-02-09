@@ -1,42 +1,23 @@
-use super::clock::{core::ClockCore, ClockGenerator, ClockMessage, ClockMessageHandler};
-use crate::midi::MidiClock;
+use super::clock::{core::ClockCore, ClockMessage};
+use crate::midi::{InternalEngine, MidiClock};
 use crate::SharedState;
 use log::info;
 use std::sync::{Arc, Mutex};
 
-// Define a struct to wrap our handler
-struct CoreMessageHandler {
-    core: Arc<Mutex<ClockCore>>,
-}
-
-impl ClockMessageHandler for CoreMessageHandler {
-    fn handle_message(&self, msg: ClockMessage) -> Option<f64> {
-        if let Ok(mut core) = self.core.lock() {
-            core.process_message(msg)
-        } else {
-            None
-        }
-    }
-}
-
 pub struct InternalClock {
-    clock_generator: ClockGenerator,
     core: Arc<Mutex<ClockCore>>,
+    engine: InternalEngine,
+    tick_thread: Option<std::thread::JoinHandle<()>>,
 }
 
 impl InternalClock {
     pub fn new(shared_state: SharedState) -> Self {
+        let engine = InternalEngine::new(shared_state.clone());
         let core = ClockCore::new(shared_state);
-        let mut clock_generator = ClockGenerator::new(core.lock().unwrap().bpm_calculator());
-
-        // Create a handler that forwards messages to the core
-        let handler = Arc::new(CoreMessageHandler { core: core.clone() });
-
-        clock_generator.add_handler(handler);
-
         Self {
-            clock_generator,
             core,
+            engine,
+            tick_thread: None,
         }
     }
 }
@@ -47,13 +28,15 @@ impl MidiClock for InternalClock {
     }
 
     fn start(&mut self) {
-        self.clock_generator.start();
+        if let Ok(mut core) = self.core.lock() {
+            core.process_message(ClockMessage::Start);
+        }
+        // Start tick generation at 120 BPM
+        self.tick_thread = Some(self.engine.start_tick_generator(120.0));
         info!("Internal clock started");
     }
 
     fn stop(&mut self) {
-        self.clock_generator.stop();
-        // Send stop message to core after stopping the thread
         if let Ok(mut core) = self.core.lock() {
             core.process_message(ClockMessage::Stop);
         }
