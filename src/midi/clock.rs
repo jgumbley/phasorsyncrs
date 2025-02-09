@@ -188,11 +188,7 @@ impl BpmCalculator {
                     // Only include reasonable intervals (filter out extreme values)
                     if interval.as_micros() > 1000 && interval.as_micros() < 100_000 {
                         state.intervals.push(interval);
-
-                        // Keep only the most recent intervals within our window
-                        while state.intervals.len() > self.window_size {
-                            state.intervals.remove(0);
-                        }
+                        self.maintain_interval_window(&mut state);
                     }
                 }
 
@@ -237,6 +233,13 @@ impl BpmCalculator {
             Some(ticks_per_minute / self.ppq as f64)
         } else {
             None
+        }
+    }
+
+    /// Maintains the interval window size
+    fn maintain_interval_window(&self, state: &mut BpmState) {
+        while state.intervals.len() > self.window_size {
+            state.intervals.remove(0);
         }
     }
 }

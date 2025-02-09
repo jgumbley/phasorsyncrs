@@ -1,6 +1,6 @@
 # follow: https://erik.doernenburg.com/2008/11/how-toxic-is-your-code/
 
-cognitive-complexity-threshold = 10  # Default is 25, lower forces refactoring
+cognitive-complexity-threshold = 9  # Default is 25, lower forces refactoring
 
 # Limit excessive function parameters
 too-many-arguments-threshold = 4      # Default is 7, lower means simpler functions
@@ -12,7 +12,7 @@ too-many-lines-threshold = 50         # Default is 100
 max-fn-params-bools = 1               # Default is 2
 
 # Prevent excessive nesting
-excessive-nesting-threshold = 6       # Default is 6, forces flatter structures
+excessive-nesting-threshold = 5       # Default is 6, forces flatter structures
 
 # Avoid large enums that increase memory footprint
 enum-variant-size-threshold = 200     # Default is 500 bytes

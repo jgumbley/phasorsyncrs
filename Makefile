@@ -46,7 +46,8 @@ clippy:
 	  -D clippy::too-many-arguments -D clippy::too-many-lines \
 	  -D clippy::nonminimal-bool -D clippy::needless_continue \
 	  -D clippy::large-enum-variant -D clippy::result_large_err \
-	  -D clippy::type-complexity -D clippy::mod_module_files
+	  -D clippy::type-complexity -D clippy::mod_module_files \
+      -D clippy::excessive_nesting
 
 doc:
 	$(CARGO) doc
