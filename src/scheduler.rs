@@ -1,9 +1,21 @@
 use std::thread;
 
+use crate::{ui::run_state_inspector, SharedState};
+
 pub trait Scheduler {
     fn spawn<F>(&self, f: F)
     where
         F: FnOnce() + Send + 'static;
+
+    fn spawn_state_inspector(&self, shared_state: &SharedState)
+    where
+        Self: Sized,
+    {
+        let inspector_state = shared_state.clone();
+        self.spawn(move || {
+            run_state_inspector(inspector_state);
+        });
+    }
 }
 
 pub struct ThreadScheduler;

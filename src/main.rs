@@ -4,7 +4,6 @@ use phasorsyncrs::{
     create_scheduler, create_shared_state, handle_device_list,
     midi::{run_external_clock, DefaultMidiEngine},
     transport::run_timing_simulation,
-    ui::run_state_inspector,
     Scheduler, SharedState,
 };
 use std::{thread, time::Duration};
@@ -76,10 +75,7 @@ fn initialize_midi_engine<T: Scheduler>(
                 run_external_clock(midi_engine, clock_state);
             });
 
-            let inspector_state = shared_state.clone();
-            scheduler.spawn(move || {
-                run_state_inspector(inspector_state);
-            });
+            scheduler.spawn_state_inspector(shared_state);
         }
         Err(e) => {
             let error_msg = format!("Error connecting to MIDI device: {}", e);
@@ -100,10 +96,7 @@ fn initialize_local_mode<T: Scheduler>(scheduler: &T, shared_state: &SharedState
         run_timing_simulation(timing_state);
     });
 
-    let inspector_state = shared_state.clone();
-    scheduler.spawn(move || {
-        run_state_inspector(inspector_state);
-    });
+    scheduler.spawn_state_inspector(shared_state);
 }
 
 fn run_application_loop() {

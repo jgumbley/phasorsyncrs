@@ -162,7 +162,7 @@ fn test_state_inspector_rapid_updates() {
     // Rapidly toggle play state
     for _ in 0..10 {
         {
-            let mut state = shared_state.lock().unwrap();
+            let state = shared_state.lock().unwrap();
             state.set_playing(!state.is_playing());
         }
         thread::sleep(Duration::from_millis(10));
