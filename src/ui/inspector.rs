@@ -1,43 +1,10 @@
-use crate::{transport::TICKS_PER_BEAT, SharedState};
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use crate::transport::TICKS_PER_BEAT;
+use crate::ui::progress::{create_bar_progress, create_beat_progress, create_transport_spinner};
+use crate::SharedState;
+use indicatif::MultiProgress;
 use std::{thread, time::Duration};
 
 const BEATS_PER_BAR: u32 = 4; // Matching transport's 4/4 time signature assumption
-
-pub fn create_beat_progress() -> ProgressBar {
-    let pb = ProgressBar::new(u64::from(TICKS_PER_BEAT));
-    pb.set_style(
-        ProgressStyle::default_bar()
-            .template("{prefix:.bold} [{bar:40.cyan}] {pos}/{len}")
-            .unwrap()
-            .progress_chars("⣀⣤⣦⣶⣷⣿ "),
-    );
-    pb.set_prefix("Beat");
-    pb
-}
-
-pub fn create_bar_progress() -> ProgressBar {
-    let pb = ProgressBar::new(u64::from(BEATS_PER_BAR));
-    pb.set_style(
-        ProgressStyle::default_bar()
-            .template("{prefix:.bold} [{bar:20.white/black}] {pos}/{len}")
-            .unwrap()
-            .progress_chars("█▊ "),
-    );
-    pb.set_prefix("Bar");
-    pb
-}
-
-pub fn create_transport_spinner() -> ProgressBar {
-    let pb = ProgressBar::new_spinner();
-    pb.set_style(
-        ProgressStyle::default_spinner()
-            .template("{prefix:.bold.dim} {spinner} {wide_msg}")
-            .unwrap(),
-    );
-    pb.set_prefix("Transport");
-    pb
-}
 
 pub fn run_state_inspector(state: SharedState) -> thread::JoinHandle<()> {
     let multi = MultiProgress::new();
