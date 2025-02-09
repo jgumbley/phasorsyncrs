@@ -1,64 +1,43 @@
-use super::clock::{BpmCalculator, ClockGenerator, ClockMessage, ClockMessageHandler};
-use crate::midi::MidiClock; // Import the MidiClock trait
+use super::clock::{core::ClockCore, ClockGenerator, ClockMessage, ClockMessageHandler};
+use crate::midi::MidiClock;
 use crate::SharedState;
 use log::info;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-struct TransportHandler {
-    shared_state: SharedState,
+// Define a struct to wrap our handler
+struct CoreMessageHandler {
+    core: Arc<Mutex<ClockCore>>,
 }
 
-impl ClockMessageHandler for TransportHandler {
+impl ClockMessageHandler for CoreMessageHandler {
     fn handle_message(&self, msg: ClockMessage) -> Option<f64> {
-        match msg {
-            ClockMessage::Start => {
-                if let Ok(transport) = self.shared_state.lock() {
-                    transport.set_playing(true);
-                    info!("Internal clock started playback");
-                }
-            }
-            ClockMessage::Stop => {
-                if let Ok(transport) = self.shared_state.lock() {
-                    transport.set_playing(false);
-                    info!("Internal clock stopped playback");
-                }
-            }
-            ClockMessage::Continue => {
-                if let Ok(transport) = self.shared_state.lock() {
-                    transport.set_playing(true);
-                    info!("Internal clock resumed playback");
-                }
-            }
-            ClockMessage::Tick => {
-                if let Ok(transport) = self.shared_state.lock() {
-                    transport.tick();
-                }
-            }
+        if let Ok(mut core) = self.core.lock() {
+            core.process_message(msg)
+        } else {
+            None
         }
-        None
     }
 }
 
 pub struct InternalClock {
     clock_generator: ClockGenerator,
-    transport_handler: Arc<TransportHandler>,
+    core: Arc<Mutex<ClockCore>>,
 }
 
 impl InternalClock {
     pub fn new(shared_state: SharedState) -> Self {
-        let mut clock_generator = ClockGenerator::new(BpmCalculator::new());
+        let core = ClockCore::new(shared_state);
+        let mut clock_generator = ClockGenerator::new(core.lock().unwrap().bpm_calculator());
 
-        // Create and register the transport handler
-        let handler = Arc::new(TransportHandler { shared_state });
+        // Create a handler that forwards messages to the core
+        let handler = Arc::new(CoreMessageHandler { core: core.clone() });
 
-        // Create a new Arc<dyn ClockMessageHandler> from the handler
-        let handler_trait: Arc<dyn ClockMessageHandler> = handler.clone();
-        clock_generator.add_handler(handler_trait);
+        clock_generator.add_handler(handler);
 
         Self {
             clock_generator,
-            transport_handler: handler,
+            core,
         }
     }
 }
@@ -71,26 +50,33 @@ impl MidiClock for InternalClock {
 
     fn stop(&mut self) {
         self.clock_generator.stop();
-        // Send stop message to handlers after stopping the thread
-        self.transport_handler.handle_message(ClockMessage::Stop);
+        // Send stop message to core after stopping the thread
+        if let Ok(mut core) = self.core.lock() {
+            core.process_message(ClockMessage::Stop);
+        }
         info!("Internal clock stopped");
     }
 
     fn is_playing(&self) -> bool {
-        // Check the transport state directly
-        if let Ok(transport) = self.transport_handler.shared_state.lock() {
-            transport.is_playing()
+        if let Ok(core) = self.core.lock() {
+            core.is_playing()
         } else {
             false
         }
     }
 
     fn current_bpm(&self) -> Option<f64> {
-        self.clock_generator.current_bpm()
+        if let Ok(core) = self.core.lock() {
+            core.current_bpm()
+        } else {
+            None
+        }
     }
 
     fn handle_message(&mut self, msg: ClockMessage) {
-        self.transport_handler.handle_message(msg);
+        if let Ok(mut core) = self.core.lock() {
+            core.process_message(msg);
+        }
     }
 }
 

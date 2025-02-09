@@ -217,7 +217,7 @@ fn test_transport_state_with_ticks() {
 
 #[test]
 fn test_clock_generator() {
-    let calc = BpmCalculator::new();
+    let calc = Arc::new(BpmCalculator::new());
     let mut generator = ClockGenerator::new(calc);
 
     // Start the clock generator
@@ -347,7 +347,7 @@ fn test_internal_clock() {
 
 #[test]
 fn test_multiple_handlers() {
-    let calc = BpmCalculator::new();
+    let calc = Arc::new(BpmCalculator::new());
     let mut generator = ClockGenerator::new(calc);
 
     // Create multiple mock handlers
@@ -428,7 +428,7 @@ fn test_bpm_calculator_thread_safety() {
 
 #[test]
 fn test_clock_generator_restart() {
-    let calc = BpmCalculator::new();
+    let calc = Arc::new(BpmCalculator::new());
     let mut generator = ClockGenerator::new(calc);
     let handler = Arc::new(MockHandler::new());
     generator.add_handler(handler.clone());
