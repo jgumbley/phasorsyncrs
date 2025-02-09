@@ -1,60 +1,82 @@
-# MIDI Message Generation Refactor (Target: v0.2.1)
+# MIDI Engine Separation Refactor (v0.2.1 Hotfix)
 
-## Objective
-Move internal clock message generation into MidirEngine while maintaining testability
+## Critical Corrections
+```diff
+- [WRONG] Modifying MidirEngine (external MIDI)
++ [FIXED] Create new InternalEngine for clock generation
+```
 
-## Critical Path (1h-2h)
+## Implementation Plan
+
+### 1. Engine Creation (30min)
 ```rust
-// STEP 1: Add message source to MidirEngine (src/midi/midir_engine.rs)
-+struct InternalMessageThread {
+// src/midi/internal_engine.rs
++pub struct InternalEngine {
 +    core: Arc<Mutex<ClockCore>>,
 +}
 
-// STEP 2: Move thread spawn from InternalClock (src/midi/internal_clock.rs L45-78)
-- thread::spawn(move || {
--     // Clock generation loop
-- });
-+impl MidirEngine {
-+    fn start_internal_clock(&mut self, core: Arc<Mutex<ClockCore>>) {
-+        let mut thread = InternalMessageThread { core };
-+        thread.spawn();
++impl MidiEngine for InternalEngine {
++    fn send(&mut self, msg: MidiMessage) -> Result<()> {
++        self.core.lock().unwrap().process_message(msg);
++        Ok(())
 +    }
 +}
-
-// STEP 3: Update InternalClock constructor (src/midi/internal_clock.rs)
-- pub fn new(bpm: f64) -> Self {
--     let core = ClockCore::new(bpm);
--     // Spawn thread here
-- }
-+ pub fn new(bpm: f64, engine: &mut impl MidiEngine) -> Self {
-+     let core = ClockCore::new(bpm);
-+     engine.start_internal_clock(core.clone());
-+ }
 ```
 
-## Validation Protocol
+### 2. Thread Migration (1h)
+```rust
+// src/midi/internal_clock.rs (BEFORE)
+- thread::spawn(move || {
+-     while running.load(Ordering::Relaxed) {
+-         // Clock generation logic
+-     }
+- });
+
+// src/midi/internal_engine.rs (AFTER)
++impl InternalEngine {
++    pub fn start(&self) -> JoinHandle<()> {
++        let core = self.core.clone();
++        thread::spawn(move || {
++            while core.lock().unwrap().is_running() {
++                // Clock generation logic
++            }
++        })
++    }
++}
+```
+
+### 3. Interface Updates (30min)
+```rust
+// src/midi/mod.rs
++pub enum MidiEngineType {
++    Internal(InternalEngine),
++    External(MidirEngine),
++    Mock(MockEngine),
++}
+```
+
+## Validation Checklist
 ```bash
-# Check thread management moved
-rg "thread::spawn" src/midi/internal_clock.rs
+# Confirm thread moved to internal_engine
+rg "thread::spawn" src/midi/internal_engine.rs
 
-# Run core functionality tests
-cargo test --test midi_tests -- --test-threads=1
-
-# Verify engine initialization 
-cargo run --example clock_demo
+# Verify engine separation
+cargo check --features midir
+cargo test --test midi_engine_tests
 ```
 
 ## Rollback Plan
 ```bash
-git checkout HEAD -- src/midi/midir_engine.rs src/midi/internal_clock.rs
+git checkout HEAD -- src/midi/internal_clock.rs && \
+rm src/midi/internal_engine.rs
 ```
 
-## Post-Refactor Structure
+## Architectural Diagram
 ```
-MidirEngine
-├── Device management
-└── InternalMessageThread
-    └── Clock generation loop
+MIDI Engines
+├── InternalEngine (clock generation)
+├── MidirEngine (external devices)
+└── MockEngine (testing)
 
 InternalClock
-└── Configuration
+└── Uses InternalEngine
