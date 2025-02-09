@@ -1,4 +1,5 @@
 use super::clock::{BpmCalculator, ClockGenerator, ClockMessage, ClockMessageHandler};
+use crate::midi::MidiClock; // Import the MidiClock trait
 use crate::SharedState;
 use log::info;
 use std::sync::Arc;
@@ -60,20 +61,22 @@ impl InternalClock {
             transport_handler: handler,
         }
     }
+}
 
-    pub fn start(&mut self) {
+impl MidiClock for InternalClock {
+    fn start(&mut self) {
         self.clock_generator.start();
         info!("Internal clock started");
     }
 
-    pub fn stop(&mut self) {
+    fn stop(&mut self) {
         self.clock_generator.stop();
         // Send stop message to handlers after stopping the thread
         self.transport_handler.handle_message(ClockMessage::Stop);
         info!("Internal clock stopped");
     }
 
-    pub fn is_playing(&self) -> bool {
+    fn is_playing(&self) -> bool {
         // Check the transport state directly
         if let Ok(transport) = self.transport_handler.shared_state.lock() {
             transport.is_playing()
@@ -82,8 +85,12 @@ impl InternalClock {
         }
     }
 
-    pub fn current_bpm(&self) -> Option<f64> {
+    fn current_bpm(&self) -> Option<f64> {
         self.clock_generator.current_bpm()
+    }
+
+    fn handle_message(&mut self, msg: ClockMessage) {
+        self.transport_handler.handle_message(msg);
     }
 }
 
@@ -91,7 +98,8 @@ pub fn run_internal_clock(shared_state: SharedState) {
     let mut clock = InternalClock::new(shared_state);
     info!("Internal clock initialized");
 
-    clock.start();
+    // Use fully qualified syntax to call the `start` method from the `MidiClock` trait
+    MidiClock::start(&mut clock);
 
     // Keep the thread alive and check status periodically
     loop {

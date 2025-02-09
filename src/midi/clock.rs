@@ -89,7 +89,7 @@ impl ClockGenerator {
 
     /// Returns the current BPM if available
     pub fn current_bpm(&self) -> Option<f64> {
-        self.bpm_calculator.process_message(ClockMessage::Tick)
+        self.bpm_calculator.current_bpm()
     }
 
     /// Returns whether the clock is currently playing
@@ -217,6 +217,26 @@ impl BpmCalculator {
                     None
                 }
             }
+        }
+    }
+
+    /// Returns the current BPM if it can be calculated
+    pub fn current_bpm(&self) -> Option<f64> {
+        let state = self.state.lock().unwrap();
+        if state.intervals.len() >= 3 {
+            let mut intervals = state.intervals.clone();
+            intervals.sort_by_key(|d| d.as_nanos());
+
+            let start_idx = intervals.len() / 4;
+            let end_idx = (intervals.len() * 3) / 4;
+            let median_intervals = &intervals[start_idx..end_idx];
+
+            let avg_interval: Duration =
+                median_intervals.iter().sum::<Duration>() / median_intervals.len() as u32;
+            let ticks_per_minute = 60.0 / avg_interval.as_secs_f64();
+            Some(ticks_per_minute / self.ppq as f64)
+        } else {
+            None
         }
     }
 }

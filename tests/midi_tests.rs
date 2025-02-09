@@ -1,5 +1,10 @@
 use phasorsyncrs::midi::{
-    BpmCalculator, ClockGenerator, ClockMessage, ClockMessageHandler, InternalClock,
+    BpmCalculator,
+    ClockGenerator,
+    ClockMessage,
+    ClockMessageHandler,
+    InternalClock,
+    MidiClock, // Import MidiClock
 };
 use phasorsyncrs::state::TransportState;
 use std::sync::{
@@ -298,17 +303,18 @@ fn test_internal_clock() {
     let mut clock = InternalClock::new(shared_state.clone());
 
     // Initially stopped
-    assert!(!clock.is_playing());
+    assert!(!MidiClock::is_playing(&clock)); // Use fully qualified syntax
 
     // Start the clock
-    clock.start();
-    assert!(clock.is_playing());
+    MidiClock::start(&mut clock); // Use fully qualified syntax
+    assert!(MidiClock::is_playing(&clock)); // Use fully qualified syntax
 
     // Let it run briefly to stabilize
     thread::sleep(Duration::from_millis(500));
 
     // Check BPM (should be default 120)
-    if let Some(bpm) = clock.current_bpm() {
+    if let Some(bpm) = MidiClock::current_bpm(&clock) {
+        // Use fully qualified syntax
         assert!(
             (bpm - 120.0).abs() < BPM_TOLERANCE,
             "Expected ~120 BPM, got {}",
@@ -329,8 +335,8 @@ fn test_internal_clock() {
     }
 
     // Stop the clock
-    clock.stop();
-    assert!(!clock.is_playing());
+    MidiClock::stop(&mut clock); // Use fully qualified syntax
+    assert!(!MidiClock::is_playing(&clock)); // Use fully qualified syntax
 
     // Verify transport state stopped
     {

@@ -105,6 +105,35 @@ impl ExternalClock {
     }
 }
 
+impl super::MidiClock for ExternalClock {
+    fn start(&mut self) {
+        info!("External MIDI clock started");
+    }
+
+    fn stop(&mut self) {
+        if let Ok(transport) = self.shared_state.lock() {
+            transport.set_playing(false);
+            info!("External MIDI clock stopped");
+        }
+    }
+
+    fn is_playing(&self) -> bool {
+        if let Ok(transport) = self.shared_state.lock() {
+            transport.is_playing()
+        } else {
+            false
+        }
+    }
+
+    fn current_bpm(&self) -> Option<f64> {
+        self.bpm_calculator.current_bpm()
+    }
+
+    fn handle_message(&mut self, msg: ClockMessage) {
+        self.process_clock_message(msg);
+    }
+}
+
 pub fn run_external_clock<T>(engine: T, shared_state: SharedState)
 where
     T: MidiEngine + Send + 'static,
