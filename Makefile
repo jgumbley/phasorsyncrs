@@ -42,7 +42,7 @@ fmt:
 	$(CARGO) fmt --all
 
 clippy:
-	$(CARGO) clippy -- -D warnings
+	$(CARGO) clippy -- -D warnings -D clippy::cognitive-complexity
 
 doc:
 	$(CARGO) doc

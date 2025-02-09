@@ -1,0 +1,2 @@
+# Clippy configuration file
+cognitive-complexity-threshold = 10

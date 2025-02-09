@@ -74,80 +74,51 @@ impl MidirEngine {
         debug!("Parsing MIDI message bytes: {:02X?}", data);
         let first_byte = data[0];
 
-        // Handle System Common and System Realtime messages (0xF0-0xFF)
         if first_byte >= 0xF0 {
-            match first_byte {
-                0xF8 => {
-                    debug!("MIDI Clock");
-                    return Some(MidiMessage::Clock);
-                }
-                0xFA => {
-                    debug!("MIDI Start");
-                    return Some(MidiMessage::Start);
-                }
-                0xFC => {
-                    debug!("MIDI Stop");
-                    return Some(MidiMessage::Stop);
-                }
-                0xFB => {
-                    debug!("MIDI Continue");
-                    return Some(MidiMessage::Continue);
-                }
-                _ => {
-                    debug!("Unhandled System message: {:02X}", first_byte);
-                    return None;
-                }
-            }
+            return Self::parse_system_message(first_byte);
         }
 
-        // Handle Channel Voice Messages
         let status_byte = first_byte & 0xF0;
         let channel = first_byte & 0x0F;
 
+        Self::parse_channel_voice_message(status_byte, channel, data)
+    }
+
+    fn parse_system_message(first_byte: u8) -> Option<MidiMessage> {
+        match first_byte {
+            0xF8 => {
+                debug!("MIDI Clock");
+                Some(MidiMessage::Clock)
+            }
+            0xFA => {
+                debug!("MIDI Start");
+                Some(MidiMessage::Start)
+            }
+            0xFC => {
+                debug!("MIDI Stop");
+                Some(MidiMessage::Stop)
+            }
+            0xFB => {
+                debug!("MIDI Continue");
+                Some(MidiMessage::Continue)
+            }
+            _ => {
+                debug!("Unhandled System message: {:02X}", first_byte);
+                None
+            }
+        }
+    }
+
+    fn parse_channel_voice_message(
+        status_byte: u8,
+        channel: u8,
+        data: &[u8],
+    ) -> Option<MidiMessage> {
         match status_byte {
-            0x90 if data.len() >= 3 => {
-                debug!(
-                    "Note On - channel: {}, note: {}, velocity: {}",
-                    channel, data[1], data[2]
-                );
-                Some(MidiMessage::NoteOn {
-                    channel,
-                    note: data[1],
-                    velocity: data[2],
-                })
-            }
-            0x80 if data.len() >= 3 => {
-                debug!(
-                    "Note Off - channel: {}, note: {}, velocity: {}",
-                    channel, data[1], data[2]
-                );
-                Some(MidiMessage::NoteOff {
-                    channel,
-                    note: data[1],
-                    velocity: data[2],
-                })
-            }
-            0xB0 if data.len() >= 3 => {
-                debug!(
-                    "Control Change - channel: {}, controller: {}, value: {}",
-                    channel, data[1], data[2]
-                );
-                Some(MidiMessage::ControlChange {
-                    channel,
-                    controller: data[1],
-                    value: data[2],
-                })
-            }
-            0xC0 if data.len() >= 2 => {
-                debug!(
-                    "Program Change - channel: {}, program: {}",
-                    channel, data[1]
-                );
-                Some(MidiMessage::ProgramChange {
-                    channel,
-                    program: data[1],
-                })
-            }
+            0x90 => Self::parse_note_on(channel, data),
+            0x80 => Self::parse_note_off(channel, data),
+            0xB0 => Self::parse_control_change(channel, data),
+            0xC0 => Self::parse_program_change(channel, data),
             _ => {
                 warn!("Unrecognized MIDI status byte: {:02X}", status_byte);
                 if data.len() < 3 {
@@ -158,6 +129,69 @@ impl MidirEngine {
                 }
                 None
             }
+        }
+    }
+
+    fn parse_note_on(channel: u8, data: &[u8]) -> Option<MidiMessage> {
+        if data.len() >= 3 {
+            debug!(
+                "Note On - channel: {}, note: {}, velocity: {}",
+                channel, data[1], data[2]
+            );
+            Some(MidiMessage::NoteOn {
+                channel,
+                note: data[1],
+                velocity: data[2],
+            })
+        } else {
+            None
+        }
+    }
+
+    fn parse_note_off(channel: u8, data: &[u8]) -> Option<MidiMessage> {
+        if data.len() >= 3 {
+            debug!(
+                "Note Off - channel: {}, note: {}, velocity: {}",
+                channel, data[1], data[2]
+            );
+            Some(MidiMessage::NoteOff {
+                channel,
+                note: data[1],
+                velocity: data[2],
+            })
+        } else {
+            None
+        }
+    }
+
+    fn parse_control_change(channel: u8, data: &[u8]) -> Option<MidiMessage> {
+        if data.len() >= 3 {
+            debug!(
+                "Control Change - channel: {}, controller: {}, value: {}",
+                channel, data[1], data[2]
+            );
+            Some(MidiMessage::ControlChange {
+                channel,
+                controller: data[1],
+                value: data[2],
+            })
+        } else {
+            None
+        }
+    }
+
+    fn parse_program_change(channel: u8, data: &[u8]) -> Option<MidiMessage> {
+        if data.len() >= 2 {
+            debug!(
+                "Program Change - channel: {}, program: {}",
+                channel, data[1]
+            );
+            Some(MidiMessage::ProgramChange {
+                channel,
+                program: data[1],
+            })
+        } else {
+            None
         }
     }
 

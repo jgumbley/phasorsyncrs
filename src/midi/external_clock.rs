@@ -26,51 +26,63 @@ impl ExternalClock {
         self.last_message_time = Instant::now();
 
         // Convert MIDI message to clock message
-        let clock_msg = match msg {
+        let clock_msg = self.convert_midi_to_clock_message(msg);
+
+        // Process clock message if applicable
+        if let Some(clock_msg) = clock_msg {
+            self.process_clock_message(clock_msg);
+        }
+    }
+
+    fn convert_midi_to_clock_message(&self, msg: MidiMessage) -> Option<ClockMessage> {
+        match msg {
             MidiMessage::Clock => Some(ClockMessage::Tick),
             MidiMessage::Start => Some(ClockMessage::Start),
             MidiMessage::Stop => Some(ClockMessage::Stop),
             MidiMessage::Continue => Some(ClockMessage::Continue),
             _ => None,
-        };
+        }
+    }
 
-        // Process clock message if applicable
-        if let Some(clock_msg) = clock_msg {
-            // Handle transport state changes immediately
-            match clock_msg {
-                ClockMessage::Start => {
-                    if let Ok(transport) = self.shared_state.lock() {
-                        transport.set_playing(true);
-                        info!("External MIDI clock started playback");
-                    }
+    fn process_clock_message(&mut self, clock_msg: ClockMessage) {
+        self.handle_transport_state_changes(&clock_msg);
+        self.update_bpm_and_handle_ticks(&clock_msg);
+    }
+
+    fn handle_transport_state_changes(&self, clock_msg: &ClockMessage) {
+        match clock_msg {
+            ClockMessage::Start => {
+                if let Ok(transport) = self.shared_state.lock() {
+                    transport.set_playing(true);
+                    info!("External MIDI clock started playback");
                 }
-                ClockMessage::Stop => {
-                    if let Ok(transport) = self.shared_state.lock() {
-                        transport.set_playing(false);
-                        info!("External MIDI clock stopped playback");
-                    }
+            }
+            ClockMessage::Stop => {
+                if let Ok(transport) = self.shared_state.lock() {
+                    transport.set_playing(false);
+                    info!("External MIDI clock stopped playback");
                 }
-                ClockMessage::Continue => {
-                    if let Ok(transport) = self.shared_state.lock() {
-                        transport.set_playing(true);
-                        info!("External MIDI clock resumed playback");
-                    }
+            }
+            ClockMessage::Continue => {
+                if let Ok(transport) = self.shared_state.lock() {
+                    transport.set_playing(true);
+                    info!("External MIDI clock resumed playback");
                 }
-                _ => {}
+            }
+            _ => {}
+        }
+    }
+
+    fn update_bpm_and_handle_ticks(&mut self, clock_msg: &ClockMessage) {
+        if let Some(bpm) = self.bpm_calculator.process_message(clock_msg.clone()) {
+            if let Ok(mut transport) = self.shared_state.lock() {
+                transport.set_tempo(bpm);
+                info!("External MIDI clock tempo updated to {} BPM", bpm);
             }
 
-            // Update BPM calculator and handle ticks
-            if let Some(bpm) = self.bpm_calculator.process_message(clock_msg.clone()) {
-                if let Ok(mut transport) = self.shared_state.lock() {
-                    transport.set_tempo(bpm);
-                    info!("External MIDI clock tempo updated to {} BPM", bpm);
-                }
-
-                // Handle tick in a separate lock to minimize lock contention
-                if let ClockMessage::Tick = clock_msg {
-                    if let Ok(transport) = self.shared_state.lock() {
-                        transport.tick();
-                    }
+            if let ClockMessage::Tick = clock_msg {
+                if let Ok(transport) = self.shared_state.lock() {
+                    transport.tick();
                 }
             }
         }
