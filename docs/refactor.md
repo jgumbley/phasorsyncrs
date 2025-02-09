@@ -1,82 +1,71 @@
-# MIDI Engine Separation Refactor (v0.2.1 Hotfix)
+# MIDI Clock Subsystem Refactor
 
-## Critical Corrections
-```diff
-- [WRONG] Modifying MidirEngine (external MIDI)
-+ [FIXED] Create new InternalEngine for clock generation
-```
+## Objective
+Merge internal/external clock implementations by:
+1. Moving tick generation to engine implementations
+2. Creating unified clock message handling
+3. Removing redundant timing systems
 
-## Implementation Plan
+## Required Changes
 
-### 1. Engine Creation (30min)
+### 1. Engine Timing Implementation (InternalEngine)
+**File:** `src/midi/internal_engine.rs`
 ```rust
-// src/midi/internal_engine.rs
-+pub struct InternalEngine {
-+    core: Arc<Mutex<ClockCore>>,
-+}
-
-+impl MidiEngine for InternalEngine {
-+    fn send(&mut self, msg: MidiMessage) -> Result<()> {
-+        self.core.lock().unwrap().process_message(msg);
-+        Ok(())
-+    }
-+}
+// Add to InternalEngine implementation:
+fn start_tick_generator(&self, bpm: f32) -> thread::JoinHandle<()> {
+    let core = self.core.clone();
+    thread::spawn(move || {
+        let tick_duration = Duration::from_secs_f32(60.0 / (bpm * TICKS_PER_BEAT as f32));
+        loop {
+            thread::sleep(tick_duration);
+            if let Ok(mut guard) = core.lock() {
+                guard.process_message(ClockMessage::Tick);
+            }
+        }
+    })
+}
 ```
 
-### 2. Thread Migration (1h)
+### 2. Clock Implementation Unification
+**File:** `src/midi/clock/core.rs`
 ```rust
-// src/midi/internal_clock.rs (BEFORE)
-- thread::spawn(move || {
--     while running.load(Ordering::Relaxed) {
--         // Clock generation logic
--     }
-- });
+// Update ClockCore to handle generic messages:
+pub enum ClockMessage {
+    Tick,
+    Start,
+    Stop,
+    Continue,
+    // Remove engine-specific variants
+}
 
-// src/midi/internal_engine.rs (AFTER)
-+impl InternalEngine {
-+    pub fn start(&self) -> JoinHandle<()> {
-+        let core = self.core.clone();
-+        thread::spawn(move || {
-+            while core.lock().unwrap().is_running() {
-+                // Clock generation logic
-+            }
-+        })
-+    }
-+}
+// Remove ClockGenerator trait
 ```
 
-### 3. Interface Updates (30min)
+### 3. InternalClock Simplification
+**File:** `src/midi/internal_clock.rs`
 ```rust
-// src/midi/mod.rs
-+pub enum MidiEngineType {
-+    Internal(InternalEngine),
-+    External(MidirEngine),
-+    Mock(MockEngine),
-+}
+// Remove ClockGenerator implementation
+// Keep only message handling matching ExternalClock's pattern
 ```
 
-## Validation Checklist
-```bash
-# Confirm thread moved to internal_engine
-rg "thread::spawn" src/midi/internal_engine.rs
-
-# Verify engine separation
-cargo check --features midir
-cargo test --test midi_engine_tests
+### 4. Remove Redundant Timing System 
+**File:** `src/transport/timing.rs`
+```rust
+// Delete this file entirely
 ```
 
-## Rollback Plan
-```bash
-git checkout HEAD -- src/midi/internal_clock.rs && \
-rm src/midi/internal_engine.rs
+### 5. Update Dependencies
+**File:** `src/main.rs**
+```rust
+// Replace timing::run_timing_simulation with:
+let engine = InternalEngine::new(shared_state.clone());
+let _tick_thread = engine.start_tick_generator(120.0);
 ```
 
-## Architectural Diagram
-```
-MIDI Engines
-├── InternalEngine (clock generation)
-├── MidirEngine (external devices)
-└── MockEngine (testing)
-
-InternalClock
-└── Uses InternalEngine
+## Migration Checklist
+1. [ ] Implement engine-based tick generation
+2. [ ] Remove ClockGenerator trait and implementations
+3. [ ] Delete transport/timing.rs
+4. [ ] Update main application initialization
+5. [ ] Verify all MIDI clock tests pass
+6. [ ] Update documentation in docs/adr/
