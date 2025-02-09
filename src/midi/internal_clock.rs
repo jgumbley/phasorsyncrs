@@ -3,7 +3,6 @@ use crate::midi::MidiClock;
 use crate::SharedState;
 use log::info;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 
 // Define a struct to wrap our handler
 struct CoreMessageHandler {
@@ -65,21 +64,5 @@ impl MidiClock for InternalClock {
         if let Ok(mut core) = self.core.lock() {
             core.process_message(msg);
         }
-    }
-}
-
-pub fn run_internal_clock(shared_state: SharedState) {
-    let mut clock = InternalClock::new(shared_state);
-    info!("Internal clock initialized");
-
-    // Use fully qualified syntax to call the `start` method from the `MidiClock` trait
-    MidiClock::start(&mut clock);
-
-    // Keep the thread alive and check status periodically
-    loop {
-        std::thread::sleep(Duration::from_secs(1));
-
-        // TODO: Add proper shutdown mechanism
-        // For now, this will run indefinitely
     }
 }

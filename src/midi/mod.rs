@@ -30,7 +30,7 @@ pub use mock_engine::MockMidiEngine;
 pub use clock::{BpmCalculator, ClockGenerator, ClockMessage, ClockMessageHandler};
 
 // Re-export internal clock functionality
-pub use internal_clock::{run_internal_clock, InternalClock};
+pub use internal_clock::InternalClock;
 
 // Re-export external clock functionality
 pub use external_clock::{run_external_clock, ExternalClock};
@@ -73,3 +73,10 @@ pub trait MidiClock {
 
 // Set default engine type
 pub type DefaultMidiEngine = MidirEngine;
+
+// New enum for MIDI engine types
+pub enum MidiEngineType {
+    Internal(InternalClock),
+    External(MidirEngine),
+    Mock(MockMidiEngine),
+}

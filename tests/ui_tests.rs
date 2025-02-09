@@ -1,7 +1,10 @@
 use phasorsyncrs::ui::{
     create_bar_progress, create_beat_progress, create_transport_spinner, run_state_inspector,
 };
-use phasorsyncrs::{create_shared_state, midi::run_internal_clock};
+use phasorsyncrs::{
+    create_shared_state,
+    midi::{InternalClock, MidiClock},
+};
 use std::thread;
 use std::time::Duration;
 
@@ -105,9 +108,8 @@ fn test_state_inspector_with_beat_bar_changes() {
 
     // Start the internal clock in a separate thread
     let clock_state = shared_state.clone();
-    let _clock_handle = thread::spawn(move || {
-        run_internal_clock(clock_state);
-    });
+    let mut internal_clock = InternalClock::new(clock_state);
+    internal_clock.start();
 
     // Start the state inspector
     let handle = run_state_inspector(shared_state.clone());
