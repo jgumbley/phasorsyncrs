@@ -1,80 +1,60 @@
-# MIDI Clock Subsystem Refactor (Revised Minimal Plan)
+# MIDI Message Generation Refactor (Target: v0.2.1)
 
-## Current Progress Status
-✅ Completed Core Structure:
+## Objective
+Move internal clock message generation into MidirEngine while maintaining testability
+
+## Critical Path (1h-2h)
 ```rust
-src/midi/clock/core.rs
-src/midi/clock/mod.rs
-```
+// STEP 1: Add message source to MidirEngine (src/midi/midir_engine.rs)
++struct InternalMessageThread {
++    core: Arc<Mutex<ClockCore>>,
++}
 
-🚧 Remaining Critical Path:
-1. Remove duplicate transport logic from:
-   - `src/midi/internal_clock.rs` (lines 45-78)
-   - `src/midi/external_clock.rs` (lines 32-65)
-2. Centralize BPM calculation in `ClockCore`
+// STEP 2: Move thread spawn from InternalClock (src/midi/internal_clock.rs L45-78)
+- thread::spawn(move || {
+-     // Clock generation loop
+- });
++impl MidirEngine {
++    fn start_internal_clock(&mut self, core: Arc<Mutex<ClockCore>>) {
++        let mut thread = InternalMessageThread { core };
++        thread.spawn();
++    }
++}
 
-## Revised Implementation Steps
-
-### Phase 1a: Transport Handler Finalization (1-2 hours)
-```rust
-// Remove from internal_clock.rs
-- fn handle_transport_message(&mut self, msg: ClockMessage) {
--     // Duplicated logic
+// STEP 3: Update InternalClock constructor (src/midi/internal_clock.rs)
+- pub fn new(bpm: f64) -> Self {
+-     let core = ClockCore::new(bpm);
+-     // Spawn thread here
 - }
-
-// Remove from external_clock.rs  
-- fn process_transport_state(&mut self) {
--     // Duplicated logic
-- }
-```
-
-### Phase 1b: BPM Unification (2-3 hours)
-```rust
-// In core.rs
-pub fn calculate_bpm(&mut self) -> Option<f64> {
-    // Consolidated calculation
-}
-
-// Remove from:
-- internal_clock.rs: calculate_timing()
-- external_clock.rs: estimate_external_bpm()
-```
-
-### Phase 2: Safe Trait Migration
-```rust
-// Transitional implementation
-trait LegacyMidiClock {
-    // Existing interface
-}
-
-impl LegacyMidiClock for InternalClock {
-    // Delegate to ClockCore
-    fn is_playing(&self) -> bool {
-        self.core.lock().unwrap().is_playing()
-    }
-}
++ pub fn new(bpm: f64, engine: &mut impl MidiEngine) -> Self {
++     let core = ClockCore::new(bpm);
++     engine.start_internal_clock(core.clone());
++ }
 ```
 
 ## Validation Protocol
-1. Run after each phase:
 ```bash
-cargo test --test midi_engine_tests
-cargo test --test scheduler_tests
-```
+# Check thread management moved
+rg "thread::spawn" src/midi/internal_clock.rs
 
-2. Manual verification steps:
-```bash
-# Start internal clock
-cargo run -- internal-clock --bpm 120
-# Send external MIDI clock messages
-midi-send clock-start
+# Run core functionality tests
+cargo test --test midi_tests -- --test-threads=1
+
+# Verify engine initialization 
+cargo run --example clock_demo
 ```
 
 ## Rollback Plan
-Revert to tag `pre-clock-refactor` if tests fail:
 ```bash
-git checkout pre-clock-refactor -- src/midi/clock/
+git checkout HEAD -- src/midi/midir_engine.rs src/midi/internal_clock.rs
 ```
 
-## Estimated Completion
-3-4 hours of focused work vs original 2-day estimate
+## Post-Refactor Structure
+```
+MidirEngine
+├── Device management
+└── InternalMessageThread
+    └── Clock generation loop
+
+InternalClock
+└── Configuration
