@@ -42,7 +42,11 @@ fmt:
 	$(CARGO) fmt --all
 
 clippy:
-	$(CARGO) clippy -- -D warnings -D clippy::cognitive-complexity
+	$(CARGO) clippy -- -D warnings -D clippy::cognitive-complexity \
+	  -D clippy::too-many-arguments -D clippy::too-many-lines \
+	  -D clippy::nonminimal-bool -D clippy::needless_continue \
+	  -D clippy::large-enum-variant -D clippy::result_large_err \
+	  -D clippy::type-complexity -D clippy::mod_module_files
 
 doc:
 	$(CARGO) doc

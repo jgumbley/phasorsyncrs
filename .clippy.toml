@@ -1,2 +1,27 @@
-# Clippy configuration file
-cognitive-complexity-threshold = 10
+# follow: https://erik.doernenburg.com/2008/11/how-toxic-is-your-code/
+
+cognitive-complexity-threshold = 10  # Default is 25, lower forces refactoring
+
+# Limit excessive function parameters
+too-many-arguments-threshold = 4      # Default is 7, lower means simpler functions
+
+# Limit function length
+too-many-lines-threshold = 50         # Default is 100
+
+# Reduce allowed boolean parameters (favor type-safe enums)
+max-fn-params-bools = 1               # Default is 2
+
+# Prevent excessive nesting
+excessive-nesting-threshold = 6       # Default is 6, forces flatter structures
+
+# Avoid large enums that increase memory footprint
+enum-variant-size-threshold = 200     # Default is 500 bytes
+
+# Limit unnecessary struct booleans (favor named types)
+max-struct-bools = 2                  # Default is 4
+
+# Prevent large error types (forces efficient error handling)
+large-error-threshold = 128           # Default is 512 bytes
+
+# Limit the number of trait bounds (avoids over-engineering)
+max-trait-bounds = 3                  # Default is 5
