@@ -43,6 +43,10 @@ impl InternalClock {
 }
 
 impl MidiClock for InternalClock {
+    fn core(&self) -> &Arc<Mutex<ClockCore>> {
+        &self.core
+    }
+
     fn start(&mut self) {
         self.clock_generator.start();
         info!("Internal clock started");
@@ -55,22 +59,6 @@ impl MidiClock for InternalClock {
             core.process_message(ClockMessage::Stop);
         }
         info!("Internal clock stopped");
-    }
-
-    fn is_playing(&self) -> bool {
-        if let Ok(core) = self.core.lock() {
-            core.is_playing()
-        } else {
-            false
-        }
-    }
-
-    fn current_bpm(&self) -> Option<f64> {
-        if let Ok(core) = self.core.lock() {
-            core.current_bpm()
-        } else {
-            None
-        }
     }
 
     fn handle_message(&mut self, msg: ClockMessage) {

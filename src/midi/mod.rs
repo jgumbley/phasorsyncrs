@@ -35,13 +35,40 @@ pub use internal_clock::{run_internal_clock, InternalClock};
 // Re-export external clock functionality
 pub use external_clock::{run_external_clock, ExternalClock};
 
-// Export MidiClock trait
+use clock::core::ClockCore;
+use std::sync::{Arc, Mutex};
+
+/// Common trait for MIDI clock implementations
 pub trait MidiClock {
+    /// Get access to the core clock implementation
+    fn core(&self) -> &Arc<Mutex<ClockCore>>;
+
+    /// Start the clock
     fn start(&mut self);
+
+    /// Stop the clock
     fn stop(&mut self);
-    fn is_playing(&self) -> bool;
-    fn current_bpm(&self) -> Option<f64>;
+
+    /// Process a clock message
     fn handle_message(&mut self, msg: ClockMessage);
+
+    /// Check if the clock is currently playing
+    fn is_playing(&self) -> bool {
+        if let Ok(core) = self.core().lock() {
+            core.is_playing()
+        } else {
+            false
+        }
+    }
+
+    /// Get the current BPM if available
+    fn current_bpm(&self) -> Option<f64> {
+        if let Ok(core) = self.core().lock() {
+            core.current_bpm()
+        } else {
+            None
+        }
+    }
 }
 
 // Set default engine type
