@@ -95,10 +95,10 @@ classDiagram
 
 ## Implementation Strategy
 
-1. **Phase 1: Core Abstraction**
-- Create `clock/core` module with shared processing logic
-- Extract common transport handling from both implementations
-- Implement unified BPM calculation flow
+1. **Phase 1: Core Abstraction (Completed)**
+- Create `clock/core` module with shared processing logic [x]
+- Extract common transport handling from both implementations [x]
+- Implement unified BPM calculation flow [x]
 
 2. **Phase 2: Source Implementation**
 ```rust
@@ -138,8 +138,9 @@ struct ExternalClock<T: MidiEngine> {
 - Message processing pipeline modifications affect all implementations
 
 ## Migration Checklist
-- [ ] Create `clock/core` module with shared types
+- [x] Create `clock/core` module with shared types
 - [ ] Extract common transport handler from both implementations
+- [ ] Implement unified BPM calculation flow
 - [ ] Implement ClockSource trait for both input types
 - [ ] Refactor MidiClock trait methods to use core
 - [ ] Update thread spawning logic to use generic sources
