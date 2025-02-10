@@ -3,7 +3,7 @@ use phasorsyncrs::ui::{
 };
 use phasorsyncrs::{
     create_shared_state,
-    midi::{InternalClock, MidiClock},
+    midi::{Clock, InternalClock},
 };
 use std::thread;
 use std::time::Duration;

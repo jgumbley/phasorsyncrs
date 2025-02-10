@@ -1,5 +1,5 @@
-use super::clock::{core::ClockCore, ClockMessage};
-use crate::midi::{MidiClock, MidiEngine, MidiMessage};
+use super::clock::{core::ClockCore, Clock, ClockMessage};
+use crate::midi::{MidiEngine, MidiMessage};
 use crate::SharedState;
 use log::{error, info};
 use std::sync::{Arc, Mutex};
@@ -58,7 +58,7 @@ impl ExternalClock {
     }
 }
 
-impl MidiClock for ExternalClock {
+impl Clock for ExternalClock {
     fn core(&self) -> &Arc<Mutex<ClockCore>> {
         &self.core
     }

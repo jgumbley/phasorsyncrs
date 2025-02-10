@@ -29,7 +29,7 @@ pub use midir_engine::MidirEngine;
 pub use mock_engine::MockMidiEngine;
 
 // Re-export clock functionality
-pub use clock::{BpmCalculator, ClockMessage, ClockMessageHandler};
+pub use clock::{BpmCalculator, Clock, ClockMessage, ClockMessageHandler};
 
 // Re-export internal clock functionality
 pub use internal_clock::InternalClock;
@@ -37,23 +37,8 @@ pub use internal_clock::InternalClock;
 // Re-export external clock functionality
 pub use external_clock::{run_external_clock, ExternalClock};
 
-use clock::core::ClockCore;
-use std::sync::{Arc, Mutex};
-
-/// Common trait for MIDI clock implementations
-pub trait MidiClock {
-    /// Get access to the core clock implementation
-    fn core(&self) -> &Arc<Mutex<ClockCore>>;
-
-    /// Start the clock
-    fn start(&mut self);
-
-    /// Stop the clock
-    fn stop(&mut self);
-
-    /// Process a clock message
-    fn handle_message(&mut self, msg: ClockMessage);
-
+/// Extended trait for MIDI clock implementations with convenience methods
+pub trait MidiClock: Clock {
     /// Check if the clock is currently playing
     fn is_playing(&self) -> bool {
         if let Ok(core) = self.core().lock() {
@@ -72,6 +57,9 @@ pub trait MidiClock {
         }
     }
 }
+
+// Implement MidiClock for any type that implements Clock
+impl<T: Clock> MidiClock for T {}
 
 // Set default engine type
 pub type DefaultMidiEngine = MidirEngine;

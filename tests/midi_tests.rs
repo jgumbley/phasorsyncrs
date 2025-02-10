@@ -1,5 +1,6 @@
 use phasorsyncrs::midi::{
-    BpmCalculator, ClockMessage, ClockMessageHandler, InternalClock, MidiClock,
+    BpmCalculator, Clock, ClockMessage, ClockMessageHandler, ExternalClock, InternalClock,
+    MidiClock, MidiMessage,
 };
 use phasorsyncrs::state::TransportState;
 use std::sync::{
@@ -212,8 +213,6 @@ fn test_transport_state_with_ticks() {
 
 #[test]
 fn test_external_transport_state() {
-    use phasorsyncrs::midi::{ExternalClock, MidiMessage};
-
     let shared_state = Arc::new(Mutex::new(TransportState::new()));
     let mut clock = ExternalClock::new(shared_state.clone());
 
@@ -269,18 +268,18 @@ fn test_internal_clock() {
     let mut clock = InternalClock::new(shared_state.clone());
 
     // Initially stopped
-    assert!(!MidiClock::is_playing(&clock));
+    assert!(!clock.is_playing());
 
     // Start the clock
-    MidiClock::start(&mut clock);
-    assert!(MidiClock::is_playing(&clock));
+    clock.start();
+    assert!(clock.is_playing());
 
     // Let it run briefly to stabilize
     thread::sleep(Duration::from_millis(500));
 
     // Stop the clock
-    MidiClock::stop(&mut clock);
-    assert!(!MidiClock::is_playing(&clock));
+    clock.stop();
+    assert!(!clock.is_playing());
 
     // Verify transport state stopped
     {

@@ -2,6 +2,8 @@
 pub mod core;
 
 use crate::midi::MidiMessage;
+use core::ClockCore;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 /// Represents different types of MIDI clock messages
@@ -24,6 +26,14 @@ impl From<MidiMessage> for ClockMessage {
             _ => ClockMessage::Tick, // Default for other MIDI messages
         }
     }
+}
+
+/// Core clock interface for handling timing and transport
+pub trait Clock: Send + Sync {
+    fn start(&mut self);
+    fn stop(&mut self);
+    fn handle_message(&mut self, msg: ClockMessage);
+    fn core(&self) -> &Arc<Mutex<ClockCore>>;
 }
 
 /// Trait for handling MIDI clock messages
