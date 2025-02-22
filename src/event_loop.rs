@@ -2,14 +2,18 @@
 
 use crate::state;
 use log::{debug, error, info};
+use std::collections::VecDeque;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+
+const TICK_HISTORY_SIZE: usize = 24 * 4; // Store last 4 beats (1 bar)
 
 pub struct EventLoop {
     shared_state: Arc<Mutex<state::SharedState>>,
     tick_rx: Receiver<()>,
     last_tick_time: Mutex<Option<Instant>>,
+    tick_history: Mutex<VecDeque<Duration>>,
 }
 
 impl EventLoop {
@@ -18,6 +22,7 @@ impl EventLoop {
             shared_state,
             tick_rx,
             last_tick_time: Mutex::new(None),
+            tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
         }
     }
 
@@ -33,7 +38,9 @@ impl EventLoop {
 
                     if let Some(last_time) = *last_tick_time {
                         let duration = now.duration_since(last_time);
-                        let bpm = calculate_bpm(duration);
+                        update_tick_history(&self.tick_history, duration);
+
+                        let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
                         state.bpm = bpm;
                         info!("Calculated BPM: {}", bpm);
                     } else {
@@ -59,9 +66,24 @@ impl EventLoop {
     }
 }
 
-fn calculate_bpm(duration: Duration) -> u32 {
+fn update_tick_history(tick_history: &Mutex<VecDeque<Duration>>, duration: Duration) {
+    let mut tick_history_lock = tick_history.lock().unwrap();
+    tick_history_lock.push_back(duration);
+    if tick_history_lock.len() > TICK_HISTORY_SIZE {
+        tick_history_lock.pop_front();
+    }
+}
+
+fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
+    if tick_history.is_empty() {
+        return 60;
+    }
+
+    let total_duration: Duration = tick_history.iter().sum();
+    let average_duration = total_duration / tick_history.len() as u32;
+
     // 60 seconds / (duration in seconds * 24 ticks per beat)
-    let seconds = duration.as_secs_f64();
+    let seconds = average_duration.as_secs_f64();
     if seconds == 0.0 {
         // Avoid division by zero
         return 60;
