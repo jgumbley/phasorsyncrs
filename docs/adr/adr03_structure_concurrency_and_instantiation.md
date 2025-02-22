@@ -13,60 +13,89 @@ In addition to the core engine, the application must provide a command line moni
 
 ## Decision
 
-We will adopt a multi-threaded architecture that separates the real-time processing of MIDI events from the command line status inspection. The key design decisions are as follows:
+We will adopt a multi-threaded architecture that separates the real-time processing of MIDI events from the command line status inspection, using message passing as the primary communication mechanism. The key design decisions are as follows:
 
-- **Central Shared State:**  
-  A single shared state object will be defined to hold key parameters, including:
+- **Central Shared State:**
+  A single shared state object will hold key parameters, including:
   - Current BPM (tempo)
   - Transport status (e.g., Running, Stopped, Paused)
   - Current cycle information (current bar, beat, tick)
   - Pattern recording and playback status
   - Any additional diagnostic metrics
 
-  This state will be managed using a thread-safe mechanism (such as a shared, lock-protected data structure) to allow concurrent access by multiple threads.
+  This state will be managed using a mutex and will only be directly accessed by the tick processing thread.
 
-- **Core Engine Threads:**  
-  One or more dedicated worker threads will be responsible for:
-  - Processing the external MIDI clock (e.g., receiving clock pulses and transport messages).
-  - Converting MIDI clock ticks into musical timing (beats, bars).
-  - Recording incoming MIDI events relative to the cycle boundaries.
-  - Querying registered pattern providers and scheduling playback events.
+- **Message Passing System:**
+  A `std::sync::mpsc` channel will serve as the primary communication mechanism between components:
+  ```rust
+  enum Message {
+      MIDITick,
+      UIUpdate(StateSnapshot),
+      TransportCommand(TransportAction),
+      // Extensible for future message types
+  }
+  ```
+  This design ensures that all inter-thread communication happens through explicit message passing rather than shared memory access.
 
-  These threads will update the central shared state as they process incoming events and perform scheduling.
+- **Core Engine Threads:**
+  The system will use several dedicated threads with specific responsibilities:
+  - **MIDI Callback Thread:** Receives external MIDI clock signals and immediately forwards them as `MIDITick` messages through the channel
+  - **Connection Maintenance Thread:** Ensures MIDI connectivity remains stable
+  - **Tick Processing Thread:**
+    - Receives messages from the channel
+    - Updates the shared state based on MIDI ticks
+    - Generates UI update messages containing state snapshots
+    - Handles scheduling and pattern processing
 
-- **Inspector Thread:**  
-  A separate inspector thread will run concurrently and periodically read the shared state to display real-time status information on the command line. This thread will:
-  - Monitor changes in BPM, transport state, cycle position, and pattern status.
-  - Present this information in a human-readable format for diagnostic and monitoring purposes.
+- **Inspector Thread:**
+  The inspector thread will:
+  - Receive UI update messages from the channel containing state snapshots
+  - Display real-time status information on the command line
+  - Never directly access the shared state, preventing UI-related mutex contention
 
-- **Instantiation and Thread Management:**  
+- **Instantiation and Thread Management:**
   The main application will:
-  - Initialize the shared state with default values.
-  - Spawn the core engine thread(s) to handle MIDI processing and scheduling.
-  - Spawn the inspector thread to continuously display the current status.
-  - Use well-defined shutdown and inter-thread communication mechanisms (e.g., channels or atomic flags) to ensure graceful termination and coordinated state updates.
+  - Initialize the shared state with default values
+  - Create the message passing channel
+  - Spawn the MIDI callback thread and tick processing thread
+  - Spawn the inspector thread to receive and display UI updates
+  - Implement graceful shutdown through channel-based signaling
 
 ## Consequences
 
-- **Modularity:**  
-  Separating the core processing (MIDI I/O, timing, event scheduling) from the status monitoring allows each component to evolve independently. Future enhancements (such as audio recording or additional pattern generators) can be integrated without affecting the monitoring layer.
+- **Improved Real-time Performance:**
+  - MIDI callback remains extremely lightweight, only sending a message
+  - No mutex contention from UI updates
+  - Natural backpressure handling through the channel system
 
-- **Thread Safety and Concurrency:**  
-  A centralized shared state managed via a thread-safe construct minimizes the risk of race conditions and simplifies debugging. Real-time processing is isolated in dedicated threads, ensuring that UI or monitoring activities do not interfere with timing-critical operations.
+- **Simplified Concurrency Model:**
+  - Single writer (tick processing thread) to shared state
+  - All other communication happens through message passing
+  - Eliminates potential deadlocks from UI-related mutex access
+  - Clear ownership and responsibility boundaries
 
-- **Incremental Development:**  
-  This architecture enables coding agents to develop the application step-by-step. The core engine can be built and tested independently, after which the inspector thread can be added to provide real-time feedback. Further modules (e.g., for extended MIDI analysis or audio integration) can be plugged in later without reworking the core design.
+- **Enhanced Modularity:**
+  - Components are fully decoupled through message passing
+  - New features can be added by extending the Message enum
+  - UI updates can be throttled or batched without affecting MIDI processing
+  - Easy to add new UI consumers without changing core logic
 
-- **Responsiveness:**  
-  By using a dedicated inspector thread, the application can provide continuous, non-blocking status updates on the command line, thereby aiding in debugging and performance tuning.
+- **Debugging and Testing:**
+  - Message passing makes it easier to trace system behavior
+  - Can log or inspect all inter-thread communication
+  - Easier to test components in isolation
+  - Can simulate different timing scenarios by manipulating message flow
 
 ## Alternatives Considered
 
-- **Single-Threaded Design:**  
-  A single-threaded approach was rejected because the real-time MIDI processing and status monitoring have conflicting timing requirements. Blocking the processing loop to update the UI would compromise the precision needed for MIDI scheduling.
+- **Direct Shared State Access:**
+  Rejected due to mutex contention issues and potential for UI updates to block MIDI processing.
 
-- **Asynchronous (async/await) Model:**  
-  Although an asynchronous approach was considered, the inherent real-time nature of MIDI scheduling and the need for predictable low-latency behavior favor a multi-threaded model with explicit shared state management.
+- **Multiple Channels:**
+  Considered using separate channels for MIDI events and UI updates. While this could prevent UI updates from queueing behind MIDI ticks, the added complexity and potential for message reordering made a single channel preferable for the initial implementation.
+
+- **Lock-free Data Structures:**
+  While lock-free approaches could potentially improve performance, the simplicity and proven reliability of the mpsc channel makes it a better choice for the initial implementation.
 
 ## Status
 

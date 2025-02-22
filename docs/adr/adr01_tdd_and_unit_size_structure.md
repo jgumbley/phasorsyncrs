@@ -8,11 +8,11 @@
 
 ## Context
 
-PhasorSyncRS is our new, forward-looking software platform for high-performance, bidirectional MIDI communication and advanced real-time features. Given that development will be driven largely by agentic AIs under the guidance of an experienced architect (who is not deeply familiar with Rust), it is imperative that:
+PhasorSyncRS is a software platform for high-performance MIDI communication and real-time features. To ensure maintainability and testability, it is imperative that:
 
 - **Modules are Small and Focused:** Each unit of functionality must be self-contained, accomplishing a single well-defined task.
 - **Test-Driven Development (TDD) is the Norm:** Every module must be developed in a TDD fashion to ensure robust, well-verified behavior.
-- **Ease of Refactoring is Central:** Clear, isolated interfaces are essential so that even relatively weak LLM models can confidently re-implement modules within their context when necessary.
+- **Ease of Refactoring is Central:** Clear, isolated interfaces are essential for easy re-implementation of modules when necessary.
 
 This ADR establishes the rules and principles for structuring components and modules in PhasorSyncRS.
 
@@ -74,7 +74,7 @@ We will adhere to the following guidelines for module and component design:
   The modular design allows for isolated re-writes and updates, enabling future enhancements (such as advanced music theory analysis or novel hardware integrations) without impacting the overall system.
 
 - **Easier Collaboration:**  
-  Clear interfaces and small unit sizes lower the entry barrier for new developers and agentic AIs, fostering a more efficient collaborative development process.
+  Clear interfaces and small unit sizes lower the entry barrier for new developers and low context coding agents, fostering a more efficient collaborative development process.
 
 - **Improved Maintainability:**  
   Isolated modules with comprehensive tests make it straightforward to pinpoint issues, upgrade components, or swap out implementations, ensuring long-term maintainability.
@@ -93,8 +93,8 @@ We will adhere to the following guidelines for module and component design:
 
 ## Rationale
 
-Adopting these rules for test-driven, small component, and module structuring aligns with PhasorSyncRS’s goals of performance, extensibility, and maintainability. This approach:
-- Ensures that even non-expert developers or agentic AIs can reliably develop and refactor modules.
+Adopting these rules aligns with PhasorSyncRS’s goals of performance, extensibility, and maintainability. This approach:
+- Ensures that even non-expert developers or low context coding agents can reliably develop and refactor modules.
 - Promotes a resilient architecture capable of evolving with future technological advancements.
 - Mitigates risks associated with cross-domain integration and complex system behavior.
 

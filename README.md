@@ -9,7 +9,7 @@ Real-time MIDI sequencer engine with external clock synchronization and transpor
 
 - **External MIDI Clock Sync** - Slave mode synchronization (src/midi/external_clock.rs)
 - **Transport State Management** - Play/stop/position tracking (src/transport/mod.rs)
-- **Mock MIDI Backends** - Testable with `--features test-mock` (src/midi/mock_engine.rs)
+- **Scheduler Core** - Tick-driven event queue (src/scheduler.rs)
 - **Scheduler Core** - Tick-driven event queue (src/scheduler.rs)
 - **CLI Interface** - Interactive transport control (src/cli/mod.rs)
 
@@ -55,7 +55,6 @@ Key design decisions documented in ADRs:
 
 - [ADR02: MIDI Library Selection](docs/adr/adr02_midi_library_selection.md)
 - [ADR03: Concurrency Model](docs/adr/adr03_structure_concurrency_and_instantiation.md)
-- [Developer Workflow](docs/developer-workflow.md)
 
 ## License 📄
 
