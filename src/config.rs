@@ -18,8 +18,8 @@ pub enum ClockSource {
 }
 
 impl Config {
-    pub fn new() -> Self {
-        let matches = Command::new("Phasorsyncrs")
+    fn parse_arguments() -> clap::ArgMatches {
+        Command::new("Phasorsyncrs")
             .arg(
                 Arg::new("bpm")
                     .short('b')
@@ -43,7 +43,11 @@ impl Config {
                     .help("Sets the external MIDI device to bind to")
                     .required(false),
             )
-            .get_matches();
+            .get_matches()
+    }
+
+    pub fn new() -> Self {
+        let matches = Self::parse_arguments();
 
         let bpm = matches
             .get_one::<String>("bpm")
@@ -58,7 +62,7 @@ impl Config {
             .get_one::<String>("clock-source")
             .map(|s| s.as_str())
             .unwrap_or("internal");
-        
+
         debug!("Raw clock-source argument: {:?}", clock_source_arg);
 
         let bind_to_device = matches.get_one::<String>("bind-to-device").cloned();
@@ -73,11 +77,11 @@ impl Config {
                 "external" => {
                     info!("External clock mode selected via --clock-source");
                     ClockSource::External
-                },
+                }
                 _ => {
                     info!("Using internal clock mode");
                     ClockSource::Internal
-                },
+                }
             }
         };
 

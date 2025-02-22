@@ -1,0 +1,36 @@
+14:21:37 [INFO] Starting Phasorsyncrs
+14:21:37 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:21:37 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:21:37 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:21:37 [INFO] External device specified, forcing external clock mode
+14:21:37 [INFO] Configuration loaded
+14:21:37 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:21:37 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:21:37 [INFO] Shared state initialized with BPM: 120
+14:21:37 [INFO] Starting clock thread
+14:21:37 [INFO] Starting event loop thread
+14:21:37 [INFO] Starting UI thread
+14:21:37 [INFO] Initializing external clock
+14:21:37 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:21:37 [INFO] Starting clock
+14:21:37 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:21:37 [INFO] All threads started, entering main loop
+14:21:37 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:21:37 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:21:37 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:21:37 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:21:37 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:21:37 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:21:37 [INFO] Found matching MIDI device, attempting connection...
+14:21:37 [INFO] Successfully connected to external MIDI device
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 21
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 154
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:21:37 [INFO] Starting MIDI connection maintenance thread
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 155
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 156
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 156
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 156

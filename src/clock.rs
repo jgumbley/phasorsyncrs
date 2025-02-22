@@ -1,8 +1,8 @@
 // clock.rs
 
+use log::{debug, info};
 use std::thread;
 use std::time::Duration;
-use log::{debug, info};
 
 #[allow(dead_code)]
 pub trait ClockSource {
@@ -33,7 +33,8 @@ impl ClockSource for InternalClock {
                 thread::sleep(Duration::from_millis(interval));
                 tick_callback();
                 tick_count += 1;
-                if tick_count % 24 == 0 {  // Log every quarter note (24 MIDI ticks)
+                if tick_count % 24 == 0 {
+                    // Log every quarter note (24 MIDI ticks)
                     debug!("Internal clock tick: {}", tick_count);
                 }
             }
