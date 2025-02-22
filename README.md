@@ -7,11 +7,10 @@ Real-time MIDI sequencer engine with external clock synchronization and transpor
 
 ## Key Features ▶️
 
-- **External MIDI Clock Sync** - Slave mode synchronization (src/midi/external_clock.rs)
-- **Transport State Management** - Play/stop/position tracking (src/transport/mod.rs)
-- **Scheduler Core** - Tick-driven event queue (src/scheduler.rs)
-- **Scheduler Core** - Tick-driven event queue (src/scheduler.rs)
-- **CLI Interface** - Interactive transport control (src/cli/mod.rs)
+- **External MIDI Clock Sync** - Slave mode synchronization (src/external_clock.rs)
+- **Transport State Management** - Play/stop/position tracking (src/state.rs)
+- **Scheduler Core** - Tick-driven event queue (src/event_loop.rs)
+- **CLI Interface** - Interactive transport control (src/ui.rs)
 
 ## Quick Start 🚀
 
