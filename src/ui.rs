@@ -83,9 +83,10 @@ impl UI {
 
             // Update the transport spinner message.
             self.transport_pb.set_message(format!(
-                "BPM: {}, Tick Count: {}",
+                "BPM: {}, Tick Count: {}, Transport: {:?}",
                 state.get_bpm(),
-                state.get_tick_count()
+                state.get_tick_count(),
+                state.transport_state
             ));
 
             // Tick the spinner to animate it.

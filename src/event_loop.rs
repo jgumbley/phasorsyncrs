@@ -9,18 +9,29 @@ use std::time::{Duration, Instant};
 
 const TICK_HISTORY_SIZE: usize = 24 * 4; // Store last 4 beats (1 bar)
 
+pub enum EngineMessage {
+    Tick,
+    TransportCommand(TransportAction),
+}
+
+#[derive(Debug)]
+pub enum TransportAction {
+    Start,
+    Stop,
+}
+
 pub struct EventLoop {
     shared_state: Arc<Mutex<state::SharedState>>,
-    tick_rx: Receiver<()>,
+    rx: Receiver<EngineMessage>,
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
 }
 
 impl EventLoop {
-    pub fn new(shared_state: Arc<Mutex<state::SharedState>>, tick_rx: Receiver<()>) -> Self {
+    pub fn new(shared_state: Arc<Mutex<state::SharedState>>, rx: Receiver<EngineMessage>) -> Self {
         EventLoop {
             shared_state,
-            tick_rx,
+            rx,
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
         }
@@ -29,43 +40,61 @@ impl EventLoop {
     pub fn run(&self) {
         let start_time = Instant::now();
         loop {
-            // Block until a tick event is received.
-            match self.tick_rx.recv() {
-                Ok(()) => {
-                    let now = Instant::now();
-                    let elapsed = now.duration_since(start_time).as_millis();
-                    trace!("EventLoop received tick at {} ms", elapsed);
-
-                    // A tick event has been received.
-                    let mut state = self.shared_state.lock().unwrap();
-                    let now = Instant::now();
-                    let mut last_tick_time = self.last_tick_time.lock().unwrap();
-
-                    if let Some(last_time) = *last_tick_time {
-                        let duration = now.duration_since(last_time);
-                        update_tick_history(&self.tick_history, duration);
-
-                        let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
-                        state.bpm = bpm;
-                        info!("Calculated BPM: {}", bpm);
-                    } else {
-                        info!("First tick received, initializing last_tick_time");
-                    }
-
-                    *last_tick_time = Some(now);
-                    state.tick_update();
-                    trace!(
-                                            "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
-                                            state.get_tick_count(),
-                                            state.get_current_beat(),
-                                            state.get_current_bar(),
-                                            state.get_bpm()
-                                        );
+            match self.rx.recv() {
+                Ok(EngineMessage::Tick) => self.handle_tick(start_time),
+                Ok(EngineMessage::TransportCommand(action)) => {
+                    self.handle_transport_command(action)
                 }
                 Err(e) => {
                     error!("Tick channel error: {}", e);
                     break;
                 }
+            }
+        }
+    }
+
+    fn handle_tick(&self, start_time: Instant) {
+        let now = Instant::now();
+        let elapsed = now.duration_since(start_time).as_millis();
+        trace!("EventLoop received tick at {} ms", elapsed);
+
+        // A tick event has been received.
+        let mut state = self.shared_state.lock().unwrap();
+        let now = Instant::now();
+        let mut last_tick_time = self.last_tick_time.lock().unwrap();
+
+        if let Some(last_time) = *last_tick_time {
+            let duration = now.duration_since(last_time);
+            update_tick_history(&self.tick_history, duration);
+
+            let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
+            state.bpm = bpm;
+            info!("Calculated BPM: {}", bpm);
+        } else {
+            info!("First tick received, initializing last_tick_time");
+        }
+
+        *last_tick_time = Some(now);
+        state.tick_update();
+        trace!(
+            "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
+            state.get_tick_count(),
+            state.get_current_beat(),
+            state.get_current_bar(),
+            state.get_bpm()
+        );
+    }
+
+    fn handle_transport_command(&self, action: TransportAction) {
+        let mut state = self.shared_state.lock().unwrap();
+        match action {
+            TransportAction::Start => state.transport_state = state::TransportState::Playing,
+            TransportAction::Stop => {
+                state.transport_state = state::TransportState::Stopped;
+                state.tick_count = 0;
+                // Reset bar/beat, etc.
+                state.current_beat = 0;
+                state.current_bar = 0;
             }
         }
     }
@@ -78,7 +107,6 @@ fn update_tick_history(tick_history: &Mutex<VecDeque<Duration>>, duration: Durat
         tick_history_lock.pop_front();
     }
 }
-
 fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
     if tick_history.is_empty() {
         return 60;

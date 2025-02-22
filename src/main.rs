@@ -8,6 +8,7 @@ mod logging;
 mod state;
 mod ui;
 
+use crate::event_loop::EngineMessage;
 use log::{debug, info};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
@@ -16,7 +17,7 @@ use std::thread;
 fn initialize_clock(
     config: config::Config,
     shared_state: Arc<Mutex<state::SharedState>>,
-    tick_tx: Sender<()>,
+    tick_tx: Sender<EngineMessage>,
 ) {
     let clock_shared_state = Arc::clone(&shared_state);
     info!("Starting clock thread");
@@ -47,11 +48,11 @@ fn initialize_clock(
     });
 }
 
-fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>, tick_rx: Receiver<()>) {
+fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>, rx: Receiver<EngineMessage>) {
     let event_loop_shared_state = Arc::clone(&shared_state);
     info!("Starting event loop thread");
     thread::spawn(move || {
-        let event_loop = event_loop::EventLoop::new(event_loop_shared_state, tick_rx);
+        let event_loop = event_loop::EventLoop::new(event_loop_shared_state, rx);
         event_loop.run();
     });
 }
@@ -96,10 +97,10 @@ fn main() {
     info!("Shared state initialized with BPM: {}", config.bpm);
 
     // Create tick channel
-    let (tick_tx, tick_rx): (Sender<()>, Receiver<()>) = mpsc::channel();
+    let (tick_tx, tick_rx): (Sender<EngineMessage>, Receiver<EngineMessage>) = mpsc::channel();
 
     // Start the clock thread
-    initialize_clock(config, Arc::clone(&shared_state), tick_tx);
+    initialize_clock(config, Arc::clone(&shared_state), tick_tx.clone());
 
     // Start the event loop thread
     start_event_loop(Arc::clone(&shared_state), tick_rx);

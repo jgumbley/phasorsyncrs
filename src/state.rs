@@ -2,11 +2,20 @@
 
 use crate::config::{BARS_PER_PHRASE, BEATS_PER_BAR, TICKS_PER_BEAT};
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TransportState {
+    Stopped,
+    Playing,
+}
+
 pub struct SharedState {
     pub bpm: u32,
-    tick_count: u64,
-    current_beat: u32,
-    current_bar: u32,
+    pub tick_count: u64,
+    pub current_beat: u32,
+    pub current_bar: u32,
+
+    // Add this
+    pub transport_state: TransportState,
 }
 
 impl SharedState {
@@ -16,10 +25,16 @@ impl SharedState {
             tick_count: 0,
             current_beat: 0,
             current_bar: 0,
+            transport_state: TransportState::Stopped,
         }
     }
 
     pub fn tick_update(&mut self) {
+        // Only increment ticks if transport is in Playing state:
+        if self.transport_state != TransportState::Playing {
+            return;
+        }
+
         self.tick_count += 1;
 
         // Calculate the tick position within the current beat.

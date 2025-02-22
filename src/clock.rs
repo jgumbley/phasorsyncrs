@@ -1,5 +1,6 @@
 // clock.rs
 
+use crate::event_loop::EngineMessage;
 use log::{info, trace};
 use std::sync::mpsc::Sender;
 use std::thread;
@@ -12,11 +13,11 @@ pub trait ClockSource {
 
 pub struct InternalClock {
     bpm: u32,
-    tick_tx: Sender<()>,
+    tick_tx: Sender<EngineMessage>,
 }
 
 impl InternalClock {
-    pub fn new(tick_tx: Sender<()>) -> Self {
+    pub fn new(tick_tx: Sender<EngineMessage>) -> Self {
         info!("Creating new InternalClock with default BPM: 122");
         InternalClock { bpm: 122, tick_tx }
     }
@@ -48,7 +49,7 @@ impl ClockSource for InternalClock {
                     trace!("InternalClock tick at {} ms", elapsed);
 
                     tick_callback();
-                    tick_tx.send(()).unwrap();
+                    tick_tx.send(EngineMessage::Tick).unwrap();
                     tick_count += 1;
                 }
                 trace!("Internal clock beat: {}", tick_count / 24);
