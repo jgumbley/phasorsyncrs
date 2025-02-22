@@ -3,7 +3,7 @@
 use crate::config::{BARS_PER_PHRASE, BEATS_PER_BAR, TICKS_PER_BEAT};
 
 pub struct SharedState {
-    bpm: u32,
+    pub bpm: u32,
     tick_count: u64,
     current_beat: u32,
     current_bar: u32,
