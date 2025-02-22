@@ -25,7 +25,7 @@ fn initialize_clock(
         let clock: Box<dyn clock::ClockSource> = match config.clock_source {
             config::ClockSource::Internal => {
                 info!("Initializing internal clock");
-                Box::new(clock::InternalClock::new())
+                Box::new(clock::InternalClock::new(tick_tx_clone.clone()))
             }
             config::ClockSource::External => {
                 info!("Initializing external clock");
@@ -33,7 +33,7 @@ fn initialize_clock(
                     .bind_to_device
                     .clone()
                     .expect("Device binding required for external sync");
-                let external_clock = external_clock::ExternalClock::new(device);
+                let external_clock = external_clock::ExternalClock::new(device, tick_tx_clone);
                 Box::new(external_clock)
             }
         };
@@ -42,9 +42,6 @@ fn initialize_clock(
         clock.start(Box::new(move || {
             if let Ok(mut state) = clock_shared_state.lock() {
                 state.tick_update();
-                if config.clock_source == config::ClockSource::External {
-                    tick_tx_clone.send(()).unwrap();
-                }
             }
         }));
     });

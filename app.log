@@ -885,3 +885,439 @@
 14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 207
 14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
 14:56:36 [ERROR] Tick channel error: receiving on a closed channel
+14:58:18 [INFO] Starting Phasorsyncrs
+14:58:18 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:58:18 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:58:18 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:58:18 [INFO] External device specified, forcing external clock mode
+14:58:18 [INFO] Configuration loaded
+14:58:18 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:58:18 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:18 [INFO] Shared state initialized with BPM: 120
+14:58:18 [INFO] Starting clock thread
+14:58:18 [INFO] Starting event loop thread
+14:58:18 [INFO] Initializing external clock
+14:58:18 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:18 [INFO] Starting clock
+14:58:18 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:18 [INFO] Starting UI thread
+14:58:18 [INFO] All threads started, entering main loop
+14:58:18 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:58:18 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:58:18 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:58:18 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:58:18 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:58:18 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:18 [INFO] Found matching MIDI device, attempting connection...
+14:58:18 [INFO] Successfully connected to external MIDI device
+14:58:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 15
+14:58:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:58:18 [INFO] Starting MIDI connection maintenance thread
+14:58:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:58:18 [ERROR] Tick channel error: receiving on a closed channel
+14:58:24 [INFO] Starting Phasorsyncrs
+14:58:24 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:58:24 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:58:24 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: None
+14:58:24 [INFO] Using internal clock mode
+14:58:24 [INFO] Configuration loaded
+14:58:24 [DEBUG] (1) phasorsyncrs: Clock source: "Internal"
+14:58:24 [INFO] Shared state initialized with BPM: 120
+14:58:24 [INFO] Starting clock thread
+14:58:24 [INFO] Starting event loop thread
+14:58:24 [INFO] Initializing internal clock
+14:58:24 [INFO] Creating new InternalClock with default BPM: 120
+14:58:24 [INFO] Starting clock
+14:58:24 [INFO] Starting InternalClock with BPM: 120
+14:58:24 [DEBUG] (2) phasorsyncrs::clock: Calculated tick interval: 500ms
+14:58:24 [INFO] Starting UI thread
+14:58:24 [INFO] All threads started, entering main loop
+14:58:24 [INFO] Internal clock thread started
+14:58:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:58:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:58:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:58:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:58:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:58:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:58:28 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:58:28 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:58:29 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:58:29 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:58:30 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:58:30 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:58:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+14:58:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+14:58:32 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+14:58:32 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+14:58:33 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+14:58:33 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+14:58:34 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+14:58:34 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+14:58:35 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+14:58:35 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+14:58:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+14:58:36 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 24
+14:58:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+14:58:37 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+14:58:37 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+14:58:38 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=54, current_beat=3, current_bar=1
+14:58:38 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=56, current_beat=3, current_bar=1
+14:58:39 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=58, current_beat=3, current_bar=1
+14:58:39 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=60, current_beat=3, current_bar=1
+14:58:40 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=62, current_beat=3, current_bar=1
+14:58:40 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=64, current_beat=3, current_bar=1
+14:58:41 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=66, current_beat=3, current_bar=1
+14:58:41 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=68, current_beat=3, current_bar=1
+14:58:42 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=70, current_beat=3, current_bar=1
+14:58:42 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=72, current_beat=4, current_bar=1
+14:58:48 [INFO] Starting Phasorsyncrs
+14:58:48 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:58:48 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:58:48 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:58:48 [INFO] External device specified, forcing external clock mode
+14:58:48 [INFO] Configuration loaded
+14:58:48 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:58:48 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:48 [INFO] Shared state initialized with BPM: 120
+14:58:48 [INFO] Starting clock thread
+14:58:48 [INFO] Starting event loop thread
+14:58:48 [INFO] Initializing external clock
+14:58:48 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:48 [INFO] Starting clock
+14:58:48 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:48 [INFO] Starting UI thread
+14:58:48 [INFO] All threads started, entering main loop
+14:58:48 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:58:48 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:58:48 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:58:48 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:58:48 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:58:48 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:58:48 [INFO] Found matching MIDI device, attempting connection...
+14:58:48 [INFO] Successfully connected to external MIDI device
+14:58:48 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 186
+14:58:48 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:58:48 [INFO] Starting MIDI connection maintenance thread
+14:58:48 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 186
+14:58:48 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:58:48 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:58:48 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:58:48 [ERROR] Tick channel error: receiving on a closed channel
+14:58:55 [INFO] Starting Phasorsyncrs
+14:58:55 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:58:55 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:58:55 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: None
+14:58:55 [INFO] Using internal clock mode
+14:58:55 [INFO] Configuration loaded
+14:58:55 [DEBUG] (1) phasorsyncrs: Clock source: "Internal"
+14:58:55 [INFO] Shared state initialized with BPM: 120
+14:58:55 [INFO] Starting clock thread
+14:58:55 [INFO] Starting event loop thread
+14:58:55 [INFO] Starting UI thread
+14:58:55 [INFO] All threads started, entering main loop
+14:58:55 [INFO] Initializing internal clock
+14:58:55 [INFO] Creating new InternalClock with default BPM: 120
+14:58:55 [INFO] Starting clock
+14:58:55 [INFO] Starting InternalClock with BPM: 120
+14:58:55 [DEBUG] (2) phasorsyncrs::clock: Calculated tick interval: 500ms
+14:58:55 [INFO] Internal clock thread started
+14:58:56 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:58:56 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:58:57 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:58:57 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:58:58 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:58:58 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:58:59 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:58:59 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:59:00 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:59:00 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+15:01:22 [INFO] Starting Phasorsyncrs
+15:01:22 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+15:01:22 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+15:01:22 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: None
+15:01:22 [INFO] Using internal clock mode
+15:01:22 [INFO] Configuration loaded
+15:01:22 [DEBUG] (1) phasorsyncrs: Clock source: "Internal"
+15:01:22 [INFO] Shared state initialized with BPM: 120
+15:01:22 [INFO] Starting clock thread
+15:01:22 [INFO] Starting event loop thread
+15:01:22 [INFO] Starting UI thread
+15:01:22 [INFO] All threads started, entering main loop
+15:01:22 [INFO] Initializing internal clock
+15:01:22 [INFO] Creating new InternalClock with default BPM: 120
+15:01:22 [INFO] Starting clock
+15:01:22 [INFO] Starting InternalClock with BPM: 120
+15:01:22 [DEBUG] (2) phasorsyncrs::clock: Calculated tick interval: 500ms
+15:01:22 [INFO] Internal clock thread started
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+15:01:22 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+15:01:23 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=54, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=56, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=58, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=60, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=62, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=64, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=66, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=68, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=70, current_beat=3, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=72, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=74, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=76, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=78, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=80, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=82, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=84, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=86, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=88, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=90, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=92, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=94, current_beat=4, current_bar=1
+15:01:23 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=96, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=98, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=100, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=102, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=104, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=106, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=108, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=110, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=112, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=114, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=116, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=118, current_beat=1, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=120, current_beat=2, current_bar=2
+15:01:23 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=122, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=124, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=126, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=128, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=130, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=132, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=134, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=136, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=138, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=140, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=142, current_beat=2, current_bar=2
+15:01:24 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=144, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=146, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=148, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=150, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=152, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=154, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=156, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=158, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=160, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=162, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=164, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=166, current_beat=3, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=168, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=170, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=172, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=174, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=176, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=178, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=180, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=182, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=184, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=186, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=188, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=190, current_beat=4, current_bar=2
+15:01:24 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 4
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=192, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=194, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=196, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=198, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=200, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=202, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=204, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=206, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=208, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=210, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=212, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=214, current_beat=1, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=216, current_beat=2, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=218, current_beat=2, current_bar=3
+15:01:24 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=220, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=222, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=224, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=226, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=228, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=230, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=232, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=234, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=236, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=238, current_beat=2, current_bar=3
+15:01:25 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 5
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=240, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=242, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=244, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=246, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=248, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=250, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=252, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=254, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=256, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=258, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=260, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=262, current_beat=3, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=264, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=266, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=268, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=270, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=272, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=274, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=276, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=278, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=280, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=282, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=284, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=286, current_beat=4, current_bar=3
+15:01:25 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 6
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=288, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=290, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=292, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=294, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=296, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=298, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=300, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=302, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=304, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=306, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=308, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=310, current_beat=1, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=312, current_beat=2, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=314, current_beat=2, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=316, current_beat=2, current_bar=4
+15:01:25 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=318, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=320, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=322, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=324, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=326, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=328, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=330, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=332, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=334, current_beat=2, current_bar=4
+15:01:26 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 7
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=336, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=338, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=340, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=342, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=344, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=346, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=348, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=350, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=352, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=354, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=356, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=358, current_beat=3, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=360, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=362, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=364, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=366, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=368, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=370, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=372, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=374, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=376, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=378, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=380, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=382, current_beat=4, current_bar=4
+15:01:26 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 8
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=384, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=386, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=388, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=390, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=392, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=394, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=396, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=398, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=400, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=402, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=404, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=406, current_beat=1, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=408, current_beat=2, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=410, current_beat=2, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=412, current_beat=2, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=414, current_beat=2, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=416, current_beat=2, current_bar=1
+15:01:26 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=418, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=420, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=422, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=424, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=426, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=428, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=430, current_beat=2, current_bar=1
+15:01:27 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 9
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=432, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=434, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=436, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=438, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=440, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=442, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=444, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=446, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=448, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=450, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=452, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=454, current_beat=3, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=456, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=458, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=460, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=462, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=464, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=466, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=468, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=470, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=472, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=474, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=476, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=478, current_beat=4, current_bar=1
+15:01:27 [DEBUG] (5) phasorsyncrs::clock: Internal clock beat: 10
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=480, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=482, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=484, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=486, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=488, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=490, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=492, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=494, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=496, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=498, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=500, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=502, current_beat=1, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=504, current_beat=2, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=506, current_beat=2, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=508, current_beat=2, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=510, current_beat=2, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=512, current_beat=2, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=514, current_beat=2, current_bar=2
+15:01:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=516, current_beat=2, current_bar=2
+15:01:28 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=518, current_beat=2, current_bar=2
+15:01:28 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=520, current_beat=2, current_bar=2
+15:01:28 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=522, current_beat=2, current_bar=2
+15:01:28 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=524, current_beat=2, current_bar=2

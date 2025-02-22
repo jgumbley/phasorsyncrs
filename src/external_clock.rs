@@ -1,22 +1,28 @@
 use crate::clock::ClockSource;
 use log::{debug, info};
 use midir::{Ignore, MidiInput};
+use std::sync::mpsc::Sender;
 use std::thread;
 
 pub struct ExternalClock {
     device_name: String,
+    tick_tx: Sender<()>,
 }
 
 impl ExternalClock {
-    pub fn new(device_name: String) -> Self {
+    pub fn new(device_name: String, tick_tx: Sender<()>) -> Self {
         info!("Creating new ExternalClock with device: {}", device_name);
-        ExternalClock { device_name }
+        ExternalClock {
+            device_name,
+            tick_tx,
+        }
     }
 }
 
 impl ClockSource for ExternalClock {
     fn start(&self, tick_callback: Box<dyn Fn() + Send + 'static>) {
         info!("Starting ExternalClock with device: {}", self.device_name);
+        let tick_tx = self.tick_tx.clone();
 
         let mut midi_in =
             MidiInput::new("phasorsyncrs-external").expect("Failed to initialize MIDI input");
@@ -57,6 +63,7 @@ impl ClockSource for ExternalClock {
                             // On MIDI Clock message, invoke tick_callback
                             debug!("Received MIDI Clock message");
                             tick_callback();
+                            tick_tx.send(()).unwrap();
                         }
                     }
                 },
