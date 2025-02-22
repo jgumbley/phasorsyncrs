@@ -1,7 +1,7 @@
 // event_loop.rs
 
 use crate::state;
-use log::{debug, error, info};
+use log::{error, info, trace};
 use std::collections::VecDeque;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -27,10 +27,15 @@ impl EventLoop {
     }
 
     pub fn run(&self) {
+        let start_time = Instant::now();
         loop {
             // Block until a tick event is received.
             match self.tick_rx.recv() {
                 Ok(()) => {
+                    let now = Instant::now();
+                    let elapsed = now.duration_since(start_time).as_millis();
+                    trace!("EventLoop received tick at {} ms", elapsed);
+
                     // A tick event has been received.
                     let mut state = self.shared_state.lock().unwrap();
                     let now = Instant::now();
@@ -49,13 +54,13 @@ impl EventLoop {
 
                     *last_tick_time = Some(now);
                     state.tick_update();
-                    debug!(
-                        "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
-                        state.get_tick_count(),
-                        state.get_current_beat(),
-                        state.get_current_bar(),
-                        state.get_bpm()
-                    );
+                    trace!(
+                                            "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
+                                            state.get_tick_count(),
+                                            state.get_current_beat(),
+                                            state.get_current_bar(),
+                                            state.get_bpm()
+                                        );
                 }
                 Err(e) => {
                     error!("Tick channel error: {}", e);
@@ -80,14 +85,23 @@ fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
     }
 
     let total_duration: Duration = tick_history.iter().sum();
+    trace!("calculate_bpm: total_duration={:?}", total_duration);
+
     let average_duration = total_duration / tick_history.len() as u32;
+    trace!("calculate_bpm: average_duration={:?}", average_duration);
 
     // 60 seconds / (duration in seconds * 24 ticks per beat)
     let seconds = average_duration.as_secs_f64();
+    trace!("calculate_bpm: seconds={}", seconds);
+
     if seconds == 0.0 {
         // Avoid division by zero
         return 60;
     }
     let bpm = 60.0 / (seconds * 24.0);
-    bpm.round() as u32
+    trace!("calculate_bpm: bpm={}", bpm);
+
+    let rounded_bpm = bpm.round() as u32;
+    trace!("calculate_bpm: rounded_bpm={}", rounded_bpm);
+    rounded_bpm
 }
