@@ -6,17 +6,17 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc unittest slowtest lint clean list-devices followlog
+.PHONY: run build test check fmt clippy doc unittest slowtest lint clean list-devices followlog clean_log
 
 # Main targets
-run: build
-	$(CARGO) run
+run: clean_log build
+	$(CARGO) run 
 
-list-devices: build
-	$(CARGO) run -- --device-list
+list-devices: clean_log build
+	$(CARGO) run -- --device-list && cat app.log
 
-run-oxi: build
-	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0"
+run-oxi: clean_log build
+	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0" && cat app.log
 
 build: lint test
 	$(CARGO) build
@@ -51,10 +51,10 @@ clippy:
 doc:
 	$(CARGO) doc
 
-# Logging
-followlog:
-	tail -f $(HOME)/.local/share/phasorsyncrs/logs/app.log | ack --passthru WARNING
 
 # Cleanup
 clean:
 	$(CARGO) clean
+
+clean_log:
+	> app.log
