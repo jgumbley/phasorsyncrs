@@ -19,12 +19,6 @@ impl EventLoop {
             thread::sleep(Duration::from_millis(10)); // Simulate tick event
             let mut state = self.shared_state.lock().unwrap();
             state.tick_update();
-            println!(
-                "Tick: {}, Beat: {}, Bar: {}",
-                state.get_tick_count(),
-                state.get_current_beat(),
-                state.get_current_bar()
-            );
         }
     }
 }
