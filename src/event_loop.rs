@@ -89,5 +89,5 @@ fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
         return 60;
     }
     let bpm = 60.0 / (seconds * 24.0);
-    bpm as u32
+    bpm.round() as u32
 }
