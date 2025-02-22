@@ -12,6 +12,7 @@ pub struct Config {
     pub bind_to_device: Option<String>, // New field for external sync
 }
 
+#[derive(PartialEq)]
 pub enum ClockSource {
     Internal,
     External,

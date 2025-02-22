@@ -9,12 +9,18 @@ mod state;
 mod ui;
 
 use log::{debug, info};
+use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-fn initialize_clock(config: config::Config, shared_state: Arc<Mutex<state::SharedState>>) {
+fn initialize_clock(
+    config: config::Config,
+    shared_state: Arc<Mutex<state::SharedState>>,
+    tick_tx: Sender<()>,
+) {
     let clock_shared_state = Arc::clone(&shared_state);
     info!("Starting clock thread");
+    let tick_tx_clone = tick_tx.clone();
     thread::spawn(move || {
         let clock: Box<dyn clock::ClockSource> = match config.clock_source {
             config::ClockSource::Internal => {
@@ -27,7 +33,8 @@ fn initialize_clock(config: config::Config, shared_state: Arc<Mutex<state::Share
                     .bind_to_device
                     .clone()
                     .expect("Device binding required for external sync");
-                Box::new(external_clock::ExternalClock::new(device))
+                let external_clock = external_clock::ExternalClock::new(device);
+                Box::new(external_clock)
             }
         };
 
@@ -35,16 +42,20 @@ fn initialize_clock(config: config::Config, shared_state: Arc<Mutex<state::Share
         clock.start(Box::new(move || {
             if let Ok(mut state) = clock_shared_state.lock() {
                 state.tick_update();
+                if config.clock_source == config::ClockSource::External {
+                    tick_tx_clone.send(()).unwrap();
+                }
             }
         }));
     });
 }
 
-fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>) {
+fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>, tick_rx: Receiver<()>) {
     let event_loop_shared_state = Arc::clone(&shared_state);
     info!("Starting event loop thread");
     thread::spawn(move || {
-        event_loop::EventLoop::new(event_loop_shared_state).run();
+        let event_loop = event_loop::EventLoop::new(event_loop_shared_state, tick_rx);
+        event_loop.run();
     });
 }
 
@@ -87,11 +98,14 @@ fn main() {
     let shared_state = Arc::new(Mutex::new(state::SharedState::new(config.bpm)));
     info!("Shared state initialized with BPM: {}", config.bpm);
 
+    // Create tick channel
+    let (tick_tx, tick_rx): (Sender<()>, Receiver<()>) = mpsc::channel();
+
     // Start the clock thread
-    initialize_clock(config, Arc::clone(&shared_state));
+    initialize_clock(config, Arc::clone(&shared_state), tick_tx);
 
     // Start the event loop thread
-    start_event_loop(Arc::clone(&shared_state));
+    start_event_loop(Arc::clone(&shared_state), tick_rx);
 
     // Start the UI thread
     start_ui(Arc::clone(&shared_state));

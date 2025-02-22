@@ -34,3 +34,854 @@
 14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 156
 14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
 14:21:37 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 156
+14:53:49 [INFO] Starting Phasorsyncrs
+14:53:49 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:53:49 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:53:49 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:53:49 [INFO] External device specified, forcing external clock mode
+14:53:49 [INFO] Configuration loaded
+14:53:49 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:53:49 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:53:49 [INFO] Shared state initialized with BPM: 120
+14:53:49 [INFO] Starting clock thread
+14:53:49 [INFO] Starting event loop thread
+14:53:49 [INFO] Starting UI thread
+14:53:49 [INFO] Initializing external clock
+14:53:49 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:53:49 [INFO] Starting clock
+14:53:49 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:53:49 [INFO] All threads started, entering main loop
+14:53:49 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:53:49 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:53:49 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:53:49 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:53:49 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:53:49 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:53:49 [INFO] Found matching MIDI device, attempting connection...
+14:53:49 [INFO] Successfully connected to external MIDI device
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 16
+14:53:49 [INFO] Starting MIDI connection maintenance thread
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 306
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 307
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 308
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 308
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 309
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 309
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 309
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 310
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 310
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 310
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 311
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 311
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 311
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 312
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 312
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 312
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 313
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 313
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 313
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 314
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 314
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 314
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 315
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 315
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 315
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 316
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 316
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 317
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 317
+14:53:49 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:53:49 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+14:53:49 [ERROR] Tick channel error: receiving on a closed channel
+14:54:18 [INFO] Starting Phasorsyncrs
+14:54:18 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:54:18 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:54:18 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:54:18 [INFO] External device specified, forcing external clock mode
+14:54:18 [INFO] Configuration loaded
+14:54:18 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:54:18 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:54:18 [INFO] Shared state initialized with BPM: 120
+14:54:18 [INFO] Starting clock thread
+14:54:18 [INFO] Starting event loop thread
+14:54:18 [INFO] Initializing external clock
+14:54:18 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:54:18 [INFO] Starting clock
+14:54:18 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:54:18 [INFO] Starting UI thread
+14:54:18 [INFO] All threads started, entering main loop
+14:54:18 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:54:18 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:54:18 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:54:18 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:54:18 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:54:18 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:54:18 [INFO] Found matching MIDI device, attempting connection...
+14:54:18 [INFO] Successfully connected to external MIDI device
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 17
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 145
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 146
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=3, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [INFO] Starting MIDI connection maintenance thread
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 147
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 147
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 148
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 148
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 149
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 149
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 150
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 150
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 151
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 151
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 152
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 153
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 153
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 154
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 188
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 189
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 189
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 190
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 190
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 191
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 192
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 192
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 193
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 194
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 194
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 195
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 195
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 196
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 197
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=54, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 197
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=56, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 240
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=58, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 241
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=60, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 241
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=62, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 242
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=64, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 248
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=66, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 249
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=68, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 249
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=70, current_beat=3, current_bar=1
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 250
+14:54:18 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=72, current_beat=4, current_bar=1
+14:54:18 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=74, current_beat=4, current_bar=1
+14:54:18 [ERROR] Tick channel error: receiving on a closed channel
+14:54:50 [INFO] Starting Phasorsyncrs
+14:54:50 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:54:50 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:54:50 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: None
+14:54:50 [INFO] Using internal clock mode
+14:54:50 [INFO] Configuration loaded
+14:54:50 [DEBUG] (1) phasorsyncrs: Clock source: "Internal"
+14:54:50 [INFO] Shared state initialized with BPM: 120
+14:54:50 [INFO] Starting clock thread
+14:54:50 [INFO] Starting event loop thread
+14:54:50 [INFO] Initializing internal clock
+14:54:50 [INFO] Creating new InternalClock with default BPM: 120
+14:54:50 [INFO] Starting clock
+14:54:50 [INFO] Starting InternalClock with BPM: 120
+14:54:50 [DEBUG] (2) phasorsyncrs::clock: Calculated tick interval: 500ms
+14:54:50 [INFO] Starting UI thread
+14:54:50 [INFO] All threads started, entering main loop
+14:54:50 [INFO] Internal clock thread started
+14:55:02 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 24
+14:55:14 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 48
+14:55:26 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 72
+14:55:38 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 96
+14:55:50 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 120
+14:56:02 [DEBUG] (4) phasorsyncrs::clock: Internal clock tick: 144
+14:56:14 [INFO] Starting Phasorsyncrs
+14:56:14 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:56:14 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:56:14 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:56:14 [INFO] External device specified, forcing external clock mode
+14:56:14 [INFO] Configuration loaded
+14:56:14 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:56:14 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:14 [INFO] Shared state initialized with BPM: 120
+14:56:14 [INFO] Starting clock thread
+14:56:14 [INFO] Starting event loop thread
+14:56:14 [INFO] Initializing external clock
+14:56:14 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:14 [INFO] Starting clock
+14:56:14 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:14 [INFO] Starting UI thread
+14:56:14 [INFO] All threads started, entering main loop
+14:56:14 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:56:14 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:56:14 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:56:14 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:56:14 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:56:14 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:14 [INFO] Found matching MIDI device, attempting connection...
+14:56:14 [INFO] Successfully connected to external MIDI device
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 53
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [INFO] Starting MIDI connection maintenance thread
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 128
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 129
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 129
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 481
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 482
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 482
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 483
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 483
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 483
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 483
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 484
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 484
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 485
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 485
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 485
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 486
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 486
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 486
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 487
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 487
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 487
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 488
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 488
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 488
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 489
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 489
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 489
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 489
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 490
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 490
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 490
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=54, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 491
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=56, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 491
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=58, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 491
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=60, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 491
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=62, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 492
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=64, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 492
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=66, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 492
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=68, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 493
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=70, current_beat=3, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 493
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=72, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 493
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 494
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=74, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 494
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 494
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=76, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 495
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=78, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 495
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 495
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=80, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 496
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=82, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 496
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=84, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 496
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 496
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=86, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 497
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=88, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 497
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=90, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 497
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=92, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 498
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=94, current_beat=4, current_bar=1
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 498
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=96, current_beat=1, current_bar=2
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 498
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=98, current_beat=1, current_bar=2
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 499
+14:56:14 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=100, current_beat=1, current_bar=2
+14:56:14 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=102, current_beat=1, current_bar=2
+14:56:14 [ERROR] Tick channel error: receiving on a closed channel
+14:56:27 [INFO] Starting Phasorsyncrs
+14:56:27 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:56:27 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:56:27 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:56:27 [INFO] External device specified, forcing external clock mode
+14:56:27 [INFO] Configuration loaded
+14:56:27 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:56:27 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:27 [INFO] Shared state initialized with BPM: 120
+14:56:27 [INFO] Starting clock thread
+14:56:27 [INFO] Starting event loop thread
+14:56:27 [INFO] Starting UI thread
+14:56:27 [INFO] Initializing external clock
+14:56:27 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:27 [INFO] Starting clock
+14:56:27 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:27 [INFO] All threads started, entering main loop
+14:56:27 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:56:27 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:56:27 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:56:27 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:56:27 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:56:27 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:27 [INFO] Found matching MIDI device, attempting connection...
+14:56:27 [INFO] Successfully connected to external MIDI device
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 67
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 68
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:56:27 [INFO] Starting MIDI connection maintenance thread
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 68
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 69
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 69
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 69
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 70
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 70
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 70
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 250
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 250
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 251
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 251
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 251
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 252
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 252
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 253
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 253
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 253
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 254
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 254
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 254
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 255
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 255
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 255
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 271
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 271
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 272
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 272
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 272
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 273
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 273
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=54, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 273
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=56, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 273
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=58, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=60, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 274
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 274
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=62, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 274
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=64, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 275
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=66, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 275
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=68, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 275
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=70, current_beat=3, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 275
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=72, current_beat=4, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 312
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=74, current_beat=4, current_bar=1
+14:56:27 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 312
+14:56:27 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=76, current_beat=4, current_bar=1
+14:56:27 [ERROR] Tick channel error: receiving on a closed channel
+14:56:31 [INFO] Starting Phasorsyncrs
+14:56:31 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:56:31 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:56:31 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:56:31 [INFO] External device specified, forcing external clock mode
+14:56:31 [INFO] Configuration loaded
+14:56:31 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:56:31 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:31 [INFO] Shared state initialized with BPM: 120
+14:56:31 [INFO] Starting clock thread
+14:56:31 [INFO] Starting event loop thread
+14:56:31 [INFO] Initializing external clock
+14:56:31 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:31 [INFO] Starting clock
+14:56:31 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:31 [INFO] Starting UI thread
+14:56:31 [INFO] All threads started, entering main loop
+14:56:31 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:56:31 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:56:31 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:56:31 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:56:31 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:56:31 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:31 [INFO] Found matching MIDI device, attempting connection...
+14:56:31 [INFO] Successfully connected to external MIDI device
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 47
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [INFO] Starting MIDI connection maintenance thread
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 228
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 229
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 229
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 229
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 230
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 230
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 230
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 231
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 231
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 231
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 232
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 232
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 232
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 233
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 233
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 233
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=26, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=28, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 260
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 261
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=30, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=32, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 261
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 262
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=34, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=36, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 262
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 262
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=38, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 263
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=40, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 263
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=42, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=44, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 263
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 264
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=46, current_beat=2, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 264
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 264
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 265
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=48, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=50, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 489
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 490
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 490
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=52, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 490
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=54, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 491
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 491
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=56, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 492
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=58, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 492
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=60, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 492
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=62, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=64, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 493
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 493
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=66, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 494
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=68, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=70, current_beat=3, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 494
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=72, current_beat=4, current_bar=1
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 494
+14:56:31 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:31 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=74, current_beat=4, current_bar=1
+14:56:31 [ERROR] Tick channel error: receiving on a closed channel
+14:56:33 [INFO] Starting Phasorsyncrs
+14:56:33 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:56:33 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:56:33 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:56:33 [INFO] External device specified, forcing external clock mode
+14:56:33 [INFO] Configuration loaded
+14:56:33 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:56:33 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:33 [INFO] Shared state initialized with BPM: 120
+14:56:33 [INFO] Starting clock thread
+14:56:33 [INFO] Starting event loop thread
+14:56:33 [INFO] Starting UI thread
+14:56:33 [INFO] Initializing external clock
+14:56:33 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:33 [INFO] Starting clock
+14:56:33 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:33 [INFO] All threads started, entering main loop
+14:56:33 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:56:33 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:56:33 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:56:33 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:56:33 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:56:33 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:33 [INFO] Found matching MIDI device, attempting connection...
+14:56:33 [INFO] Successfully connected to external MIDI device
+14:56:33 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 20
+14:56:33 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:33 [INFO] Starting MIDI connection maintenance thread
+14:56:33 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:56:33 [ERROR] Tick channel error: receiving on a closed channel
+14:56:36 [INFO] Starting Phasorsyncrs
+14:56:36 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+14:56:36 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+14:56:36 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
+14:56:36 [INFO] External device specified, forcing external clock mode
+14:56:36 [INFO] Configuration loaded
+14:56:36 [DEBUG] (1) phasorsyncrs: Clock source: "External"
+14:56:36 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:36 [INFO] Shared state initialized with BPM: 120
+14:56:36 [INFO] Starting clock thread
+14:56:36 [INFO] Starting event loop thread
+14:56:36 [INFO] Starting UI thread
+14:56:36 [INFO] Initializing external clock
+14:56:36 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:36 [INFO] All threads started, entering main loop
+14:56:36 [INFO] Starting clock
+14:56:36 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:36 [DEBUG] (2) phasorsyncrs::external_clock: Available MIDI input ports:
+14:56:36 [DEBUG] (2) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
+14:56:36 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
+14:56:36 [DEBUG] (2) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
+14:56:36 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
+14:56:36 [DEBUG] (2) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
+14:56:36 [INFO] Found matching MIDI device, attempting connection...
+14:56:36 [INFO] Successfully connected to external MIDI device
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 2
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [INFO] Starting MIDI connection maintenance thread
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=2, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 202
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 203
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=4, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 203
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=6, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 203
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=8, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=10, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 204
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 204
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 205
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=12, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 205
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 205
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=14, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 206
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=16, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 206
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 206
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=18, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 207
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=20, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: F8 at timestamp: 207
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI Clock message
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=22, current_beat=1, current_bar=1
+14:56:36 [DEBUG] (5) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 207
+14:56:36 [DEBUG] (3) phasorsyncrs::event_loop: Shared state updated: tick_count=24, current_beat=2, current_bar=1
+14:56:36 [ERROR] Tick channel error: receiving on a closed channel
