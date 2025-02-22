@@ -26,13 +26,10 @@ make run
 ```
 src/
 ├── midi/              # MIDI I/O implementations
-│   ├── external_clock.rs - Clock synchronization logic
-│   └── mock_engine.rs    - Test mock implementation
-├── transport/         # Transport state machine
-│   └── mod.rs         - Play/stop/position tracking
-├── ui/                # Status display interfaces
-│   └── mod.rs         - Transport visualization
-└── scheduler.rs       - Core timing engine
+│   └── external_clock.rs - Clock synchronization logic
+├── state.rs           # Transport state machine
+├── ui.rs              # Status display interfaces
+└── event_loop.rs      - Core timing engine
 
 tests/
 └── midi_tests.rs      - MIDI I/O validation tests
@@ -52,6 +49,8 @@ make run-oxi
 
 Key design decisions documented in ADRs:
 
+- [ADR00: Guiding Principles](docs/adr/adr00_guiding_principles.md)
+- [ADR01: TDD and Unit Size Structure](docs/adr/adr01_tdd_and_unit_size_structure.md)
 - [ADR02: MIDI Library Selection](docs/adr/adr02_midi_library_selection.md)
 - [ADR03: Concurrency Model](docs/adr/adr03_structure_concurrency_and_instantiation.md)
 
