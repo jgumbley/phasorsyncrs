@@ -1,106 +1,48 @@
-use clap::Parser;
-use phasorsyncrs::{
-    cli::{validate_device, Args},
-    create_scheduler, create_shared_state, handle_device_list,
-    midi::{run_external_clock, DefaultMidiEngine, InternalEngine},
-    Scheduler, SharedState,
-};
-use std::{thread, time::Duration};
-mod logging;
+// main.rs
+
+mod clock;
+mod config;
+mod event_loop;
+mod state;
+mod ui;
+
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 fn main() {
-    initialize_logging();
-    let args = parse_command_line_arguments();
-    let devices = get_available_devices();
+    // Initialize logging
+    env_logger::init();
 
-    if args.device_list {
-        list_available_devices(&devices);
-        return;
-    }
+    // Load configuration
+    let config = config::Config::new();
 
-    if let Some(device_name) = &args.bind_to_device {
-        if let Err(error_msg) = validate_device(device_name, &devices) {
-            log::error!("{}", error_msg);
-            eprintln!("{}", error_msg);
-            std::process::exit(1);
-        }
-    }
+    // Create shared state
+    let shared_state = Arc::new(Mutex::new(state::SharedState::new(config.bpm)));
 
-    let scheduler = create_scheduler();
-    let shared_state = create_shared_state();
+    // Start the clock thread
+    let clock_shared_state = Arc::clone(&shared_state);
+    thread::spawn(move || {
+        clock::InternalClock::new().start(Box::new(move || {
+            if let Ok(mut state) = clock_shared_state.lock() {
+                state.tick_update();
+            }
+        }));
+    });
 
-    if let Some(device_name) = &args.bind_to_device {
-        initialize_midi_engine(device_name.clone(), &scheduler, &shared_state);
-    } else {
-        initialize_local_mode(&scheduler, &shared_state);
-    }
+    // Start the event loop thread
+    let event_loop_shared_state = Arc::clone(&shared_state);
+    thread::spawn(move || {
+        event_loop::EventLoop::new(event_loop_shared_state).run();
+    });
 
-    run_application_loop();
-}
+    // Start the UI thread
+    let ui_shared_state = Arc::clone(&shared_state);
+    thread::spawn(move || {
+        ui::UI::new(ui_shared_state).run();
+    });
 
-fn initialize_logging() {
-    logging::init_logger().expect("Logger initialization failed");
-    log::info!("Application starting");
-}
-
-fn parse_command_line_arguments() -> Args {
-    Args::parse()
-}
-
-fn get_available_devices() -> Vec<String> {
-    handle_device_list()
-}
-
-fn list_available_devices(devices: &[String]) {
-    println!("Available MIDI devices:");
-    for device in devices {
-        println!("  - {}", device);
-    }
-}
-
-fn initialize_midi_engine<T: Scheduler>(
-    device_name: String,
-    scheduler: &T,
-    shared_state: &SharedState,
-) {
-    match DefaultMidiEngine::new(Some(device_name.clone())) {
-        Ok(engine) => {
-            log::info!("Successfully connected to MIDI device: {}", device_name);
-            println!("Successfully connected to MIDI device: {}", device_name);
-
-            let clock_state = shared_state.clone();
-            let midi_engine = engine;
-            scheduler.spawn(move || {
-                run_external_clock(midi_engine, clock_state);
-            });
-
-            scheduler.spawn_state_inspector(shared_state);
-        }
-        Err(e) => {
-            let error_msg = format!("Error connecting to MIDI device: {}", e);
-            log::error!("{}", error_msg);
-            eprintln!("{}", error_msg);
-            std::process::exit(1);
-        }
-    }
-}
-
-fn initialize_local_mode<T: Scheduler>(scheduler: &T, shared_state: &SharedState) {
-    if let Ok(state) = shared_state.lock() {
-        state.set_playing(true);
-    }
-
-    let timing_state = shared_state.clone();
-    let engine = InternalEngine::new(timing_state);
-    let _tick_thread = engine.start_tick_generator(120.0);
-
-    scheduler.spawn_state_inspector(shared_state);
-}
-
-fn run_application_loop() {
-    log::info!("Application running. Press Ctrl+C to exit...");
-    println!("\nPress Ctrl+C to exit...");
+    // Keep the main thread alive to allow other threads to run
     loop {
-        thread::sleep(Duration::from_secs(1));
+        thread::park();
     }
 }
