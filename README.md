@@ -1,7 +1,7 @@
 # PhasorSyncRS
 
 [![Rust](https://img.shields.io/badge/rust-1.75+-blue.svg)](https://www.rust-lang.org/)
-[![License](https://img.shields.io/badge/license-MIT-orange)](LICENSE)
+[![License](https://img.shields.io/badge/license-AGPLv3-orange)](LICENSE)
 
 Real-time MIDI sequencer engine with external clock synchronization and transport state management.
 
@@ -56,4 +56,4 @@ Key design decisions documented in ADRs:
 
 ## License 📄
 
-MIT - See [LICENSE](LICENSE) for details
+GNU Affero General Public License v3 - See [LICENSE](LICENSE) for details
