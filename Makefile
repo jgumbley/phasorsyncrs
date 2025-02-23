@@ -6,7 +6,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc unittest slowtest lint clean ci clean_log list-devices followlog
+.PHONY: run build test check fmt clippy doc unittest lint clean ci clean_log list-devices followlog
 
 # Main targets
 run: clean_log build
@@ -31,8 +31,6 @@ ci: build
 unittest:
 	$(CARGO) test
 
-slowtest:
-	$(CARGO) test --features test-mock -- --ignored
 
 # Code quality targets
 lint: fmt clippy
