@@ -9,6 +9,7 @@ use std::time::{Duration, Instant};
 
 const TICK_HISTORY_SIZE: usize = 24 * 4; // Store last 4 beats (1 bar)
 
+#[derive(Debug)]
 pub enum EngineMessage {
     Tick,
     TransportCommand(TransportAction),

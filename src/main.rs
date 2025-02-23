@@ -1,5 +1,3 @@
-mod tui;
-
 mod clock;
 mod config;
 mod event_loop;
@@ -68,8 +66,9 @@ fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
 
 #[cfg(feature = "tui")]
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
+    use phasorsyncrs::tui;
     info!("Starting TUI");
-    if let Err(e) = tui::run_hello_world_tui() {
+    if let Err(e) = tui::run_tui_event_loop() {
         eprintln!("TUI failed: {}", e);
         std::process::exit(1);
     }
