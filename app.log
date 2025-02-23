@@ -1,1220 +1,241 @@
-18:52:13 [INFO] Starting Phasorsyncrs
-18:52:13 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
-18:52:13 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
-18:52:13 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: Some("OXI ONE:OXI ONE MIDI 1 20:0")
-18:52:13 [INFO] External device specified, forcing external clock mode
-18:52:13 [INFO] Configuration loaded
-18:52:13 [DEBUG] (1) phasorsyncrs: Clock source: "External"
-18:52:13 [DEBUG] (1) phasorsyncrs: Bound to MIDI device: OXI ONE:OXI ONE MIDI 1 20:0
-18:52:13 [INFO] Shared state initialized with BPM: 120
-18:52:13 [INFO] Starting clock thread
-18:52:13 [INFO] Starting event loop thread
-18:52:13 [INFO] Starting UI thread
-18:52:13 [INFO] Initializing external clock
-18:52:13 [INFO] Creating new ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
-18:52:13 [INFO] Starting clock
-18:52:13 [INFO] Starting ExternalClock with device: OXI ONE:OXI ONE MIDI 1 20:0
-18:52:13 [INFO] All threads started, entering main loop
-18:52:13 [DEBUG] (5) phasorsyncrs::external_clock: Available MIDI input ports:
-18:52:13 [DEBUG] (5) phasorsyncrs::external_clock:   - Midi Through:Midi Through Port-0 14:0
-18:52:13 [DEBUG] (5) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 1 20:0
-18:52:13 [DEBUG] (5) phasorsyncrs::external_clock:   - OXI ONE:OXI ONE MIDI 2 20:1
-18:52:13 [DEBUG] (5) phasorsyncrs::external_clock: Checking port: Midi Through:Midi Through Port-0 14:0
-18:52:13 [DEBUG] (5) phasorsyncrs::external_clock: Checking port: OXI ONE:OXI ONE MIDI 1 20:0
-18:52:13 [INFO] Found matching MIDI device, attempting connection...
-18:52:13 [INFO] Starting MIDI connection maintenance thread
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 27
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 28
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 28
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 58
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 59
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 59
-18:52:13 [INFO] First tick received, initializing last_tick_time
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 60
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 163
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 164
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 164
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 165
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 165
-18:52:13 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 166
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B0 at timestamp: 3477176
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B1 at timestamp: 3477182
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B2 at timestamp: 3477184
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B3 at timestamp: 3477186
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B4 at timestamp: 3477188
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B5 at timestamp: 3477190
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 3477192
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 3477194
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 3477196
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 3477198
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 3477201
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 3477203
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 3477204
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 3477206
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 3477208
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 3477210
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B0 at timestamp: 3760415
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B1 at timestamp: 3760426
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B2 at timestamp: 3760429
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B3 at timestamp: 3760431
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B4 at timestamp: 3760433
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B5 at timestamp: 3760435
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 3760437
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 3760439
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 3760441
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 3760443
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 3760445
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 3760447
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 3760449
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 3760453
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 3760455
-18:52:16 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 3760457
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B0 at timestamp: 3933144
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B1 at timestamp: 3933151
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B2 at timestamp: 3933153
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B3 at timestamp: 3933155
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B4 at timestamp: 3933157
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B5 at timestamp: 3933159
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 3933161
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 3933163
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 3933165
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 3933167
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 3933169
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 3933171
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 3933173
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 3933175
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 3933177
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 3933179
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 4586280
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 4586282
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 4586286
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 4586506
-18:52:17 [INFO] Calculated BPM: 1
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 1
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 2
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 2
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 4657737
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 3
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 3
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 4
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 4
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 5
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 5
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 6
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 6
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 7
-18:52:17 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:17 [INFO] Calculated BPM: 7
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 8
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 8
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 9
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 9
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 9
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 10
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 10
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 11
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 5097195
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 11
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 5129924
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 12
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 12
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 5157895
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 13
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 13
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 13
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 5229234
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 14
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 14
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 15
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 15
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 15
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 16
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 16
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 17
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 17
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 17
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 18
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 18
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 19
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 19
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 19
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 20
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 20
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 20
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 5668612
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 21
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 5701250
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 21
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 21
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 5729283
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 22
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 22
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 22
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 5800596
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 23
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 23
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 23
-18:52:18 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:18 [INFO] Calculated BPM: 24
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 24
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 24
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 25
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 25
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 25
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 26
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 26
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 26
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 27
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 27
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 27
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 28
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 28
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 28
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 6239959
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 28
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 6272648
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 29
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 29
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 6300675
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 29
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 30
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 30
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 6371957
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 30
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 30
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 31
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 31
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 31
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 31
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 32
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 32
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 32
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 33
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 33
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 33
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 33
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 34
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 34
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 34
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 34
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 35
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 6811371
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 6814516
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 6814523
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 6814526
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 35
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 6844091
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 35
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 6871853
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 6871856
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 6871859
-18:52:19 [INFO] Calculated BPM: 105
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 6872025
-18:52:19 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:19 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 6943447
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 7382751
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 7415483
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 7443445
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 7514684
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:20 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:20 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 7954086
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 7986949
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 8015630
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 8086212
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 8526243
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 8558349
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 8586271
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 8657607
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:21 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:21 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 9096833
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 9100052
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 9100059
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 9100061
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 9129626
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 9157407
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 9157410
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 9157412
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 9158526
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 9229362
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 9668445
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 9701090
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 9729078
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 9800365
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:22 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:22 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 10239808
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 10272511
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 10300363
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 10371860
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 10811232
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 10844000
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 10871958
-18:52:23 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:23 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 10943243
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 11383281
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 11385835
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 11385841
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 11385843
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 11415355
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 11443049
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 11443052
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 11443054
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 11443997
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 11514547
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:24 [INFO] Calculated BPM: 105
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 11591195
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 11591198
-18:52:24 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 11591201
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 12808050
-18:52:25 [INFO] Calculated BPM: 69
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 12808051
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 12808051
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 12808125
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:25 [INFO] Calculated BPM: 69
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:25 [INFO] Calculated BPM: 69
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:25 [INFO] Calculated BPM: 69
-18:52:25 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 12879632
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 13319071
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 13351904
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 13379740
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 13451117
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:26 [INFO] Calculated BPM: 69
-18:52:26 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 13890498
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 13923172
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 13951482
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 14022411
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 14461846
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 14494592
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 14522414
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 14593929
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:27 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:27 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 15033316
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 15036376
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 15036382
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 15036384
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 15066054
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 69
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 15093523
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 15093526
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 91 at timestamp: 15093528
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 15094020
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 15165293
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 15604617
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 15637264
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 15665175
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 15736633
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:28 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:28 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 16176147
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 16208777
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 16236891
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 16308157
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 90 at timestamp: 16747547
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 80 at timestamp: 16780167
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 93 at timestamp: 16808223
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:29 [INFO] Calculated BPM: 105
-18:52:29 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 83 at timestamp: 16879537
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI Clock message
-18:52:30 [INFO] Calculated BPM: 105
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 17293497
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 17293499
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: 81 at timestamp: 17293501
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B0 at timestamp: 17648986
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B1 at timestamp: 17648993
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B2 at timestamp: 17648995
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B3 at timestamp: 17648998
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B4 at timestamp: 17649000
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B5 at timestamp: 17649002
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 17649004
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 17649006
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 17649009
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 17649011
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 17649014
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 17649016
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 17649019
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 17649021
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 17649023
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 17649026
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B0 at timestamp: 17838227
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B1 at timestamp: 17838235
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B2 at timestamp: 17838237
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B3 at timestamp: 17838239
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B4 at timestamp: 17838241
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B5 at timestamp: 17838243
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 17838245
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 17838247
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 17838249
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 17838251
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 17838253
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 17838255
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 17838257
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 17838259
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 17838261
-18:52:30 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 17838263
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B0 at timestamp: 18006194
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B1 at timestamp: 18006197
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B2 at timestamp: 18006198
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B3 at timestamp: 18006199
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B4 at timestamp: 18006200
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B5 at timestamp: 18006202
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B6 at timestamp: 18006202
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B7 at timestamp: 18006203
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B8 at timestamp: 18006204
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: B9 at timestamp: 18006205
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BA at timestamp: 18006207
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BB at timestamp: 18006207
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BC at timestamp: 18006208
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BD at timestamp: 18006209
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BE at timestamp: 18006210
-18:52:31 [DEBUG] (6) phasorsyncrs::external_clock: Received MIDI message type: BF at timestamp: 18006211
+09:32:59 [INFO] Starting Phasorsyncrs
+09:32:59 [DEBUG] (1) phasorsyncrs::config: Parsed BPM value: 120
+09:32:59 [DEBUG] (1) phasorsyncrs::config: Raw clock-source argument: "internal"
+09:32:59 [DEBUG] (1) phasorsyncrs::config: Bind-to-device argument: None
+09:32:59 [INFO] Using internal clock mode
+09:32:59 [INFO] Configuration loaded
+09:32:59 [DEBUG] (1) phasorsyncrs: Clock source: "Internal"
+09:32:59 [INFO] Shared state initialized with BPM: 120
+09:32:59 [INFO] Starting clock thread
+09:32:59 [INFO] Starting event loop thread
+09:32:59 [INFO] Initializing internal clock
+09:32:59 [INFO] Creating new InternalClock with default BPM: 122
+09:32:59 [INFO] Starting UI thread
+09:32:59 [INFO] Starting clock
+09:32:59 [INFO] Starting InternalClock with BPM: 122
+09:32:59 [INFO] Internal clock thread started
+09:32:59 [INFO] All threads started, entering main loop
+09:32:59 [INFO] First tick received, initializing last_tick_time
+09:32:59 [INFO] Calculated BPM: 110
+09:32:59 [INFO] Calculated BPM: 113
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 114
+09:32:59 [INFO] Calculated BPM: 115
+09:32:59 [INFO] Calculated BPM: 116
+09:32:59 [INFO] Calculated BPM: 117
+09:32:59 [INFO] Calculated BPM: 117
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 118
+09:32:59 [INFO] Calculated BPM: 119
+09:32:59 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 120
+09:33:00 [INFO] Calculated BPM: 119
+09:33:00 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 121
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:01 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 121
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 121
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 120
+09:33:02 [INFO] Calculated BPM: 121
+09:33:02 [INFO] Calculated BPM: 121
+09:33:02 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 121
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:03 [INFO] Calculated BPM: 120
+09:33:04 [INFO] Calculated BPM: 120
+09:33:04 [INFO] Calculated BPM: 120
+09:33:04 [INFO] Calculated BPM: 120
+09:33:04 [INFO] Calculated BPM: 120

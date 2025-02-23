@@ -1,4 +1,4 @@
-// main.rs
+mod tui;
 
 mod clock;
 mod config;
@@ -57,12 +57,22 @@ fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>, rx: Receiver<E
     });
 }
 
+#[cfg(not(feature = "tui"))]
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
     let ui_shared_state = Arc::clone(&shared_state);
     info!("Starting UI thread");
     thread::spawn(move || {
         ui::UI::new(ui_shared_state).run();
     });
+}
+
+#[cfg(feature = "tui")]
+fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
+    info!("Starting TUI");
+    if let Err(e) = tui::run_hello_world_tui() {
+        eprintln!("TUI failed: {}", e);
+        std::process::exit(1);
+    }
 }
 
 fn initialize_logging() {
