@@ -29,7 +29,7 @@ ci: build
 	@echo "CI tests complete"
 
 unittest:
-	$(CARGO) test --features test-mock
+	$(CARGO) test
 
 slowtest:
 	$(CARGO) test --features test-mock -- --ignored

@@ -95,6 +95,12 @@ impl Config {
     }
 }
 
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub const TICKS_PER_BEAT: u64 = 24;
 pub const BEATS_PER_BAR: u64 = 4;
 pub const BARS_PER_PHRASE: u64 = 4;
