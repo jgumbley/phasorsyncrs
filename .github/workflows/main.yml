@@ -12,5 +12,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Run CI
-        run: make ci
+      - name: Run TUI tests in a pseudo-terminal
+        run: script -q -c "make ci"
