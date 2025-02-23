@@ -12,5 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Run TUI tests in a pseudo-terminal
-        run: script -q -c "make ci"
+      - name: Install tmux
+        run: sudo apt-get install -y tmux
+
+      - name: Run TUI tests inside tmux
+        run: tmux new-session -d 'make ci' && sleep 2
