@@ -19,9 +19,9 @@ pub struct SharedState {
 }
 
 impl SharedState {
-    pub fn new(bpm: u32) -> Self {
+    pub fn new(_bpm: u32) -> Self {
         SharedState {
-            bpm,
+            bpm: 0, // Always initialize at 0, will be updated by measurements
             tick_count: 0,
             current_beat: 0,
             current_bar: 0,
@@ -66,5 +66,23 @@ impl SharedState {
 
     pub fn get_current_bar(&self) -> u32 {
         self.current_bar
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_shared_state_initializes_with_zero_bpm() {
+        // Create shared state with any BPM value
+        let state = SharedState::new(120);
+
+        // Verify that BPM is initialized to 0 regardless of input
+        assert_eq!(
+            state.get_bpm(),
+            0,
+            "BPM should initialize to 0 regardless of config"
+        );
     }
 }
