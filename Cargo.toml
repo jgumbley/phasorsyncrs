@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
 indicatif = "0.17"
-config = "0.13"
+config = "0.15"
 midir = "0.9"
 log = "0.4"
 simplelog = "0.12"
