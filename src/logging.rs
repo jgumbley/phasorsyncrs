@@ -23,7 +23,7 @@ pub fn init_logger() -> Result<(), Error> {
     unsafe {
         INIT.call_once(|| {
             if let Ok(()) =
-                CombinedLogger::init(vec![WriteLogger::new(LevelFilter::Debug, config, log_file)])
+                CombinedLogger::init(vec![WriteLogger::new(LevelFilter::Info, config, log_file)])
             {
                 LOGGER_INITIALIZED = true;
             }

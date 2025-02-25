@@ -152,7 +152,7 @@ pub fn run_tui_event_loop(
     loop {
         // Repaint the UI on every iteration
         terminal.draw(|f| render_ui(f, &shared_state))?;
-        log::info!("Screen repainted");
+        log::debug!("Screen repainted");
 
         // Poll for an event with a timeout
         if event::poll(Duration::from_millis(100))? {

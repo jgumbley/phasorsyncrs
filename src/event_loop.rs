@@ -1,7 +1,7 @@
 // event_loop.rs
 
 use crate::state;
-use log::{error, info, trace};
+use log::{debug, error, info, trace};
 use std::collections::VecDeque;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -70,13 +70,17 @@ impl EventLoop {
 
             let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
             state.bpm = bpm;
-            info!("Calculated BPM: {}", bpm);
+            debug!("Calculated BPM: {}", bpm);
         } else {
             info!("First tick received, initializing last_tick_time");
         }
 
         *last_tick_time = Some(now);
         state.tick_update();
+
+        // Process musical events after state update
+        let _middle_c_triggered = crate::musical_graph::process_tick(&mut state);
+
         trace!(
             "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
             state.get_tick_count(),
@@ -96,6 +100,9 @@ impl EventLoop {
                 // Reset bar/beat, etc.
                 state.current_beat = 0;
                 state.current_bar = 0;
+
+                // Reset the musical graph tick count
+                crate::musical_graph::reset_musical_tick_count();
             }
         }
     }
