@@ -1,7 +1,5 @@
-mod input;
-
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -17,11 +15,17 @@ use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 use std::{error::Error, io, time::Duration};
 
-// Import the input mapping function
 use crate::config::{BARS_PER_PHRASE, BEATS_PER_BAR};
-use crate::event_loop::EngineMessage;
+use crate::event_loop::{EngineMessage, TransportAction};
 use crate::state;
-use crate::tui::input::map_key_event;
+
+// Key mapping function moved from input.rs
+fn map_key_event(key: KeyEvent) -> Option<EngineMessage> {
+    match key.code {
+        KeyCode::Char(' ') => None, // We'll handle space key specially
+        _ => None,
+    }
+}
 
 fn check_for_quit_key(key_event: &crossterm::event::KeyEvent) -> Result<(), Box<dyn Error>> {
     if let KeyCode::Char(c) = key_event.code {
@@ -40,15 +44,38 @@ fn check_for_quit_key(key_event: &crossterm::event::KeyEvent) -> Result<(), Box<
 fn handle_key_event(
     key_event: crossterm::event::KeyEvent,
     message_tx: &Sender<EngineMessage>,
+    shared_state: &Arc<Mutex<state::SharedState>>,
 ) -> Result<(), Box<dyn Error>> {
     log::info!("Key event received: {:?}", key_event);
     check_for_quit_key(&key_event)?;
 
-    // Map the key event to a command and send via channel
+    // Special handling for space key to toggle transport
+    if let KeyCode::Char(' ') = key_event.code {
+        // Get current transport state
+        let current_state = {
+            let state = shared_state.lock().unwrap();
+            state.transport_state
+        };
+
+        // Toggle based on current state
+        let command = match current_state {
+            state::TransportState::Playing => TransportAction::Stop,
+            state::TransportState::Stopped => TransportAction::Start,
+        };
+
+        log::info!("Space pressed - sending transport command: {:?}", command);
+        message_tx
+            .send(EngineMessage::TransportCommand(command))
+            .unwrap();
+        return Ok(());
+    }
+
+    // For all other keys, use the mapper
     if let Some(message) = map_key_event(key_event) {
         log::info!("Sending message to event loop: {:?}", message);
         message_tx.send(message).unwrap();
     }
+
     Ok(())
 }
 
@@ -102,7 +129,7 @@ fn render_ui<B: ratatui::backend::Backend>(
 
     // Instructions area
     let instructions = Paragraph::new(Span::styled(
-        "Press Space: Start | Press S: Stop | Press Q: Quit",
+        "Press Space: Toggle Play/Stop | Press Q: Quit",
         Style::default().fg(Color::Yellow),
     ));
     let instructions_block = Block::default().title("Controls").borders(Borders::ALL);
@@ -130,7 +157,7 @@ pub fn run_tui_event_loop(
         // Poll for an event with a timeout
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key_event) = event::read()? {
-                handle_key_event(key_event, &message_tx)?;
+                handle_key_event(key_event, &message_tx, &shared_state)?;
             }
         }
     }
@@ -139,7 +166,7 @@ pub fn run_tui_event_loop(
 #[cfg(test)]
 pub fn run_hello_world_tui(
     shared_state: Arc<Mutex<state::SharedState>>,
-    message_tx: Sender<EngineMessage>,
+    _message_tx: Sender<EngineMessage>,
 ) -> Result<(), Box<dyn Error>> {
     // Setup terminal
     enable_raw_mode()?;
@@ -175,5 +202,17 @@ mod tests {
         if let Err(e) = run_hello_world_tui(shared_state, tx) {
             panic!("TUI test failed: {}", e);
         }
+    }
+
+    #[test]
+    fn test_space_returns_none() {
+        let key_event = KeyEvent::from(KeyCode::Char(' '));
+        assert!(map_key_event(key_event).is_none());
+    }
+
+    #[test]
+    fn test_other_key_returns_none() {
+        let key_event = KeyEvent::from(KeyCode::Char('x'));
+        assert!(map_key_event(key_event).is_none());
     }
 }
