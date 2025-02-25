@@ -65,9 +65,9 @@ fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
 }
 
 #[cfg(feature = "tui")]
-fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
-    info!("Starting TUI with shared state");
-    if let Err(e) = tui::run_tui_event_loop(shared_state) {
+fn start_ui(shared_state: Arc<Mutex<state::SharedState>>, tick_tx: Sender<EngineMessage>) {
+    info!("Starting TUI");
+    if let Err(e) = tui::run_tui_event_loop(shared_state, tick_tx) {
         eprintln!("TUI failed: {}", e);
         std::process::exit(1);
     }
@@ -114,7 +114,11 @@ fn main() {
     start_event_loop(Arc::clone(&shared_state), tick_rx);
 
     // Start the UI thread
+    #[cfg(not(feature = "tui"))]
     start_ui(Arc::clone(&shared_state));
+
+    #[cfg(feature = "tui")]
+    start_ui(Arc::clone(&shared_state), tick_tx.clone());
 
     info!("All threads started, entering main loop");
     // Keep the main thread alive to allow other threads to run

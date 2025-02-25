@@ -13,12 +13,13 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Terminal,
 };
+use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 use std::{error::Error, io, time::Duration};
 
 // Import the input mapping function
 use crate::config::{BARS_PER_PHRASE, BEATS_PER_BAR};
-use crate::event_loop::{EngineMessage, TransportAction};
+use crate::event_loop::EngineMessage;
 use crate::state;
 use crate::tui::input::map_key_event;
 
@@ -36,32 +37,17 @@ fn check_for_quit_key(key_event: &crossterm::event::KeyEvent) -> Result<(), Box<
     }
     Ok(())
 }
-
 fn handle_key_event(
     key_event: crossterm::event::KeyEvent,
-    shared_state: &Arc<Mutex<state::SharedState>>,
+    message_tx: &Sender<EngineMessage>,
 ) -> Result<(), Box<dyn Error>> {
     log::info!("Key event received: {:?}", key_event);
     check_for_quit_key(&key_event)?;
 
-    // Map the key event to a command and apply it directly
+    // Map the key event to a command and send via channel
     if let Some(message) = map_key_event(key_event) {
-        match message {
-            EngineMessage::TransportCommand(TransportAction::Start) => {
-                log::info!("Sending Start command to transport");
-                let mut state = shared_state.lock().unwrap();
-                state.transport_state = state::TransportState::Playing;
-            }
-            EngineMessage::TransportCommand(TransportAction::Stop) => {
-                log::info!("Sending Stop command to transport");
-                let mut state = shared_state.lock().unwrap();
-                state.transport_state = state::TransportState::Stopped;
-                state.tick_count = 0;
-                state.current_beat = 0;
-                state.current_bar = 0;
-            }
-            _ => {}
-        }
+        log::info!("Sending message to event loop: {:?}", message);
+        message_tx.send(message).unwrap();
     }
     Ok(())
 }
@@ -125,6 +111,7 @@ fn render_ui<B: ratatui::backend::Backend>(
 
 pub fn run_tui_event_loop(
     shared_state: Arc<Mutex<state::SharedState>>,
+    message_tx: Sender<EngineMessage>,
 ) -> Result<(), Box<dyn Error>> {
     log::info!("Starting TUI event loop");
     // Setup terminal
@@ -143,7 +130,7 @@ pub fn run_tui_event_loop(
         // Poll for an event with a timeout
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key_event) = event::read()? {
-                handle_key_event(key_event, &shared_state)?;
+                handle_key_event(key_event, &message_tx)?;
             }
         }
     }
@@ -152,6 +139,7 @@ pub fn run_tui_event_loop(
 #[cfg(test)]
 pub fn run_hello_world_tui(
     shared_state: Arc<Mutex<state::SharedState>>,
+    message_tx: Sender<EngineMessage>,
 ) -> Result<(), Box<dyn Error>> {
     // Setup terminal
     enable_raw_mode()?;
@@ -180,8 +168,11 @@ mod tests {
         // Create a test shared state
         let shared_state = Arc::new(Mutex::new(SharedState::new(120)));
 
+        // Create a dummy channel
+        let (tx, _rx) = std::sync::mpsc::channel();
+
         // Ensure that the TUI function executes without panicking.
-        if let Err(e) = run_hello_world_tui(shared_state) {
+        if let Err(e) = run_hello_world_tui(shared_state, tx) {
             panic!("TUI test failed: {}", e);
         }
     }
