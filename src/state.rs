@@ -1,6 +1,6 @@
 // state.rs
 
-use crate::config::{BARS_PER_PHRASE, BEATS_PER_BAR, TICKS_PER_BEAT};
+use crate::config::{BEATS_PER_BAR, TICKS_PER_BEAT};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TransportState {
@@ -43,10 +43,10 @@ impl SharedState {
         // Calculate the current beat (0-indexed) within a bar.
         let beat_number = (self.tick_count / TICKS_PER_BEAT) % BEATS_PER_BAR;
 
-        // Calculate the current bar (0-indexed) within a phrase.
-        let bar_number = (self.tick_count / (TICKS_PER_BEAT * BEATS_PER_BAR)) % BARS_PER_PHRASE;
+        // Calculate the current bar.
+        let bar_number = self.tick_count / (TICKS_PER_BEAT * BEATS_PER_BAR);
 
-        // Update the shared state with 1-indexed values for display.
+        // Update the shared state with values for display.
         self.current_beat = (beat_number + 1) as u32;
         self.current_bar = (bar_number + 1) as u32;
     }

@@ -15,7 +15,6 @@ use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 use std::{error::Error, io, time::Duration};
 
-use crate::config::{BARS_PER_PHRASE, BEATS_PER_BAR};
 use crate::event_loop::{EngineMessage, TransportAction};
 use crate::state;
 
@@ -108,13 +107,11 @@ fn render_ui<B: ratatui::backend::Backend>(
     let state_info = {
         let state = shared_state.lock().unwrap();
         format!(
-            "BPM: {}\nTick Count: {}\nBeat: {}/{}\nBar: {}/{}\nTransport: {:?}",
+            "BPM: {}\nTick Count: {}\nBar: {}\t Beat: {}\nTransport: {:?}",
             state.get_bpm(),
             state.get_tick_count(),
-            state.get_current_beat(),
-            BEATS_PER_BAR,
             state.get_current_bar(),
-            BARS_PER_PHRASE,
+            state.get_current_beat(),
             state.transport_state
         )
     };
