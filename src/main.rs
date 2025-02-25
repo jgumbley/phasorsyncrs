@@ -1,14 +1,8 @@
 use log::{debug, info};
-use phasorsyncrs::{clock, config, event_loop, external_clock, logging, state};
+use phasorsyncrs::{clock, config, event_loop, external_clock, logging, state, tui};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
-
-#[cfg(not(feature = "tui"))]
-use phasorsyncrs::ui;
-
-#[cfg(feature = "tui")]
-use phasorsyncrs::tui;
 
 use crate::event_loop::EngineMessage;
 
@@ -55,16 +49,6 @@ fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>, rx: Receiver<E
     });
 }
 
-#[cfg(not(feature = "tui"))]
-fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
-    let ui_shared_state = Arc::clone(&shared_state);
-    info!("Starting UI thread");
-    thread::spawn(move || {
-        ui::UI::new(ui_shared_state).run();
-    });
-}
-
-#[cfg(feature = "tui")]
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>, tick_tx: Sender<EngineMessage>) {
     info!("Starting TUI");
     if let Err(e) = tui::run_tui_event_loop(shared_state, tick_tx) {
@@ -114,10 +98,6 @@ fn main() {
     start_event_loop(Arc::clone(&shared_state), tick_rx);
 
     // Start the UI thread
-    #[cfg(not(feature = "tui"))]
-    start_ui(Arc::clone(&shared_state));
-
-    #[cfg(feature = "tui")]
     start_ui(Arc::clone(&shared_state), tick_tx.clone());
 
     info!("All threads started, entering main loop");

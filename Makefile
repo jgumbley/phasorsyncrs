@@ -10,21 +10,10 @@ CARGO ?= cargo
 
 # Main targets
 run: clean_log build
-	$(CARGO) run 
-
-list-devices: clean_log build
-	$(CARGO) run -- --device-list && cat app.log
+	$(CARGO) run
 
 run-oxi: clean_log build
-	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0" && cat app.log
-
-.PHONY: run-tui build-tui
-
-run-tui: clean_log build-tui
-	$(CARGO) run --features tui
-
-build-tui: lint test
-	$(CARGO) build --features tui
+	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0"
 
 build: lint test
 	$(CARGO) build

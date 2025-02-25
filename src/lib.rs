@@ -5,4 +5,3 @@ pub mod external_clock;
 pub mod logging;
 pub mod state;
 pub mod tui;
-pub mod ui;
