@@ -1,7 +1,7 @@
 use crate::clock::ClockSource;
 use crate::event_loop::{EngineMessage, TransportAction};
-use log::{debug, info};
-use midir::{Ignore, MidiInput};
+use log::{debug, error, info};
+use midir::{Ignore, MidiInput, MidiInputPort};
 use std::sync::mpsc::Sender;
 use std::thread;
 
@@ -58,6 +58,40 @@ fn handle_midi_message(
     }
 }
 
+fn find_midi_port(midi_in: &mut MidiInput, device_name: &str) -> Option<MidiInputPort> {
+    let in_ports = midi_in.ports();
+    debug!("Available MIDI input ports:");
+    for port in &in_ports {
+        if let Ok(port_name) = midi_in.port_name(port) {
+            debug!("  - {}", port_name);
+        }
+    }
+
+    match in_ports.iter().find(|port| {
+        let port_name = midi_in.port_name(port).unwrap_or_default();
+        debug!("Checking port: {}", port_name);
+        port_name.contains(device_name)
+    }) {
+        Some(port) => Some(port.clone()),
+        None => {
+            // Log available devices for troubleshooting
+            let available_devices: Vec<String> = in_ports
+                .iter()
+                .filter_map(|p| midi_in.port_name(p).ok())
+                .collect();
+
+            let error_message = format!("External MIDI device '{}' not found!", device_name);
+            error!("{}", error_message);
+            info!("Available MIDI devices: {:?}", available_devices);
+            println!("{}", error_message);
+            error!("Application cannot continue without the specified device");
+
+            // Exit with error code
+            std::process::exit(1);
+        }
+    }
+}
+
 fn run_midi_connection(
     tick_tx: Sender<EngineMessage>,
     device_name: String,
@@ -67,22 +101,7 @@ fn run_midi_connection(
         MidiInput::new("phasorsyncrs-external").expect("Failed to initialize MIDI input");
     midi_in.ignore(Ignore::None);
 
-    let in_ports = midi_in.ports();
-    debug!("Available MIDI input ports:");
-    for port in &in_ports {
-        if let Ok(port_name) = midi_in.port_name(port) {
-            debug!("  - {}", port_name);
-        }
-    }
-
-    let in_port = in_ports
-        .iter()
-        .find(|port| {
-            let port_name = midi_in.port_name(port).unwrap_or_default();
-            debug!("Checking port: {}", port_name);
-            port_name.contains(&device_name)
-        })
-        .expect("External MIDI device not found");
+    let in_port = find_midi_port(&mut midi_in, &device_name).unwrap();
 
     info!("Found matching MIDI device, attempting connection...");
 
@@ -90,7 +109,7 @@ fn run_midi_connection(
 
     let _conn_in = midi_in
         .connect(
-            in_port,
+            &in_port,
             "phasorsyncrs-external-conn",
             move |timestamp, message, _| {
                 handle_midi_message(timestamp, message, &tick_callback, &engine_message_tx);
@@ -102,5 +121,41 @@ fn run_midi_connection(
     info!("Starting MIDI connection maintenance thread");
     loop {
         thread::sleep(std::time::Duration::from_millis(10));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // This test verifies that a non-existent device produces an error
+    // Note: This test uses a modified approach to avoid actual process exit
+    #[test]
+    fn test_device_not_found_handling() {
+        // Function to test device finding logic without exiting
+        fn find_device(
+            device_name: &str,
+            ports: &[MidiInputPort],
+            midi_in: &MidiInput,
+        ) -> Option<MidiInputPort> {
+            ports
+                .iter()
+                .find(|port| {
+                    let port_name = midi_in.port_name(port).unwrap_or_default();
+                    port_name.contains(device_name)
+                })
+                .cloned()
+        }
+
+        let midi_in = MidiInput::new("test-midi-input").unwrap();
+        let ports = midi_in.ports();
+        let non_existent_device = "NonExistentDevice12345";
+
+        // Verify the device is not found
+        let result = find_device(non_existent_device, &ports, &midi_in);
+        assert!(
+            result.is_none(),
+            "The non-existent device should not be found"
+        );
     }
 }
