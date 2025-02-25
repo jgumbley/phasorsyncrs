@@ -9,7 +9,9 @@ pub struct Config {
     pub clock_source: ClockSource,
     #[allow(dead_code)]
     pub default_phasor_length: Option<u32>,
-    pub bind_to_device: Option<String>, // New field for external sync
+    pub bind_to_device: Option<String>,     // MIDI input device
+    pub midi_output_device: Option<String>, // New field for MIDI output
+    pub send_test_note: bool,               // For testing MIDI output
 }
 
 #[derive(PartialEq)]
@@ -44,12 +46,25 @@ impl Config {
                     .help("Sets the external MIDI device to bind to")
                     .required(false),
             )
+            .arg(
+                Arg::new("midi-output")
+                    .long("midi-output")
+                    .value_name("DEVICE")
+                    .help("Sets the MIDI output device")
+                    .required(false),
+            )
+            .arg(
+                Arg::new("test-note")
+                    .long("test-note")
+                    .help("Send a test MIDI note on startup")
+                    .action(clap::ArgAction::SetTrue)
+                    .required(false),
+            )
             .get_matches()
     }
 
-    pub fn new() -> Self {
-        let matches = Self::parse_arguments();
-
+    // Parse BPM from command line arguments
+    fn parse_bpm(matches: &clap::ArgMatches) -> u32 {
         let bpm = matches
             .get_one::<String>("bpm")
             .map(|s| s.as_str())
@@ -58,7 +73,11 @@ impl Config {
             .unwrap_or(120);
 
         debug!("Parsed BPM value: {}", bpm);
+        bpm
+    }
 
+    // Determine clock source based on arguments
+    fn determine_clock_source(matches: &clap::ArgMatches) -> ClockSource {
         let clock_source_arg = matches
             .get_one::<String>("clock-source")
             .map(|s| s.as_str())
@@ -66,31 +85,50 @@ impl Config {
 
         debug!("Raw clock-source argument: {:?}", clock_source_arg);
 
+        let bind_to_device = matches.get_one::<String>("bind-to-device").is_some();
+
+        if bind_to_device {
+            info!("External device specified, forcing external clock mode");
+            ClockSource::External
+        } else if clock_source_arg == "external" {
+            info!("External clock mode selected via --clock-source");
+            ClockSource::External
+        } else {
+            info!("Using internal clock mode");
+            ClockSource::Internal
+        }
+    }
+
+    pub fn new() -> Self {
+        let matches = Self::parse_arguments();
+
+        // Parse BPM
+        let bpm = Self::parse_bpm(&matches);
+
+        // Get bind-to-device
         let bind_to_device = matches.get_one::<String>("bind-to-device").cloned();
         debug!("Bind-to-device argument: {:?}", bind_to_device);
 
-        // Modify clock source selection logic
-        let clock_source = if bind_to_device.is_some() {
-            info!("External device specified, forcing external clock mode");
-            ClockSource::External
-        } else {
-            match clock_source_arg {
-                "external" => {
-                    info!("External clock mode selected via --clock-source");
-                    ClockSource::External
-                }
-                _ => {
-                    info!("Using internal clock mode");
-                    ClockSource::Internal
-                }
-            }
-        };
+        // Determine clock source
+        let clock_source = Self::determine_clock_source(&matches);
+
+        // New MIDI output device option
+        let midi_output_device = matches.get_one::<String>("midi-output").cloned();
+        debug!("MIDI output device argument: {:?}", midi_output_device);
+
+        // Test note flag
+        let send_test_note = matches.get_flag("test-note");
+        if send_test_note {
+            info!("Test note flag enabled - will send a test note on startup");
+        }
 
         Config {
             bpm,
             clock_source,
             default_phasor_length: None,
             bind_to_device,
+            midi_output_device,
+            send_test_note,
         }
     }
 }

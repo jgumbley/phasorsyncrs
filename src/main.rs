@@ -1,10 +1,11 @@
-use log::{debug, info};
-use phasorsyncrs::{clock, config, event_loop, external_clock, logging, state, tui};
+use log::{debug, error, info};
+use phasorsyncrs::{clock, config, event_loop, external_clock, logging, midi_output, state, tui};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
 use crate::event_loop::EngineMessage;
+use phasorsyncrs::midi_output::MidiMessage;
 
 fn initialize_clock(
     config: config::Config,
@@ -65,14 +66,33 @@ fn initialize_logging() {
     }
 }
 
-fn main() {
-    initialize_logging();
+fn setup_midi_output(config: &config::Config) -> Option<std::sync::mpsc::Sender<MidiMessage>> {
+    if config.midi_output_device.is_some() || config.send_test_note {
+        info!("Setting up MIDI output");
+        let (midi_tx, midi_rx) = mpsc::channel();
+        midi_output::run_midi_output_thread(midi_rx, config.midi_output_device.clone());
 
-    info!("Starting Phasorsyncrs");
+        // Send a test note if configured
+        if config.send_test_note {
+            info!("Sending test note as requested");
+            let tx_clone = midi_tx.clone();
+            // Wait a moment for the MIDI connection to establish
+            thread::spawn(move || {
+                thread::sleep(std::time::Duration::from_millis(1000));
+                if let Err(e) = midi_output::send_test_note(&tx_clone) {
+                    error!("Failed to send test note: {}", e);
+                }
+            });
+        }
 
-    // Load configuration
-    let config = config::Config::new();
-    info!("Configuration loaded");
+        Some(midi_tx)
+    } else {
+        None
+    }
+}
+
+// Log configuration details
+fn log_config_details(config: &config::Config) {
     debug!(
         "Clock source: {:?}",
         match config.clock_source {
@@ -83,7 +103,12 @@ fn main() {
     if let Some(device) = &config.bind_to_device {
         debug!("Bound to MIDI device: {}", device);
     }
+}
 
+// Initialize application components
+fn initialize_components(
+    config: config::Config,
+) -> (Arc<Mutex<state::SharedState>>, Sender<EngineMessage>) {
     // Create shared state
     let shared_state = Arc::new(Mutex::new(state::SharedState::new(config.bpm)));
     info!("Shared state initialized with BPM: {}", config.bpm);
@@ -96,6 +121,27 @@ fn main() {
 
     // Start the event loop thread
     start_event_loop(Arc::clone(&shared_state), tick_rx);
+
+    (shared_state, tick_tx)
+}
+
+fn main() {
+    initialize_logging();
+    info!("Starting Phasorsyncrs");
+
+    // Load configuration
+    let config = config::Config::new();
+    info!("Configuration loaded");
+
+    // Log configuration details
+    log_config_details(&config);
+
+    // Setup MIDI output
+    let _midi_tx = setup_midi_output(&config);
+    info!("MIDI output setup complete");
+
+    // Initialize components
+    let (shared_state, tick_tx) = initialize_components(config);
 
     // Start the UI thread
     start_ui(Arc::clone(&shared_state), tick_tx.clone());
