@@ -1,16 +1,16 @@
-mod clock;
-mod config;
-mod event_loop;
-mod external_clock;
-mod logging;
-mod state;
-mod ui;
-
-use crate::event_loop::EngineMessage;
 use log::{debug, info};
+use phasorsyncrs::{clock, config, event_loop, external_clock, logging, state};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
+
+#[cfg(not(feature = "tui"))]
+use phasorsyncrs::ui;
+
+#[cfg(feature = "tui")]
+use phasorsyncrs::tui;
+
+use crate::event_loop::EngineMessage;
 
 fn initialize_clock(
     config: config::Config,
@@ -66,7 +66,6 @@ fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
 
 #[cfg(feature = "tui")]
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
-    use phasorsyncrs::tui;
     info!("Starting TUI");
     if let Err(e) = tui::run_tui_event_loop() {
         eprintln!("TUI failed: {}", e);

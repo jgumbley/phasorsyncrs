@@ -18,10 +18,13 @@ list-devices: clean_log build
 run-oxi: clean_log build
 	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0" && cat app.log
 
-.PHONY: run-tui
+.PHONY: run-tui build-tui
 
-run-tui: clean_log build
+run-tui: clean_log build-tui
 	$(CARGO) run --features tui
+
+build-tui: lint test
+	$(CARGO) build --features tui
 
 build: lint test
 	$(CARGO) build
