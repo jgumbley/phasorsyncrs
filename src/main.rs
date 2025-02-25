@@ -66,8 +66,8 @@ fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
 
 #[cfg(feature = "tui")]
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>) {
-    info!("Starting TUI");
-    if let Err(e) = tui::run_tui_event_loop() {
+    info!("Starting TUI with shared state");
+    if let Err(e) = tui::run_tui_event_loop(shared_state) {
         eprintln!("TUI failed: {}", e);
         std::process::exit(1);
     }
