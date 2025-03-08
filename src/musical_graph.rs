@@ -4,7 +4,7 @@ use log::info;
 // Musical graph constants
 const TICKS_PER_BEAT: u64 = 24;
 const BEATS_PER_BAR: u64 = 4;
-const TRIGGER_EVERY_N_BARS: u64 = 8;
+const TRIGGER_EVERY_N_BARS: u64 = 1;
 
 // Static variable to track the musical tick count
 static mut MUSICAL_TICK_COUNT: u64 = 0;
@@ -43,7 +43,7 @@ pub fn process_tick(shared_state: &mut state::SharedState) -> bool {
         // Only trigger on the first tick of the beat (when MUSICAL_TICK_COUNT is divisible by TICKS_PER_BEAT)
         if beat == 0
             && bar > 0
-            && bar % TRIGGER_EVERY_N_BARS == 0
+            && TRIGGER_EVERY_N_BARS > 0
             && MUSICAL_TICK_COUNT % TICKS_PER_BEAT == 0
         {
             info!("Middle C triggered at musical bar: {}, beat: {}", bar, beat);
@@ -104,19 +104,17 @@ mod tests {
         let mut trigger_count = 0;
 
         // Simulate ticks for 8 bars (8 bars * 4 beats * 24 ticks = 768 ticks)
-        // This should trigger Middle C exactly once at bar 8, beat 0
+        // This should trigger Middle C on every bar
         for _ in 0..768 {
             let triggered = process_tick(&mut state);
             if triggered {
                 trigger_count += 1;
 
-                // Verify it only triggers at the expected position (bar 8, beat 0, first tick)
+                // Verify it only triggers at the expected position (beat 0, first tick)
                 unsafe {
                     let beat = (MUSICAL_TICK_COUNT / TICKS_PER_BEAT) % BEATS_PER_BAR;
-                    let bar = (MUSICAL_TICK_COUNT / (TICKS_PER_BEAT * BEATS_PER_BAR)) + 1;
 
                     assert_eq!(beat, 0, "Middle C should only trigger on beat 0");
-                    assert_eq!(bar, 8, "Middle C should only trigger on bar 8");
                     assert_eq!(
                         MUSICAL_TICK_COUNT % TICKS_PER_BEAT,
                         0,
@@ -126,10 +124,10 @@ mod tests {
             }
         }
 
-        // Check that Middle C was triggered exactly once
+        // Check that Middle C was triggered on every bar
         assert_eq!(
-            trigger_count, 1,
-            "Middle C should be triggered exactly once at bar 8, beat 0"
+            trigger_count, 8,
+            "Middle C should be triggered on every bar"
         );
     }
 }
