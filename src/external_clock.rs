@@ -7,40 +7,34 @@ use std::thread;
 
 pub struct ExternalClock {
     device_name: String,
-    tick_tx: Sender<EngineMessage>,
+    engine_tx: Sender<EngineMessage>,
 }
 
 impl ExternalClock {
-    pub fn new(device_name: String, tick_tx: Sender<EngineMessage>) -> Self {
+    pub fn new(device_name: String, engine_tx: Sender<EngineMessage>) -> Self {
         info!("Creating new ExternalClock with device: {}", device_name);
         ExternalClock {
             device_name,
-            tick_tx,
+            engine_tx,
         }
     }
 }
 
 impl ClockSource for ExternalClock {
-    fn start(&self, tick_callback: Box<dyn Fn() + Send + 'static>) {
+    fn start(&self) {
         info!("Starting ExternalClock with device: {}", self.device_name);
-        let tick_tx = self.tick_tx.clone();
+        let engine_tx = self.engine_tx.clone();
         let device_name = self.device_name.clone();
 
         thread::spawn(move || {
-            run_midi_connection(tick_tx, device_name, tick_callback);
+            run_midi_connection(engine_tx, device_name);
         });
     }
 }
 
-fn handle_midi_message(
-    timestamp: u64,
-    message: &[u8],
-    tick_callback: &(dyn Fn() + Send + 'static),
-    engine_message_tx: &Sender<EngineMessage>,
-) {
+fn handle_midi_message(timestamp: u64, message: &[u8], engine_message_tx: &Sender<EngineMessage>) {
     if message.first() == Some(&0xF8) {
         debug!("Received MIDI Clock message");
-        tick_callback();
         engine_message_tx.send(EngineMessage::Tick).unwrap();
     } else if message.first() == Some(&0xFA) {
         engine_message_tx
@@ -92,11 +86,7 @@ fn find_midi_port(midi_in: &mut MidiInput, device_name: &str) -> Option<MidiInpu
     }
 }
 
-fn run_midi_connection(
-    tick_tx: Sender<EngineMessage>,
-    device_name: String,
-    tick_callback: Box<dyn Fn() + Send + 'static>,
-) {
+fn run_midi_connection(engine_tx: Sender<EngineMessage>, device_name: String) {
     let mut midi_in =
         MidiInput::new("phasorsyncrs-external").expect("Failed to initialize MIDI input");
     midi_in.ignore(Ignore::None);
@@ -105,14 +95,14 @@ fn run_midi_connection(
 
     info!("Found matching MIDI device, attempting connection...");
 
-    let engine_message_tx = tick_tx.clone(); // Shadow the outer tick_tx
+    let engine_message_tx = engine_tx.clone(); // Shadow the outer tick_tx
 
     let _conn_in = midi_in
         .connect(
             &in_port,
             "phasorsyncrs-external-conn",
             move |timestamp, message, _| {
-                handle_midi_message(timestamp, message, &tick_callback, &engine_message_tx);
+                handle_midi_message(timestamp, message, &engine_message_tx);
             },
             (),
         )

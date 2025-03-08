@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 
 #[allow(dead_code)]
 pub trait ClockSource {
-    fn start(&self, tick_callback: Box<dyn Fn() + Send + 'static>);
+    fn start(&self);
 }
 
 pub struct InternalClock {
@@ -24,7 +24,7 @@ impl InternalClock {
 }
 
 impl ClockSource for InternalClock {
-    fn start(&self, tick_callback: Box<dyn Fn() + Send + 'static>) {
+    fn start(&self) {
         info!("Starting InternalClock with BPM: {}", self.bpm);
         let beat_duration_us = 60_000_000 / self.bpm; // total microseconds per beat
         let tick_interval_us = beat_duration_us / 24; // microseconds per tick
@@ -48,7 +48,6 @@ impl ClockSource for InternalClock {
                     let elapsed = now.duration_since(start_time).as_millis();
                     trace!("InternalClock tick at {} ms", elapsed);
 
-                    tick_callback();
                     tick_tx.send(EngineMessage::Tick).unwrap();
                     tick_count += 1;
                 }

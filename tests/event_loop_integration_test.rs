@@ -18,10 +18,10 @@ fn integration_test_event_loop_two_ticks() {
     }
 
     // Set up the mpsc channel.
-    let (tx, rx) = mpsc::channel();
+    let (engine_tx, engine_rx) = mpsc::channel();
 
     // Create the event loop instance.
-    let event_loop = EventLoop::new(Arc::clone(&shared_state), rx, None);
+    let event_loop = EventLoop::new(Arc::clone(&shared_state), engine_rx, None);
 
     // Spawn the event loop in a separate thread.
     let handle = thread::spawn(move || {
@@ -30,12 +30,12 @@ fn integration_test_event_loop_two_ticks() {
     });
 
     // Send two tick messages, with a small delay between them.
-    tx.send(EngineMessage::Tick).unwrap();
+    engine_tx.send(EngineMessage::Tick).unwrap();
     thread::sleep(Duration::from_millis(100));
-    tx.send(EngineMessage::Tick).unwrap();
+    engine_tx.send(EngineMessage::Tick).unwrap();
 
     // Close the channel so that the event loop will exit.
-    drop(tx);
+    drop(engine_tx);
 
     // Wait for the event loop thread to finish.
     handle.join().expect("Event loop thread panicked");

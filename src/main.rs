@@ -6,43 +6,46 @@ use std::thread;
 
 use crate::event_loop::EngineMessage;
 
-fn initialize_clock(
-    config: config::Config,
-    shared_state: Arc<Mutex<state::SharedState>>,
-    tick_tx: Sender<EngineMessage>,
-) {
-    let clock_shared_state = Arc::clone(&shared_state);
+fn initialize_clock(config: config::Config, engine_tx: Sender<EngineMessage>) {
     info!("Starting clock thread");
-    let tick_tx_clone = tick_tx.clone();
-    thread::spawn(move || {
-        let clock: Box<dyn clock::ClockSource> = match config.clock_source {
-            config::ClockSource::Internal => {
-                info!("Initializing internal clock");
-                Box::new(clock::InternalClock::new(tick_tx_clone.clone()))
-            }
-            config::ClockSource::External => {
-                info!("Initializing external clock");
-                let device = config
-                    .bind_to_device
-                    .clone()
-                    .expect("Device binding required for external sync");
-                let external_clock = external_clock::ExternalClock::new(device, tick_tx_clone);
-                Box::new(external_clock)
-            }
-        };
 
+    // Create a new thread for the clock to run independently
+    thread::spawn(move || {
+        // Create the appropriate clock source based on configuration
+        let clock_source: Box<dyn clock::ClockSource> = create_clock_source(&config, engine_tx);
+
+        // Start the clock
         info!("Starting clock");
-        clock.start(Box::new(move || {
-            if let Ok(mut state) = clock_shared_state.lock() {
-                state.tick_update();
-            }
-        }));
+        clock_source.start();
     });
 }
 
-fn start_ui(shared_state: Arc<Mutex<state::SharedState>>, tick_tx: Sender<EngineMessage>) {
+/// Creates the appropriate clock source based on configuration
+fn create_clock_source(
+    config: &config::Config,
+    engine_tx: Sender<EngineMessage>,
+) -> Box<dyn clock::ClockSource> {
+    match config.clock_source {
+        config::ClockSource::Internal => {
+            info!("Initializing internal clock");
+            Box::new(clock::InternalClock::new(engine_tx))
+        }
+        config::ClockSource::External => {
+            info!("Initializing external clock");
+            // Get the device name, panic with helpful message if not provided
+            let device_name = config
+                .bind_to_device
+                .clone()
+                .expect("Device binding required for external sync");
+
+            Box::new(external_clock::ExternalClock::new(device_name, engine_tx))
+        }
+    }
+}
+
+fn start_ui(shared_state: Arc<Mutex<state::SharedState>>, engine_tx: Sender<EngineMessage>) {
     info!("Starting TUI");
-    if let Err(e) = tui::run_tui_event_loop(shared_state, tick_tx) {
+    if let Err(e) = tui::run_tui_event_loop(shared_state, engine_tx) {
         eprintln!("TUI failed: {}", e);
         std::process::exit(1);
     }
@@ -78,8 +81,8 @@ fn initialize_components(
     let shared_state = Arc::new(Mutex::new(state::SharedState::new(config.bpm)));
     info!("Shared state initialized with BPM: {}", config.bpm);
 
-    // Create tick channel
-    let (tick_tx, tick_rx): (Sender<EngineMessage>, Receiver<EngineMessage>) = mpsc::channel();
+    // Create engine message channel
+    let (engine_tx, engine_rx): (Sender<EngineMessage>, Receiver<EngineMessage>) = mpsc::channel();
 
     // Set up MIDI output - always initialize for musical graph
     info!("Setting up MIDI output for event loop");
@@ -102,18 +105,18 @@ fn initialize_components(
     let midi_output = midi_output;
 
     // Start the clock thread
-    initialize_clock(config, Arc::clone(&shared_state), tick_tx.clone());
+    initialize_clock(config, engine_tx.clone());
 
     // Start the event loop thread with MIDI output
     let event_loop_shared_state = Arc::clone(&shared_state);
     info!("Starting event loop thread");
     thread::spawn(move || {
         let mut event_loop =
-            event_loop::EventLoop::new(event_loop_shared_state, tick_rx, midi_output);
+            event_loop::EventLoop::new(event_loop_shared_state, engine_rx, midi_output);
         event_loop.run();
     });
 
-    (shared_state, tick_tx)
+    (shared_state, engine_tx)
 }
 
 fn main() {
@@ -133,10 +136,10 @@ fn main() {
     info!("MIDI output setup complete");
 
     // Initialize components
-    let (shared_state, tick_tx) = initialize_components(config);
+    let (shared_state, engine_tx) = initialize_components(config);
 
     // Start the UI thread
-    start_ui(Arc::clone(&shared_state), tick_tx.clone());
+    start_ui(Arc::clone(&shared_state), engine_tx.clone());
 
     info!("All threads started, entering main loop");
     // Keep the main thread alive to allow other threads to run

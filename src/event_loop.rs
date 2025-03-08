@@ -24,7 +24,7 @@ pub enum TransportAction {
 
 pub struct EventLoop {
     shared_state: Arc<Mutex<state::SharedState>>,
-    rx: Receiver<EngineMessage>,
+    engine_rx: Receiver<EngineMessage>,
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
     midi_output: Option<MidiOutputManager>,
@@ -33,12 +33,12 @@ pub struct EventLoop {
 impl EventLoop {
     pub fn new(
         shared_state: Arc<Mutex<state::SharedState>>,
-        rx: Receiver<EngineMessage>,
+        engine_rx: Receiver<EngineMessage>,
         midi_output: Option<MidiOutputManager>,
     ) -> Self {
         EventLoop {
             shared_state,
-            rx,
+            engine_rx,
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
             midi_output,
@@ -48,7 +48,7 @@ impl EventLoop {
     pub fn run(&mut self) {
         let start_time = Instant::now();
         loop {
-            match self.rx.recv() {
+            match self.engine_rx.recv() {
                 Ok(EngineMessage::Tick) => self.handle_tick(start_time),
                 Ok(EngineMessage::TransportCommand(action)) => {
                     self.handle_transport_command(action)
