@@ -95,6 +95,53 @@ impl MidiOutputManager {
         self.connection = Some(connection);
         Ok(())
     }
+
+    // Process any scheduled events for the current tick
+    fn process_scheduled_events(&mut self, current_tick: u64) {
+        if let Some(scheduled_events) = self.scheduled_notes.remove(&current_tick) {
+            for event in scheduled_events {
+                if let Err(e) = self.send(event) {
+                    error!("Failed to send scheduled MIDI event: {}", e);
+                }
+            }
+        }
+    }
+
+    // Process new events and schedule any necessary Note Off events
+    fn process_new_events(&mut self, current_tick: u64, new_events: Vec<MidiMessage>) {
+        for event in new_events {
+            match event {
+                MidiMessage::NoteOn {
+                    channel,
+                    note,
+                    velocity,
+                    duration_ticks,
+                } => {
+                    // Send NoteOn immediately
+                    if let Err(e) = self.send(MidiMessage::NoteOn {
+                        channel,
+                        note,
+                        velocity,
+                        duration_ticks: 0, // Not needed when sending
+                    }) {
+                        error!("Failed to send NoteOn: {}", e);
+                    }
+
+                    // Schedule the corresponding NoteOff
+                    let target_tick = current_tick + duration_ticks;
+                    self.scheduled_notes
+                        .entry(target_tick)
+                        .or_default()
+                        .push(MidiMessage::NoteOff { channel, note });
+                }
+                _ => {
+                    if let Err(e) = self.send(event) {
+                        error!("Failed to send MIDI event: {}", e);
+                    }
+                }
+            }
+        }
+    }
 }
 
 impl MidiOutput for MidiOutputManager {
@@ -134,38 +181,10 @@ impl MidiOutput for MidiOutputManager {
 
     // Process MIDI events for the current tick
     fn process_tick_events(&mut self, current_tick: u64, new_events: Vec<MidiMessage>) {
-        // Process new events
-        for event in new_events {
-            match event {
-                MidiMessage::NoteOn {
-                    channel,
-                    note,
-                    velocity,
-                    duration_ticks,
-                } => {
-                    // Send NoteOn immediately
-                    if let Err(e) = self.send(MidiMessage::NoteOn {
-                        channel,
-                        note,
-                        velocity,
-                        duration_ticks: 0, // Not needed when sending
-                    }) {
-                        error!("Failed to send NoteOn: {}", e);
-                    }
+        // First, process any scheduled events for the current tick
+        self.process_scheduled_events(current_tick);
 
-                    // Schedule the corresponding NoteOff
-                    let target_tick = current_tick + duration_ticks;
-                    self.scheduled_notes
-                        .entry(target_tick)
-                        .or_default()
-                        .push(MidiMessage::NoteOff { channel, note });
-                }
-                _ => {
-                    if let Err(e) = self.send(event) {
-                        error!("Failed to send MIDI event: {}", e);
-                    }
-                }
-            }
-        }
+        // Then process any new events
+        self.process_new_events(current_tick, new_events);
     }
 }

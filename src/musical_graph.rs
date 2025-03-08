@@ -1,5 +1,5 @@
 use crate::state;
-use log::info;
+use log::debug;
 
 // Musical graph constants
 const TICKS_PER_BEAT: u64 = 24;
@@ -33,7 +33,7 @@ pub fn process_tick(shared_state: &mut state::SharedState) -> bool {
         // Add info logging every 24 ticks (once per beat)
         if MUSICAL_TICK_COUNT % TICKS_PER_BEAT == 0 {
             let tick_count = MUSICAL_TICK_COUNT; // Copy to local variable
-            info!(
+            debug!(
                 "Musical graph tick count: {}, bar: {}, beat: {}",
                 tick_count, bar, beat
             );
@@ -46,7 +46,7 @@ pub fn process_tick(shared_state: &mut state::SharedState) -> bool {
             && TRIGGER_EVERY_N_BARS > 0
             && MUSICAL_TICK_COUNT % TICKS_PER_BEAT == 0
         {
-            info!("Middle C triggered at musical bar: {}, beat: {}", bar, beat);
+            debug!("Middle C triggered at musical bar: {}, beat: {}", bar, beat);
             middle_c_triggered = true;
         }
     }
