@@ -3,6 +3,7 @@
 use crate::midi_output::MidiOutputManager;
 use crate::state;
 use log::{debug, error, info, trace};
+use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -28,6 +29,7 @@ pub struct EventLoop {
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
     midi_output: Option<MidiOutputManager>,
+    note_off_schedule: HashMap<u64, Vec<crate::midi_output::MidiMessage>>,
 }
 
 impl EventLoop {
@@ -42,6 +44,7 @@ impl EventLoop {
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
             midi_output,
+            note_off_schedule: HashMap::new(),
         }
     }
 
@@ -66,42 +69,63 @@ impl EventLoop {
         let elapsed = now.duration_since(start_time).as_millis();
         trace!("EventLoop received tick at {} ms", elapsed);
 
-        // First section - update state and check if Middle C is triggered
-        let middle_c_triggered = {
-            let mut state = self.shared_state.lock().unwrap();
-            let now = Instant::now();
-            let mut last_tick_time = self.last_tick_time.lock().unwrap();
-
-            if let Some(last_time) = *last_tick_time {
-                let duration = now.duration_since(last_time);
-                update_tick_history(&self.tick_history, duration);
-
-                let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
-                state.bpm = bpm;
-                debug!("Calculated BPM: {}", bpm);
-            } else {
-                info!("First tick received, initializing last_tick_time");
-            }
-
-            *last_tick_time = Some(now);
-            state.tick_update();
-
-            // Get the Middle C trigger state, but don't do MIDI operations yet
-            let triggered = crate::musical_graph::process_tick(&mut state);
-
-            trace!(
-                "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
-                state.get_tick_count(),
-                state.get_current_beat(),
-                state.get_current_bar(),
-                state.get_bpm()
-            );
-
-            triggered
-        }; // The lock on shared_state is released here
+        let middle_c_triggered = self.update_state(now);
 
         // Second section - handle MIDI output after releasing the lock
         self.handle_midi_output(middle_c_triggered);
+
+        self.process_scheduled_note_offs();
+    }
+
+    fn update_state(&mut self, now: Instant) -> bool {
+        let mut state = self.shared_state.lock().unwrap();
+        let mut last_tick_time = self.last_tick_time.lock().unwrap();
+
+        if let Some(last_time) = *last_tick_time {
+            let duration = now.duration_since(last_time);
+            update_tick_history(&self.tick_history, duration);
+
+            let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
+            state.bpm = bpm;
+            debug!("Calculated BPM: {}", bpm);
+        } else {
+            info!("First tick received, initializing last_tick_time");
+        }
+
+        *last_tick_time = Some(now);
+        state.tick_update();
+
+        // Get the Middle C trigger state, but don't do MIDI operations yet
+        let triggered = crate::musical_graph::process_tick(&mut state);
+
+        trace!(
+            "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
+            state.get_tick_count(),
+            state.get_current_beat(),
+            state.get_current_bar(),
+            state.get_bpm()
+        );
+
+        triggered
+    }
+
+    fn process_scheduled_note_offs(&mut self) {
+        if let Some(note_offs) = {
+            let state = self.shared_state.lock().unwrap();
+            let current_tick = state.get_tick_count();
+            self.note_off_schedule.remove(&current_tick)
+        } {
+            for note_off in note_offs {
+                self.send_midi_note_off(note_off);
+            }
+        }
+    }
+    fn send_midi_note_off(&mut self, note_off: crate::midi_output::MidiMessage) {
+        if let Some(midi_output) = &mut self.midi_output {
+            if let Err(e) = midi_output.send(note_off) {
+                error!("Failed to send MIDI note off: {}", e);
+            }
+        }
     }
 
     fn handle_midi_output(&mut self, middle_c_triggered: bool) {
@@ -117,16 +141,19 @@ impl EventLoop {
                     error!("Failed to send MIDI Note On: {}", e);
                 }
 
-                // Wait for note duration
-                std::thread::sleep(std::time::Duration::from_millis(500));
+                const MIDDLE_C_DURATION_TICKS: u64 = 48;
+                let state = self.shared_state.lock().unwrap();
+                let current_tick = state.get_tick_count();
+                let target_tick = current_tick + MIDDLE_C_DURATION_TICKS;
 
-                // Send note off
-                if let Err(e) = midi_output.send(crate::midi_output::MidiMessage::NoteOff {
+                let note_off = crate::midi_output::MidiMessage::NoteOff {
                     channel: 1,
                     note: 60,
-                }) {
-                    error!("Failed to send MIDI Note Off: {}", e);
-                }
+                };
+                self.note_off_schedule
+                    .entry(target_tick)
+                    .or_default()
+                    .push(note_off);
             }
         }
     }
