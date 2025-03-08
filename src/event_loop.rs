@@ -209,3 +209,147 @@ fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
     trace!("calculate_bpm: rounded_bpm={}", rounded_bpm);
     rounded_bpm
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::mpsc;
+    use std::time::Duration;
+
+    #[test]
+    fn test_handle_transport_command_start() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let (_tx, rx) = mpsc::channel();
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+
+        // Initially, the transport state should be Stopped.
+        assert_eq!(
+            shared_state.lock().unwrap().transport_state,
+            state::TransportState::Stopped
+        );
+
+        // Send a Start command.
+        event_loop.handle_transport_command(TransportAction::Start);
+
+        // The transport state should now be Playing.
+        assert_eq!(
+            shared_state.lock().unwrap().transport_state,
+            state::TransportState::Playing
+        );
+    }
+
+    #[test]
+    fn test_handle_transport_command_stop() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let (_tx, rx) = mpsc::channel();
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+
+        // Initially, the transport state should be Stopped.
+        assert_eq!(
+            shared_state.lock().unwrap().transport_state,
+            state::TransportState::Stopped
+        );
+
+        // Set the transport state to Playing.
+        shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
+
+        // Send a Stop command.
+        event_loop.handle_transport_command(TransportAction::Stop);
+
+        // The transport state should now be Stopped.
+        assert_eq!(
+            shared_state.lock().unwrap().transport_state,
+            state::TransportState::Stopped
+        );
+
+        // Tick count should be reset to 0.
+        assert_eq!(shared_state.lock().unwrap().tick_count, 0);
+    }
+
+    #[test]
+    fn test_handle_tick() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let (_tx, rx) = mpsc::channel();
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+
+        // Call handle_tick
+        let start_time = Instant::now();
+        event_loop.handle_tick(start_time);
+
+        // Check if last_tick_time is updated
+        let last_tick_time = event_loop.last_tick_time.lock().unwrap();
+        assert!(last_tick_time.is_some());
+    }
+
+    #[test]
+    fn test_handle_tick_updates_state() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let (_tx, rx) = mpsc::channel();
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+
+        // Set the transport state to Playing
+        shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
+
+        // Get initial tick count
+        let initial_tick_count = shared_state.lock().unwrap().tick_count;
+
+        // Call handle_tick
+        let start_time = Instant::now();
+        event_loop.handle_tick(start_time);
+
+        // Check if tick count is incremented
+        let current_tick_count = shared_state.lock().unwrap().tick_count;
+        assert_eq!(current_tick_count, initial_tick_count + 1);
+
+        // Check if last_tick_time is updated
+        let last_tick_time = event_loop.last_tick_time.lock().unwrap();
+        assert!(last_tick_time.is_some());
+    }
+
+    #[test]
+    fn test_update_tick_history() {
+        let tick_history = Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE));
+        let duration = Duration::from_millis(100);
+
+        update_tick_history(&tick_history, duration);
+
+        let tick_history_lock = tick_history.lock().unwrap();
+        assert_eq!(tick_history_lock.len(), 1);
+        assert_eq!(tick_history_lock.front(), Some(&duration));
+    }
+
+    #[test]
+    fn test_update_tick_history_overflow() {
+        let tick_history = Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE));
+        for _ in 0..TICK_HISTORY_SIZE {
+            let duration = Duration::from_millis(100);
+            update_tick_history(&tick_history, duration);
+        }
+
+        let duration = Duration::from_millis(200);
+        update_tick_history(&tick_history, duration);
+
+        let tick_history_lock = tick_history.lock().unwrap();
+        assert_eq!(tick_history_lock.len(), TICK_HISTORY_SIZE);
+        assert_eq!(tick_history_lock.back(), Some(&duration));
+    }
+
+    #[test]
+    fn test_calculate_bpm() {
+        let tick_history: VecDeque<Duration> = vec![
+            Duration::from_millis(500),
+            Duration::from_millis(500),
+            Duration::from_millis(500),
+        ]
+        .into();
+        let bpm = calculate_bpm(&tick_history);
+        assert_eq!(bpm, 5);
+    }
+
+    #[test]
+    fn test_calculate_bpm_empty_history() {
+        let tick_history: VecDeque<Duration> = VecDeque::new();
+        let bpm = calculate_bpm(&tick_history);
+        assert_eq!(bpm, 60);
+    }
+}
