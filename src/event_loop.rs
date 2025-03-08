@@ -1,6 +1,6 @@
 // event_loop.rs
 
-use crate::midi_output::{MidiMessage, MidiOutputManager};
+use crate::midi_output::{MidiMessage, MidiOutput, MidiOutputManager};
 use crate::state;
 use log::{debug, error, info, trace};
 use std::collections::VecDeque;

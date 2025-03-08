@@ -5,7 +5,6 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use crate::event_loop::EngineMessage;
-use phasorsyncrs::midi_output::MidiMessage;
 
 fn initialize_clock(
     config: config::Config,
@@ -57,14 +56,6 @@ fn initialize_logging() {
     }
 }
 
-fn setup_midi_output(config: &config::Config) -> Option<std::sync::mpsc::Sender<MidiMessage>> {
-    // Always set up MIDI output for musical graph
-    info!("Setting up MIDI output");
-    let (midi_tx, midi_rx) = mpsc::channel();
-    midi_output::run_midi_output_thread(midi_rx, config.midi_output_device.clone());
-    Some(midi_tx)
-}
-
 // Log configuration details
 fn log_config_details(config: &config::Config) {
     debug!(
@@ -108,6 +99,8 @@ fn initialize_components(
         Some(output_manager)
     };
 
+    let midi_output = midi_output;
+
     // Start the clock thread
     initialize_clock(config, Arc::clone(&shared_state), tick_tx.clone());
 
@@ -137,7 +130,6 @@ fn main() {
     log_config_details(&config);
 
     // Setup MIDI output
-    let _midi_tx = setup_midi_output(&config);
     info!("MIDI output setup complete");
 
     // Initialize components
