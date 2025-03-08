@@ -1,5 +1,6 @@
 // event_loop.rs
 
+use crate::midi_output::MidiOutputManager;
 use crate::state;
 use log::{debug, error, info, trace};
 use std::collections::VecDeque;
@@ -26,19 +27,25 @@ pub struct EventLoop {
     rx: Receiver<EngineMessage>,
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
+    midi_output: Option<MidiOutputManager>,
 }
 
 impl EventLoop {
-    pub fn new(shared_state: Arc<Mutex<state::SharedState>>, rx: Receiver<EngineMessage>) -> Self {
+    pub fn new(
+        shared_state: Arc<Mutex<state::SharedState>>,
+        rx: Receiver<EngineMessage>,
+        midi_output: Option<MidiOutputManager>,
+    ) -> Self {
         EventLoop {
             shared_state,
             rx,
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
+            midi_output,
         }
     }
 
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         let start_time = Instant::now();
         loop {
             match self.rx.recv() {
@@ -54,43 +61,77 @@ impl EventLoop {
         }
     }
 
-    fn handle_tick(&self, start_time: Instant) {
+    fn handle_tick(&mut self, start_time: Instant) {
         let now = Instant::now();
         let elapsed = now.duration_since(start_time).as_millis();
         trace!("EventLoop received tick at {} ms", elapsed);
 
-        // A tick event has been received.
-        let mut state = self.shared_state.lock().unwrap();
-        let now = Instant::now();
-        let mut last_tick_time = self.last_tick_time.lock().unwrap();
+        // First section - update state and check if Middle C is triggered
+        let middle_c_triggered = {
+            let mut state = self.shared_state.lock().unwrap();
+            let now = Instant::now();
+            let mut last_tick_time = self.last_tick_time.lock().unwrap();
 
-        if let Some(last_time) = *last_tick_time {
-            let duration = now.duration_since(last_time);
-            update_tick_history(&self.tick_history, duration);
+            if let Some(last_time) = *last_tick_time {
+                let duration = now.duration_since(last_time);
+                update_tick_history(&self.tick_history, duration);
 
-            let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
-            state.bpm = bpm;
-            debug!("Calculated BPM: {}", bpm);
-        } else {
-            info!("First tick received, initializing last_tick_time");
-        }
+                let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
+                state.bpm = bpm;
+                debug!("Calculated BPM: {}", bpm);
+            } else {
+                info!("First tick received, initializing last_tick_time");
+            }
 
-        *last_tick_time = Some(now);
-        state.tick_update();
+            *last_tick_time = Some(now);
+            state.tick_update();
 
-        // Process musical events after state update
-        let _middle_c_triggered = crate::musical_graph::process_tick(&mut state);
+            // Get the Middle C trigger state, but don't do MIDI operations yet
+            let triggered = crate::musical_graph::process_tick(&mut state);
 
-        trace!(
-            "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
-            state.get_tick_count(),
-            state.get_current_beat(),
-            state.get_current_bar(),
-            state.get_bpm()
-        );
+            trace!(
+                "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
+                state.get_tick_count(),
+                state.get_current_beat(),
+                state.get_current_bar(),
+                state.get_bpm()
+            );
+
+            triggered
+        }; // The lock on shared_state is released here
+
+        // Second section - handle MIDI output after releasing the lock
+        self.handle_midi_output(middle_c_triggered);
     }
 
-    fn handle_transport_command(&self, action: TransportAction) {
+    fn handle_midi_output(&mut self, middle_c_triggered: bool) {
+        if middle_c_triggered {
+            if let Some(midi_output) = &mut self.midi_output {
+                info!("Sending MIDI note for triggered Middle C");
+                // Send note on
+                if let Err(e) = midi_output.send(crate::midi_output::MidiMessage::NoteOn {
+                    channel: 1,
+                    note: 60, // Middle C
+                    velocity: 100,
+                }) {
+                    error!("Failed to send MIDI Note On: {}", e);
+                }
+
+                // Wait for note duration
+                std::thread::sleep(std::time::Duration::from_millis(500));
+
+                // Send note off
+                if let Err(e) = midi_output.send(crate::midi_output::MidiMessage::NoteOff {
+                    channel: 1,
+                    note: 60,
+                }) {
+                    error!("Failed to send MIDI Note Off: {}", e);
+                }
+            }
+        }
+    }
+
+    fn handle_transport_command(&mut self, action: TransportAction) {
         let mut state = self.shared_state.lock().unwrap();
         match action {
             TransportAction::Start => state.transport_state = state::TransportState::Playing,

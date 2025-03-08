@@ -21,10 +21,11 @@ fn integration_test_event_loop_two_ticks() {
     let (tx, rx) = mpsc::channel();
 
     // Create the event loop instance.
-    let event_loop = EventLoop::new(Arc::clone(&shared_state), rx);
+    let event_loop = EventLoop::new(Arc::clone(&shared_state), rx, None);
 
     // Spawn the event loop in a separate thread.
     let handle = thread::spawn(move || {
+        let mut event_loop = event_loop;
         event_loop.run();
     });
 

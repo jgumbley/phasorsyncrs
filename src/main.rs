@@ -41,15 +41,6 @@ fn initialize_clock(
     });
 }
 
-fn start_event_loop(shared_state: Arc<Mutex<state::SharedState>>, rx: Receiver<EngineMessage>) {
-    let event_loop_shared_state = Arc::clone(&shared_state);
-    info!("Starting event loop thread");
-    thread::spawn(move || {
-        let event_loop = event_loop::EventLoop::new(event_loop_shared_state, rx);
-        event_loop.run();
-    });
-}
-
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>, tick_tx: Sender<EngineMessage>) {
     info!("Starting TUI");
     if let Err(e) = tui::run_tui_event_loop(shared_state, tick_tx) {
@@ -116,11 +107,39 @@ fn initialize_components(
     // Create tick channel
     let (tick_tx, tick_rx): (Sender<EngineMessage>, Receiver<EngineMessage>) = mpsc::channel();
 
+    // Set up MIDI output
+    let midi_output = if config.midi_output_device.is_some() || config.send_test_note {
+        info!("Setting up MIDI output for event loop");
+        let mut output_manager = midi_output::MidiOutputManager::new();
+
+        let result = if let Some(device) = &config.midi_output_device {
+            output_manager.connect_to_device(device)
+        } else {
+            output_manager.connect_to_first_available()
+        };
+
+        if let Err(e) = result {
+            error!("Failed to connect MIDI output: {}", e);
+            None
+        } else {
+            info!("MIDI output connected successfully");
+            Some(output_manager)
+        }
+    } else {
+        None
+    };
+
     // Start the clock thread
     initialize_clock(config, Arc::clone(&shared_state), tick_tx.clone());
 
-    // Start the event loop thread
-    start_event_loop(Arc::clone(&shared_state), tick_rx);
+    // Start the event loop thread with MIDI output
+    let event_loop_shared_state = Arc::clone(&shared_state);
+    info!("Starting event loop thread");
+    thread::spawn(move || {
+        let mut event_loop =
+            event_loop::EventLoop::new(event_loop_shared_state, tick_rx, midi_output);
+        event_loop.run();
+    });
 
     (shared_state, tick_tx)
 }
