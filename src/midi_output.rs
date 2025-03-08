@@ -2,7 +2,7 @@ use log::{debug, error, info};
 use midir::{MidiOutput, MidiOutputConnection};
 use std::collections::HashMap;
 use std::error::Error;
-use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc::Receiver;
 use std::thread;
 
 pub enum MidiMessage {
@@ -257,49 +257,3 @@ pub fn run_midi_output_thread(rx: Receiver<MidiMessage>, device_name: Option<Str
         process_midi_messages(&mut output_manager, rx);
     });
 }
-
-// For testing purposes, this function can trigger a simple MIDI test
-// when enabled through config
-pub fn send_test_note(tx: &Sender<MidiMessage>) -> Result<(), Box<dyn Error>> {
-    info!("Sending test note (Middle C)");
-
-    // Send note on
-    tx.send(MidiMessage::NoteOn {
-        channel: 1,
-        note: 60, // Middle C
-        velocity: 100,
-        duration_ticks: 0, // No duration for test note, we'll handle it manually
-    })?;
-
-    // Create a thread that will send the note off after 500ms
-    // Note: This is only for testing! In production, we'll use the scheduler
-    let tx_clone = tx.clone();
-    thread::spawn(move || {
-        thread::sleep(std::time::Duration::from_millis(500));
-        let _ = tx_clone.send(MidiMessage::NoteOff {
-            channel: 1,
-            note: 60,
-        });
-        info!("Test note released");
-    });
-
-    Ok(())
-}
-
-// Helper function to list available MIDI ports
-fn list_available_midi_ports(midi_out: &MidiOutput) -> Result<(), Box<dyn Error>> {
-    let ports = midi_out.ports();
-    if ports.is_empty() {
-        return Err("No MIDI output ports available".into());
-    }
-
-    info!("Available MIDI output ports:");
-    for (i, port) in ports.iter().enumerate() {
-        if let Ok(name) = midi_out.port_name(port) {
-            info!("  [{}] '{}'", i, name);
-        }
-    }
-    Ok(())
-}
-
-

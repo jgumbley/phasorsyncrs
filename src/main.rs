@@ -58,28 +58,11 @@ fn initialize_logging() {
 }
 
 fn setup_midi_output(config: &config::Config) -> Option<std::sync::mpsc::Sender<MidiMessage>> {
-    if config.midi_output_device.is_some() || config.send_test_note {
-        info!("Setting up MIDI output");
-        let (midi_tx, midi_rx) = mpsc::channel();
-        midi_output::run_midi_output_thread(midi_rx, config.midi_output_device.clone());
-
-        // Send a test note if configured
-        if config.send_test_note {
-            info!("Sending test note as requested");
-            let tx_clone = midi_tx.clone();
-            // Wait a moment for the MIDI connection to establish
-            thread::spawn(move || {
-                thread::sleep(std::time::Duration::from_millis(1000));
-                if let Err(e) = midi_output::send_test_note(&tx_clone) {
-                    error!("Failed to send test note: {}", e);
-                }
-            });
-        }
-
-        Some(midi_tx)
-    } else {
-        None
-    }
+    // Always set up MIDI output for musical graph
+    info!("Setting up MIDI output");
+    let (midi_tx, midi_rx) = mpsc::channel();
+    midi_output::run_midi_output_thread(midi_rx, config.midi_output_device.clone());
+    Some(midi_tx)
 }
 
 // Log configuration details
@@ -107,26 +90,22 @@ fn initialize_components(
     // Create tick channel
     let (tick_tx, tick_rx): (Sender<EngineMessage>, Receiver<EngineMessage>) = mpsc::channel();
 
-    // Set up MIDI output
-    let midi_output = if config.midi_output_device.is_some() || config.send_test_note {
-        info!("Setting up MIDI output for event loop");
-        let mut output_manager = midi_output::MidiOutputManager::new();
+    // Set up MIDI output - always initialize for musical graph
+    info!("Setting up MIDI output for event loop");
+    let mut output_manager = midi_output::MidiOutputManager::new();
 
-        let result = if let Some(device) = &config.midi_output_device {
-            output_manager.connect_to_device(device)
-        } else {
-            output_manager.connect_to_first_available()
-        };
-
-        if let Err(e) = result {
-            error!("Failed to connect MIDI output: {}", e);
-            None
-        } else {
-            info!("MIDI output connected successfully");
-            Some(output_manager)
-        }
+    let result = if let Some(device) = &config.midi_output_device {
+        output_manager.connect_to_device(device)
     } else {
+        output_manager.connect_to_first_available()
+    };
+
+    let midi_output = if let Err(e) = result {
+        error!("Failed to connect MIDI output: {}", e);
         None
+    } else {
+        info!("MIDI output connected successfully");
+        Some(output_manager)
     };
 
     // Start the clock thread
