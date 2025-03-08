@@ -1,9 +1,8 @@
 // event_loop.rs
 
-use crate::midi_output::MidiOutputManager;
+use crate::midi_output::{MidiMessage, MidiOutputManager};
 use crate::state;
 use log::{debug, error, info, trace};
-use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -29,7 +28,6 @@ pub struct EventLoop {
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
     midi_output: Option<MidiOutputManager>,
-    note_off_schedule: HashMap<u64, Vec<crate::midi_output::MidiMessage>>,
 }
 
 impl EventLoop {
@@ -44,7 +42,6 @@ impl EventLoop {
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
             midi_output,
-            note_off_schedule: HashMap::new(),
         }
     }
 
@@ -69,16 +66,43 @@ impl EventLoop {
         let elapsed = now.duration_since(start_time).as_millis();
         trace!("EventLoop received tick at {} ms", elapsed);
 
-        let middle_c_triggered = self.update_state(now);
+        // Update tick history and BPM
+        self.update_tick_history(now);
 
-        // Second section - handle MIDI output after releasing the lock
-        self.handle_midi_output(middle_c_triggered);
+        // Update shared state
+        {
+            let mut state = self.shared_state.lock().unwrap();
+            state.tick_update();
+        }
+        let current_tick = self.shared_state.lock().unwrap().get_tick_count();
 
-        self.process_scheduled_note_offs();
+        // Get new musical events from the musical graph
+        let events = self.get_midi_events_from_musical_graph();
+
+        // Delegate both sending and scheduling to the unified MIDI method
+        if let Some(midi_output) = &mut self.midi_output {
+            midi_output.process_tick_events(current_tick, events);
+        }
     }
 
-    fn update_state(&mut self, now: Instant) -> bool {
+    fn get_midi_events_from_musical_graph(&self) -> Vec<MidiMessage> {
         let mut state = self.shared_state.lock().unwrap();
+        let middle_c_triggered = crate::musical_graph::process_tick(&mut state);
+
+        let mut events = Vec::new();
+        if middle_c_triggered {
+            info!("Sending MIDI note for triggered Middle C");
+            events.push(MidiMessage::NoteOn {
+                channel: 1,
+                note: 60, // Middle C
+                velocity: 100,
+                duration_ticks: 48, // MIDDLE_C_DURATION_TICKS
+            });
+        }
+        events
+    }
+
+    fn update_tick_history(&mut self, now: Instant) {
         let mut last_tick_time = self.last_tick_time.lock().unwrap();
 
         if let Some(last_time) = *last_tick_time {
@@ -86,6 +110,7 @@ impl EventLoop {
             update_tick_history(&self.tick_history, duration);
 
             let bpm = calculate_bpm(&self.tick_history.lock().unwrap());
+            let mut state = self.shared_state.lock().unwrap();
             state.bpm = bpm;
             debug!("Calculated BPM: {}", bpm);
         } else {
@@ -93,69 +118,14 @@ impl EventLoop {
         }
 
         *last_tick_time = Some(now);
-        state.tick_update();
-
-        // Get the Middle C trigger state, but don't do MIDI operations yet
-        let triggered = crate::musical_graph::process_tick(&mut state);
 
         trace!(
             "Shared state updated: tick_count={}, current_beat={}, current_bar={}, bpm={}",
-            state.get_tick_count(),
-            state.get_current_beat(),
-            state.get_current_bar(),
-            state.get_bpm()
+            self.shared_state.lock().unwrap().get_tick_count(),
+            self.shared_state.lock().unwrap().get_current_beat(),
+            self.shared_state.lock().unwrap().get_current_bar(),
+            self.shared_state.lock().unwrap().get_bpm()
         );
-
-        triggered
-    }
-
-    fn process_scheduled_note_offs(&mut self) {
-        if let Some(note_offs) = {
-            let state = self.shared_state.lock().unwrap();
-            let current_tick = state.get_tick_count();
-            self.note_off_schedule.remove(&current_tick)
-        } {
-            for note_off in note_offs {
-                self.send_midi_note_off(note_off);
-            }
-        }
-    }
-    fn send_midi_note_off(&mut self, note_off: crate::midi_output::MidiMessage) {
-        if let Some(midi_output) = &mut self.midi_output {
-            if let Err(e) = midi_output.send(note_off) {
-                error!("Failed to send MIDI note off: {}", e);
-            }
-        }
-    }
-
-    fn handle_midi_output(&mut self, middle_c_triggered: bool) {
-        if middle_c_triggered {
-            if let Some(midi_output) = &mut self.midi_output {
-                info!("Sending MIDI note for triggered Middle C");
-                // Send note on
-                if let Err(e) = midi_output.send(crate::midi_output::MidiMessage::NoteOn {
-                    channel: 1,
-                    note: 60, // Middle C
-                    velocity: 100,
-                }) {
-                    error!("Failed to send MIDI Note On: {}", e);
-                }
-
-                const MIDDLE_C_DURATION_TICKS: u64 = 48;
-                let state = self.shared_state.lock().unwrap();
-                let current_tick = state.get_tick_count();
-                let target_tick = current_tick + MIDDLE_C_DURATION_TICKS;
-
-                let note_off = crate::midi_output::MidiMessage::NoteOff {
-                    channel: 1,
-                    note: 60,
-                };
-                self.note_off_schedule
-                    .entry(target_tick)
-                    .or_default()
-                    .push(note_off);
-            }
-        }
     }
 
     fn handle_transport_command(&mut self, action: TransportAction) {
@@ -375,7 +345,7 @@ mod tests {
     }
 
     #[test]
-    fn test_update_state_first_tick() {
+    fn test_update_tick_history_method() {
         // Create a shared state
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
@@ -386,23 +356,17 @@ mod tests {
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
 
-        // Call update_state for the first time
+        // Call update_tick_history for the first time
         let now = Instant::now();
-        let triggered = event_loop.update_state(now);
+        event_loop.update_tick_history(now);
 
         // Verify that last_tick_time is updated
         let last_tick_time = event_loop.last_tick_time.lock().unwrap();
         assert!(last_tick_time.is_some());
-
-        // Verify that the tick count is incremented
-        assert_eq!(shared_state.lock().unwrap().get_tick_count(), 1);
-
-        // Verify that triggered is false (since we're not at a trigger point)
-        assert!(!triggered);
     }
 
     #[test]
-    fn test_update_state_subsequent_tick() {
+    fn test_update_tick_history_subsequent_tick() {
         // Create a shared state
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
@@ -420,9 +384,9 @@ mod tests {
         // Wait a bit to ensure a measurable duration
         std::thread::sleep(Duration::from_millis(10));
 
-        // Call update_state
+        // Call update_tick_history
         let second_time = Instant::now();
-        let _triggered = event_loop.update_state(second_time);
+        event_loop.update_tick_history(second_time);
 
         // Verify that last_tick_time is updated
         let last_tick_time = event_loop.last_tick_time.lock().unwrap();
@@ -437,41 +401,30 @@ mod tests {
     }
 
     #[test]
-    fn test_process_scheduled_note_offs() {
+    fn test_get_midi_events_from_musical_graph() {
         // Create a shared state
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let event_loop = EventLoop::new(shared_state.clone(), rx, None);
 
-        // Set up a note off message in the schedule
-        let note_off = crate::midi_output::MidiMessage::NoteOff {
-            channel: 1,
-            note: 60,
-        };
+        // Set the transport state to Playing
+        shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
 
-        // Schedule the note off for the current tick
-        let current_tick = shared_state.lock().unwrap().get_tick_count();
-        event_loop
-            .note_off_schedule
-            .insert(current_tick, vec![note_off]);
-
-        // Process scheduled note offs
-        event_loop.process_scheduled_note_offs();
-
-        // Verify that the note off was removed from the schedule
-        assert!(!event_loop.note_off_schedule.contains_key(&current_tick));
+        // Get events when Middle C is not triggered
+        let events = event_loop.get_midi_events_from_musical_graph();
+        assert!(events.is_empty());
     }
 
     #[test]
-    fn test_handle_midi_output_when_triggered() {
+    fn test_handle_tick_with_midi_output() {
         // Create a shared state
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
 
         // Create a real MidiOutputManager
-        let midi_output = Some(crate::midi_output::MidiOutputManager::new());
+        let midi_output = Some(MidiOutputManager::new());
 
         // Create the event loop with the MIDI output
         let mut event_loop = EventLoop::new(shared_state.clone(), rx, midi_output);
@@ -479,64 +432,11 @@ mod tests {
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
 
-        // Call handle_midi_output with middle_c_triggered = true
-        event_loop.handle_midi_output(true);
+        // Call handle_tick
+        let start_time = Instant::now();
+        event_loop.handle_tick(start_time);
 
-        // Verify that a note off was scheduled
-        let state = shared_state.lock().unwrap();
-        let current_tick = state.get_tick_count();
-        let target_tick = current_tick + 48; // MIDDLE_C_DURATION_TICKS
-
-        assert!(event_loop.note_off_schedule.contains_key(&target_tick));
-
-        // Verify the scheduled note off is for Middle C
-        let scheduled_note_offs = event_loop.note_off_schedule.get(&target_tick).unwrap();
-        assert_eq!(scheduled_note_offs.len(), 1);
-
-        match &scheduled_note_offs[0] {
-            crate::midi_output::MidiMessage::NoteOff { channel, note } => {
-                assert_eq!(*channel, 1);
-                assert_eq!(*note, 60); // Middle C
-            }
-            _ => panic!("Expected NoteOff message"),
-        }
-    }
-
-    #[test]
-    fn test_handle_midi_output_when_not_triggered() {
-        // Create a shared state
-        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
-        let (_tx, rx) = mpsc::channel();
-
-        // Create the event loop
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
-
-        // Set the transport state to Playing
-        shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
-
-        // Call handle_midi_output with middle_c_triggered = false
-        event_loop.handle_midi_output(false);
-
-        // Verify that no note offs were scheduled
-        assert!(event_loop.note_off_schedule.is_empty());
-    }
-
-    #[test]
-    fn test_send_midi_note_off_without_midi_output() {
-        // Create a shared state
-        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
-        let (_tx, rx) = mpsc::channel();
-
-        // Create the event loop with no MIDI output
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
-
-        // Call send_midi_note_off
-        let note_off = crate::midi_output::MidiMessage::NoteOff {
-            channel: 1,
-            note: 60,
-        };
-
-        // This should not panic even though midi_output is None
-        event_loop.send_midi_note_off(note_off);
+        // Verify that tick count is incremented
+        assert_eq!(shared_state.lock().unwrap().get_tick_count(), 1);
     }
 }

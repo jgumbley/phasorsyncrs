@@ -1,17 +1,30 @@
 use log::{debug, error, info};
 use midir::{MidiOutput, MidiOutputConnection};
+use std::collections::HashMap;
 use std::error::Error;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
 pub enum MidiMessage {
-    NoteOn { channel: u8, note: u8, velocity: u8 },
-    NoteOff { channel: u8, note: u8 },
-    AllNotesOff { channel: u8 },
+    NoteOn {
+        channel: u8,
+        note: u8,
+        velocity: u8,
+        duration_ticks: u64,
+    },
+    NoteOff {
+        channel: u8,
+        note: u8,
+    },
+    AllNotesOff {
+        channel: u8,
+    },
 }
 
 pub struct MidiOutputManager {
     connection: Option<MidiOutputConnection>,
+    // New field: a mapping from target tick to scheduled MIDI messages.
+    scheduled_notes: HashMap<u64, Vec<MidiMessage>>,
 }
 
 impl Default for MidiOutputManager {
@@ -22,7 +35,10 @@ impl Default for MidiOutputManager {
 
 impl MidiOutputManager {
     pub fn new() -> Self {
-        MidiOutputManager { connection: None }
+        MidiOutputManager {
+            connection: None,
+            scheduled_notes: HashMap::new(),
+        }
     }
 
     pub fn connect_to_first_available(&mut self) -> Result<(), Box<dyn Error>> {
@@ -88,6 +104,7 @@ impl MidiOutputManager {
                 channel,
                 note,
                 velocity,
+                duration_ticks: _, // Ignore duration_ticks when sending
             } => {
                 let msg = [0x90 | (channel & 0x0F), note, velocity];
                 debug!(
@@ -108,6 +125,73 @@ impl MidiOutputManager {
             }
         }
         Ok(())
+    }
+
+    // Process MIDI events for the current tick
+    pub fn process_tick_events(&mut self, current_tick: u64, new_events: Vec<MidiMessage>) {
+        // Flush scheduled events due at current_tick
+        self.process_scheduled_events(current_tick);
+
+        // Process new events
+        for event in new_events {
+            self.process_single_event(event, current_tick);
+        }
+    }
+
+    // Process scheduled events for the current tick
+    fn process_scheduled_events(&mut self, current_tick: u64) {
+        if let Some(events) = self.scheduled_notes.remove(&current_tick) {
+            for event in events {
+                if let Err(e) = self.send(event) {
+                    error!("Failed to send scheduled MIDI event: {}", e);
+                }
+            }
+        }
+    }
+
+    // Process a single MIDI event
+    fn process_single_event(&mut self, event: MidiMessage, current_tick: u64) {
+        match &event {
+            MidiMessage::NoteOn { .. } => {
+                self.process_note_on(&event, current_tick);
+            }
+            _ => {
+                if let Err(e) = self.send(event) {
+                    error!("Failed to send MIDI event: {}", e);
+                }
+            }
+        }
+    }
+
+    // Process a note-on event
+    fn process_note_on(&mut self, note_event: &MidiMessage, current_tick: u64) {
+        if let MidiMessage::NoteOn {
+            channel,
+            note,
+            velocity,
+            duration_ticks,
+        } = note_event
+        {
+            // Send NoteOn immediately
+            if let Err(e) = self.send(MidiMessage::NoteOn {
+                channel: *channel,
+                note: *note,
+                velocity: *velocity,
+                duration_ticks: 0, // Not needed when sending
+            }) {
+                error!("Failed to send NoteOn: {}", e);
+            }
+
+            // Schedule the corresponding NoteOff
+            let target_tick = current_tick + duration_ticks;
+            self.scheduled_notes
+                .entry(target_tick)
+                .or_default()
+                .push(MidiMessage::NoteOff {
+                    channel: *channel,
+                    note: *note,
+                });
+        }
     }
 
     // Utility method to list all available MIDI output ports
@@ -184,6 +268,7 @@ pub fn send_test_note(tx: &Sender<MidiMessage>) -> Result<(), Box<dyn Error>> {
         channel: 1,
         note: 60, // Middle C
         velocity: 100,
+        duration_ticks: 0, // No duration for test note, we'll handle it manually
     })?;
 
     // Create a thread that will send the note off after 500ms
