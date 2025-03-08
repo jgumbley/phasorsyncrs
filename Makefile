@@ -28,9 +28,6 @@ run-oxi: clean_log build
 run-test-note: clean_log build
 	$(CARGO) run -- --test-note --midi-output "Midi Through Port-0"
 
-run-direct-test: clean_log build
-	$(CARGO) run -- --direct-test
-
 fmt:
 	$(CARGO) fmt --all
 	$(call success)
