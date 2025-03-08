@@ -181,7 +181,7 @@ pub fn send_test_note(tx: &Sender<MidiMessage>) -> Result<(), Box<dyn Error>> {
 
     // Send note on
     tx.send(MidiMessage::NoteOn {
-        channel: 0,
+        channel: 1,
         note: 60, // Middle C
         velocity: 100,
     })?;
@@ -192,7 +192,7 @@ pub fn send_test_note(tx: &Sender<MidiMessage>) -> Result<(), Box<dyn Error>> {
     thread::spawn(move || {
         thread::sleep(std::time::Duration::from_millis(500));
         let _ = tx_clone.send(MidiMessage::NoteOff {
-            channel: 0,
+            channel: 1,
             note: 60,
         });
         info!("Test note released");
