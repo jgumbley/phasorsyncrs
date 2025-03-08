@@ -12,6 +12,7 @@ pub struct Config {
     pub bind_to_device: Option<String>,     // MIDI input device
     pub midi_output_device: Option<String>, // New field for MIDI output
     pub send_test_note: bool,               // For testing MIDI output
+    pub direct_test: bool,                  // For direct MIDI output test
 }
 
 #[derive(PartialEq)]
@@ -57,6 +58,13 @@ impl Config {
                 Arg::new("test-note")
                     .long("test-note")
                     .help("Send a test MIDI note on startup")
+                    .action(clap::ArgAction::SetTrue)
+                    .required(false),
+            )
+            .arg(
+                Arg::new("direct-test")
+                    .long("direct-test")
+                    .help("Run a direct MIDI output test")
                     .action(clap::ArgAction::SetTrue)
                     .required(false),
             )
@@ -122,6 +130,12 @@ impl Config {
             info!("Test note flag enabled - will send a test note on startup");
         }
 
+        // Direct test flag
+        let direct_test = matches.get_flag("direct-test");
+        if direct_test {
+            info!("Direct MIDI test flag enabled - will run direct MIDI output test");
+        }
+
         Config {
             bpm,
             clock_source,
@@ -129,6 +143,7 @@ impl Config {
             bind_to_device,
             midi_output_device,
             send_test_note,
+            direct_test,
         }
     }
 }

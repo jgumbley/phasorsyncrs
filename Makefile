@@ -16,7 +16,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-test-note
+.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-test-note run-direct-test
 
 # Main targets
 run: clean_log build
@@ -27,6 +27,9 @@ run-oxi: clean_log build
 
 run-test-note: clean_log build
 	$(CARGO) run -- --test-note --midi-output "Midi Through Port-0"
+
+run-direct-test: clean_log build
+	$(CARGO) run -- --direct-test
 
 fmt:
 	$(CARGO) fmt --all

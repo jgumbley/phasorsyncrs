@@ -200,3 +200,68 @@ pub fn send_test_note(tx: &Sender<MidiMessage>) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+// Helper function to list available MIDI ports
+fn list_available_midi_ports(midi_out: &MidiOutput) -> Result<(), Box<dyn Error>> {
+    let ports = midi_out.ports();
+    if ports.is_empty() {
+        return Err("No MIDI output ports available".into());
+    }
+
+    info!("Available MIDI output ports:");
+    for (i, port) in ports.iter().enumerate() {
+        if let Ok(name) = midi_out.port_name(port) {
+            info!("  [{}] '{}'", i, name);
+        }
+    }
+    Ok(())
+}
+
+// Helper function to send test notes
+fn send_test_chord(conn: &mut MidiOutputConnection) -> Result<(), Box<dyn Error>> {
+    // C major chord (C, E, G)
+    for note in [60, 64, 67] {
+        info!("Sending Note On: note={}, velocity=100", note);
+        conn.send(&[0x90, note, 100])?; // Note on, channel 0, velocity 100
+        thread::sleep(std::time::Duration::from_millis(300));
+
+        info!("Sending Note Off: note={}", note);
+        conn.send(&[0x80, note, 0])?; // Note off
+        thread::sleep(std::time::Duration::from_millis(100));
+    }
+    Ok(())
+}
+
+pub fn test_midi_output_directly() -> Result<(), Box<dyn Error>> {
+    info!("Starting direct MIDI output test");
+    info!("This test will loop continuously. Press Ctrl+C to exit.");
+
+    // Create a new MIDI output connection
+    let midi_out = MidiOutput::new("phasorsyncrs-direct-test")?;
+
+    // List all available ports for debugging
+    list_available_midi_ports(&midi_out)?;
+
+    // Get ports again for connection
+    let ports = midi_out.ports();
+
+    // Connect to first available port
+    let port = &ports[0];
+    let port_name = midi_out.port_name(port)?;
+    info!("Connecting to first available MIDI port: '{}'", port_name);
+
+    let mut conn = midi_out.connect(port, "phasorsyncrs-direct-test")?;
+    info!("Connection established successfully");
+
+    // Loop continuously, sending test notes
+    let mut iteration = 1;
+    loop {
+        info!("Test iteration {}: Sending C major chord", iteration);
+        send_test_chord(&mut conn)?;
+
+        info!("Sleeping for 500ms before next iteration...");
+        thread::sleep(std::time::Duration::from_millis(500));
+
+        iteration += 1;
+    }
+}

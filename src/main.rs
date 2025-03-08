@@ -125,6 +125,17 @@ fn initialize_components(
     (shared_state, tick_tx)
 }
 
+// Run direct MIDI test and exit
+fn run_direct_test() -> ! {
+    info!("Running direct MIDI test");
+    if let Err(e) = midi_output::test_midi_output_directly() {
+        error!("Direct MIDI test failed: {}", e);
+        std::process::exit(1);
+    }
+    info!("Direct MIDI test completed successfully");
+    std::process::exit(0);
+}
+
 fn main() {
     initialize_logging();
     info!("Starting Phasorsyncrs");
@@ -132,6 +143,11 @@ fn main() {
     // Load configuration
     let config = config::Config::new();
     info!("Configuration loaded");
+
+    // Run direct MIDI test if enabled
+    if config.direct_test {
+        run_direct_test();
+    }
 
     // Log configuration details
     log_config_details(&config);
