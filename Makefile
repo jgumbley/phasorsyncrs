@@ -18,7 +18,15 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-direct-test deps play-wavs
+.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-bind run-direct-test deps play-wavs umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer
+
+UMC1820_DEV ?= hw:UMC1820,0
+UMC1820_PLUG_DEV ?= plughw:UMC1820,0
+UMC1820_RATE ?= 48000
+UMC1820_FORMAT ?= S32_LE
+UMC1820_CHANNELS ?= 18
+UMC1820_SECONDS ?= 30
+UMC1820_OUT ?= wav_files/umc1820_$(UMC1820_CHANNELS)ch_$(UMC1820_RATE)Hz.wav
 
 deps:
 	@if command -v pkg-config >/dev/null 2>&1 && pkg-config --exists alsa; then \
@@ -44,6 +52,13 @@ run: deps clean_log build
 run-oxi: deps clean_log build
 	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0"
 
+run-bind: deps clean_log build
+	@if [ -z "$(MIDI_IN)" ]; then \
+		echo "error: set MIDI_IN to a substring of the desired ALSA MIDI input port (try: make list-devices)"; \
+		exit 1; \
+	fi
+	$(CARGO) run -- --bind-to-device "$(MIDI_IN)"
+
 fmt:
 	$(CARGO) fmt --all
 	$(call success)
@@ -68,6 +83,24 @@ list-devices:
 	@echo ""
 	@echo "ALSA sequencer clients:"
 	@if command -v aconnect >/dev/null 2>&1; then aconnect -l || true; else echo "aconnect not available"; fi
+	$(call success)
+
+umc1820-hw-params: deps
+	arecord -D $(UMC1820_DEV) --dump-hw-params -f $(UMC1820_FORMAT) -r $(UMC1820_RATE) -c $(UMC1820_CHANNELS) /dev/null
+	$(call success)
+
+umc1820-record: deps
+	@mkdir -p wav_files
+	arecord -D $(UMC1820_DEV) -f $(UMC1820_FORMAT) -r $(UMC1820_RATE) -c $(UMC1820_CHANNELS) -d $(UMC1820_SECONDS) $(UMC1820_OUT)
+	$(call success)
+
+umc1820-record-stereo: deps
+	@mkdir -p wav_files
+	arecord -D $(UMC1820_PLUG_DEV) -f $(UMC1820_FORMAT) -r $(UMC1820_RATE) -c 2 -d $(UMC1820_SECONDS) wav_files/umc1820_stereo_$(UMC1820_RATE)Hz.wav
+	$(call success)
+
+umc1820-mixer: deps
+	alsamixer
 	$(call success)
 
 play-wavs: deps

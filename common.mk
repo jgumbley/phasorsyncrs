@@ -1,8 +1,8 @@
-.PHONY: digest ingest clean
+.PHONY: digest ingest clean agent-%
 
 define success
 	@printf '\033[32m\n'; \
-	set -- 🕵️ 🔒 📡 🗝️ 🥃; \
+	set -- 🦴 💉 🐶 😺 💊; \
 	icon_idx=$$(( $$(od -An -N2 -tu2 /dev/urandom | tr -d ' ') % $$# + 1 )); \
 	while [ $$icon_idx -gt 1 ]; do shift; icon_idx=$$((icon_idx - 1)); done; \
 	icon=$$1; \
@@ -12,20 +12,6 @@ define success
 	printf "\033[90m{{{ %s | user=%s | host=%s | procid=%s | parentproc=%s }}}\033[0m\n\033[0m" "$$(date +%Y-%m-%d_%H:%M:%S)" "$$(whoami)" "$$(hostname)" "$$$$" "$$parent_info"
 endef
 
-CLIP := $(shell \
-	if command -v pbcopy >/dev/null 2>&1; then \
-		printf "%s" "pbcopy"; \
-	elif command -v wl-copy >/dev/null 2>&1; then \
-		printf "%s" "wl-copy"; \
-	elif command -v xclip >/dev/null 2>&1; then \
-		printf "%s" "xclip -selection clipboard"; \
-	elif command -v xsel >/dev/null 2>&1; then \
-		printf "%s" "xsel --clipboard --input --logfile /dev/null"; \
-	else \
-		printf "%s" ""; \
-	fi \
-)
-
 .venv/: requirements.txt
 	uv venv .venv/
 	uv pip install -r requirements.txt
@@ -33,7 +19,7 @@ CLIP := $(shell \
 
 digest:
 	@echo "=== Project Digest ==="
-	@for file in $$(find . -path "./.uv-cache" -prune -o -type f \( -name "*.py" -o -name "*.md" -o -name "*.txt" -o -name "*.mk" -o -name "Makefile" \) -print | grep -v venv | grep -v __pycache__ | sort); do \
+	@for file in $$(find . -path "./.uv-cache" -prune -o -type f \( -name "*.py" -o -name "*.md" -o -name "*.txt" -o -name "Makefile" \) -print | grep -v venv | grep -v __pycache__ | sort); do \
 		echo ""; \
 		echo "--- $$file ---"; \
 		cat "$$file"; \
@@ -41,13 +27,18 @@ digest:
 	$(call success)
 
 ingest:
-	@if [ -z "$(CLIP)" ]; then \
-		echo "error: no clipboard tool found; install pbcopy (macOS) or wl-copy/xclip/xsel (Linux)"; \
-		exit 1; \
-	fi
-	$(MAKE) digest | $(CLIP)
+	$(MAKE) digest | pbcopy
 	$(call success)
 
 clean::
 	rm -Rf .venv/
 	$(call success)
+
+# Run any make target inside a tmux agent pane so a human can type secrets
+# locally while the agent watches output. Usage: make agent-<target>
+agent-%:
+	@cmd_target="$*"; \
+	if [ -z "$$cmd_target" ]; then \
+		echo "Usage: make agent-<target>"; exit 1; \
+	fi; \
+	bash ./pane.sh "agent-$$cmd_target" $(MAKE) "$$cmd_target"

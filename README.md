@@ -44,6 +44,17 @@ make run
 
 # Run bound onto ext device (config in makefile)
 make run-oxi
+
+# List ALSA audio + MIDI devices
+make list-devices
+
+# Bind external clock input to a specific ALSA MIDI port (substring match)
+make run-bind MIDI_IN="UMC1820"
+
+# UMC1820 helpers (recordings land in wav_files/, which is gitignored)
+make umc1820-hw-params
+make umc1820-record UMC1820_SECONDS=5
+make umc1820-record-stereo UMC1820_SECONDS=5
 ```
 
 ## Architectural Guidance 🏛️
