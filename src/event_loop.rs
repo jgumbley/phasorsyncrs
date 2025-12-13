@@ -2,8 +2,11 @@
 
 use crate::midi_output::{MidiMessage, MidiOutput, MidiOutputManager};
 use crate::state;
-use log::{debug, error, info, trace};
+use chrono::Local;
+use log::{debug, error, info, trace, warn};
 use std::collections::VecDeque;
+use std::fs;
+use std::process::{Child, Command, Stdio};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -28,6 +31,7 @@ pub struct EventLoop {
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
     midi_output: Option<MidiOutputManager>,
+    audio_recorder: AudioRecorder,
 }
 
 impl EventLoop {
@@ -35,6 +39,7 @@ impl EventLoop {
         shared_state: Arc<Mutex<state::SharedState>>,
         engine_rx: Receiver<EngineMessage>,
         midi_output: Option<MidiOutputManager>,
+        recording_reference: String,
     ) -> Self {
         EventLoop {
             shared_state,
@@ -42,6 +47,7 @@ impl EventLoop {
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
             midi_output,
+            audio_recorder: AudioRecorder::new(recording_reference),
         }
     }
 
@@ -131,7 +137,11 @@ impl EventLoop {
     fn handle_transport_command(&mut self, action: TransportAction) {
         let mut state = self.shared_state.lock().unwrap();
         match action {
-            TransportAction::Start => state.transport_state = state::TransportState::Playing,
+            TransportAction::Start => {
+                state.transport_state = state::TransportState::Playing;
+                let bpm = state.get_bpm();
+                self.audio_recorder.start(bpm);
+            }
             TransportAction::Stop => {
                 state.transport_state = state::TransportState::Stopped;
                 state.tick_count = 0;
@@ -141,6 +151,8 @@ impl EventLoop {
 
                 // Reset the musical graph tick count
                 crate::musical_graph::reset_musical_tick_count();
+
+                self.audio_recorder.stop();
             }
         }
     }
@@ -180,6 +192,76 @@ fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
     rounded_bpm
 }
 
+struct AudioRecorder {
+    current: Option<Child>,
+    reference: String,
+    enabled: bool,
+}
+
+impl AudioRecorder {
+    fn new(reference: String) -> Self {
+        let sanitized_reference = reference
+            .chars()
+            .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
+            .collect();
+
+        AudioRecorder {
+            current: None,
+            reference: sanitized_reference,
+            enabled: !cfg!(test) && std::env::var("PHASOR_DISABLE_RECORDING").is_err(),
+        }
+    }
+
+    fn start(&mut self, bpm: u32) {
+        if !self.enabled {
+            debug!("Audio recording disabled - skipping start");
+            return;
+        }
+
+        if let Err(e) = fs::create_dir_all("wav_files") {
+            error!("Failed to create wav_files directory: {}", e);
+            return;
+        }
+
+        self.stop();
+
+        let filename = self.build_target_path(bpm);
+        info!("Starting audio capture to {}", filename);
+
+        match Command::new("arecord")
+            .args(["-f", "cd", "-D", "default", &filename])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+        {
+            Ok(child) => self.current = Some(child),
+            Err(err) => error!("Failed to start arecord: {}", err),
+        }
+    }
+
+    fn stop(&mut self) {
+        if let Some(mut child) = self.current.take() {
+            if let Err(e) = child.kill() {
+                warn!("Failed to stop audio recorder cleanly: {}", e);
+            }
+            let _ = child.wait();
+        }
+    }
+
+    fn build_target_path(&self, bpm: u32) -> String {
+        let timestamp = Local::now().format("%Y%m%d-%H%M%S").to_string();
+        let bpm_label = if bpm == 0 {
+            "000".to_string()
+        } else {
+            format!("{:03}", bpm)
+        };
+        format!(
+            "wav_files/{}{}-{}.wav",
+            bpm_label, self.reference, timestamp
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,7 +274,7 @@ mod tests {
     fn test_handle_transport_command_start() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Initially, the transport state should be Stopped.
         assert_eq!(
@@ -214,7 +296,7 @@ mod tests {
     fn test_handle_transport_command_stop() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Initially, the transport state should be Stopped.
         assert_eq!(
@@ -242,7 +324,7 @@ mod tests {
     fn test_handle_tick() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Call handle_tick
         let start_time = Instant::now();
@@ -257,7 +339,7 @@ mod tests {
     fn test_handle_tick_updates_state() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -351,7 +433,7 @@ mod tests {
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -372,7 +454,7 @@ mod tests {
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -407,7 +489,7 @@ mod tests {
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let event_loop = EventLoop::new(shared_state.clone(), rx, None);
+        let event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -427,7 +509,12 @@ mod tests {
         let midi_output = Some(MidiOutputManager::new());
 
         // Create the event loop with the MIDI output
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, midi_output);
+        let mut event_loop = EventLoop::new(
+            shared_state.clone(),
+            rx,
+            midi_output,
+            "internal".to_string(),
+        );
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;

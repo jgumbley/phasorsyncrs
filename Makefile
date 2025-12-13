@@ -1,5 +1,7 @@
 # Makefile for Rust project
 
+include common.mk
+
 define success 
 	@tput setaf 2; \
 	echo ""; \
@@ -16,7 +18,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-direct-test deps
+.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-direct-test deps play-wavs
 
 deps:
 	@if command -v pkg-config >/dev/null 2>&1 && pkg-config --exists alsa; then \
@@ -25,9 +27,9 @@ deps:
 		echo "Installing ALSA development libraries (requires sudo)"; \
 		if command -v apt-get >/dev/null 2>&1; then \
 			sudo apt-get update; \
-			sudo apt-get install -y libasound2-dev pkg-config; \
+			sudo apt-get install -y libasound2-dev pkg-config alsa-utils; \
 		elif command -v dnf >/dev/null 2>&1; then \
-			sudo dnf install -y alsa-lib-devel pkg-config; \
+			sudo dnf install -y alsa-lib-devel pkg-config alsa-utils; \
 		else \
 			echo "Please install ALSA development libs (libasound2-dev/alsa-lib-devel) and pkg-config"; \
 			exit 1; \
@@ -68,6 +70,23 @@ list-devices:
 	@if command -v aconnect >/dev/null 2>&1; then aconnect -l || true; else echo "aconnect not available"; fi
 	$(call success)
 
+play-wavs: deps
+	@if [ ! -d wav_files ]; then \
+		echo "wav_files directory not found"; \
+		exit 1; \
+	fi
+	@set -e; \
+	files=$$(find wav_files -maxdepth 1 -type f -name '*.wav' | sort); \
+	if [ -z "$$files" ]; then \
+		echo "No wav files to play"; \
+		exit 1; \
+	fi; \
+	for f in $$files; do \
+		echo "Playing $$f"; \
+		aplay "$$f"; \
+	done
+	$(call success)
+
 test: clippy
 	$(CARGO) test
 	$(call success)
@@ -99,7 +118,7 @@ doc:
 
 
 # Cleanup
-clean:
+clean::
 	$(CARGO) clean
 	$(call success)
 

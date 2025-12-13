@@ -75,6 +75,17 @@ fn log_config_details(config: &config::Config) {
     }
 }
 
+fn recording_reference(config: &config::Config) -> String {
+    if let Some(device) = &config.bind_to_device {
+        return device.clone();
+    }
+
+    match config.clock_source {
+        config::ClockSource::External => "external".to_string(),
+        config::ClockSource::Internal => "internal".to_string(),
+    }
+}
+
 fn send_http_response(stream: &mut TcpStream, status_line: &str, content_type: &str, body: &str) {
     let response = format!(
         "{status}\r\nContent-Length: {len}\r\nContent-Type: {ctype}\r\nConnection: close\r\n\r\n{body}",
@@ -276,6 +287,8 @@ const WEB_UI_HTML: &str = r#"<!DOCTYPE html>
 fn initialize_components(
     config: config::Config,
 ) -> (Arc<Mutex<state::SharedState>>, Sender<EngineMessage>) {
+    let recording_ref = recording_reference(&config);
+
     // Create shared state
     let shared_state = Arc::new(Mutex::new(state::SharedState::new(config.bpm)));
     info!("Shared state initialized with BPM: {}", config.bpm);
@@ -308,10 +321,15 @@ fn initialize_components(
 
     // Start the event loop thread with MIDI output
     let event_loop_shared_state = Arc::clone(&shared_state);
+    let recording_ref_for_loop = recording_ref.clone();
     info!("Starting event loop thread");
     thread::spawn(move || {
-        let mut event_loop =
-            event_loop::EventLoop::new(event_loop_shared_state, engine_rx, midi_output);
+        let mut event_loop = event_loop::EventLoop::new(
+            event_loop_shared_state,
+            engine_rx,
+            midi_output,
+            recording_ref_for_loop,
+        );
         event_loop.run();
     });
 

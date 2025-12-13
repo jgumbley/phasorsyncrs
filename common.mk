@@ -1,8 +1,4 @@
-NY: digest ingest clean
-
-# Default uv cache inside the project to avoid permission issues with user-level cache
-UV_CACHE_DIR ?= .uv-cache
-export UV_CACHE_DIR
+.PHONY: digest ingest clean
 
 define success
 	@printf '\033[32m\n'; \
@@ -16,18 +12,23 @@ define success
 	printf "\033[90m{{{ %s | user=%s | host=%s | procid=%s | parentproc=%s }}}\033[0m\n\033[0m" "$$(date +%Y-%m-%d_%H:%M:%S)" "$$(whoami)" "$$(hostname)" "$$$$" "$$parent_info"
 endef
 
-.venv/: requirements.txt
-	@if command -v uv >/dev/null 2>&1; then \
-		echo "Using uv for virtualenv"; \
-		uv venv .venv/; \
-		uv pip install -r requirements.txt; \
+CLIP := $(shell \
+	if command -v pbcopy >/dev/null 2>&1; then \
+		printf "%s" "pbcopy"; \
+	elif command -v wl-copy >/dev/null 2>&1; then \
+		printf "%s" "wl-copy"; \
+	elif command -v xclip >/dev/null 2>&1; then \
+		printf "%s" "xclip -selection clipboard"; \
+	elif command -v xsel >/dev/null 2>&1; then \
+		printf "%s" "xsel --clipboard --input --logfile /dev/null"; \
 	else \
-		echo "Using python3 -m venv (uv not found)"; \
-		python3 -m venv .venv; \
-		. .venv/bin/activate; \
-		pip install --upgrade pip; \
-		pip install -r requirements.txt; \
-	fi
+		printf "%s" ""; \
+	fi \
+)
+
+.venv/: requirements.txt
+	uv venv .venv/
+	uv pip install -r requirements.txt
 	$(call success)
 
 digest:
@@ -40,10 +41,13 @@ digest:
 	$(call success)
 
 ingest:
+	@if [ -z "$(CLIP)" ]; then \
+		echo "error: no clipboard tool found; install pbcopy (macOS) or wl-copy/xclip/xsel (Linux)"; \
+		exit 1; \
+	fi
 	$(MAKE) digest | $(CLIP)
 	$(call success)
 
-clean:
+clean::
 	rm -Rf .venv/
 	$(call success)
-# [ Server container ] -> traffic exits wireguard tunnel and is logged in full, routing traffic onward
