@@ -18,6 +18,7 @@ Real-time MIDI sequencer engine with external clock synchronization and transpor
 # Clone and build
 git clone https://github.com/jgumbley/phasorsyncrs
 cd phasorsyncrs
+make deps           # install ALSA + pkg-config for midir
 make run
 ```
 

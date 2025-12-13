@@ -1,6 +1,6 @@
 use simplelog::*;
 use std::fs::OpenOptions;
-use std::io::{Error, ErrorKind};
+use std::io::Error;
 use std::path::PathBuf;
 use std::sync::Once;
 
@@ -32,7 +32,7 @@ pub fn init_logger() -> Result<(), Error> {
         if LOGGER_INITIALIZED {
             Ok(())
         } else {
-            Err(Error::new(ErrorKind::Other, "Logger initialization failed"))
+            Err(Error::other("Logger initialization failed"))
         }
     }
 }

@@ -31,7 +31,7 @@ pub fn process_tick(shared_state: &mut state::SharedState) -> bool {
         let bar = (MUSICAL_TICK_COUNT / (TICKS_PER_BEAT * BEATS_PER_BAR)) + 1; // 1-indexed
 
         // Add info logging every 24 ticks (once per beat)
-        if MUSICAL_TICK_COUNT % TICKS_PER_BEAT == 0 {
+        if MUSICAL_TICK_COUNT.is_multiple_of(TICKS_PER_BEAT) {
             let tick_count = MUSICAL_TICK_COUNT; // Copy to local variable
             debug!(
                 "Musical graph tick count: {}, bar: {}, beat: {}",
@@ -44,7 +44,7 @@ pub fn process_tick(shared_state: &mut state::SharedState) -> bool {
         if beat == 0
             && bar > 0
             && TRIGGER_EVERY_N_BARS > 0
-            && MUSICAL_TICK_COUNT % TICKS_PER_BEAT == 0
+            && MUSICAL_TICK_COUNT.is_multiple_of(TICKS_PER_BEAT)
         {
             debug!("Middle C triggered at musical bar: {}, beat: {}", bar, beat);
             middle_c_triggered = true;
