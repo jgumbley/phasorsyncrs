@@ -46,11 +46,13 @@ fn create_clock_source(
 }
 
 fn start_ui(shared_state: Arc<Mutex<state::SharedState>>, engine_tx: Sender<EngineMessage>) {
-    info!("Starting TUI");
-    if let Err(e) = tui::run_tui_event_loop(shared_state, engine_tx) {
-        eprintln!("TUI failed: {}", e);
-        std::process::exit(1);
-    }
+    thread::spawn(move || {
+        info!("Starting TUI");
+        if let Err(e) = tui::run_tui_event_loop(shared_state, engine_tx) {
+            eprintln!("TUI failed: {} (continuing without TUI)", e);
+            error!("TUI failed: {}", e);
+        }
+    });
 }
 
 fn initialize_logging() {

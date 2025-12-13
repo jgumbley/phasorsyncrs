@@ -18,7 +18,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-bind run-direct-test deps play-wavs umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer
+.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-bind run-direct-test deps play-wavs sample-wav umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer
 
 UMC1820_DEV ?= hw:UMC1820,0
 UMC1820_PLUG_DEV ?= plughw:UMC1820,0
@@ -27,6 +27,10 @@ UMC1820_FORMAT ?= S32_LE
 UMC1820_CHANNELS ?= 18
 UMC1820_SECONDS ?= 30
 UMC1820_OUT ?= wav_files/umc1820_$(UMC1820_CHANNELS)ch_$(UMC1820_RATE)Hz.wav
+
+# Audio monitor/capture devices used by the runtime (ALSA -D arguments)
+AUDIO_CAPTURE_DEV ?= default
+AUDIO_PLAYBACK_DEV ?= default
 
 deps:
 	@if command -v pkg-config >/dev/null 2>&1 && pkg-config --exists alsa; then \
@@ -47,7 +51,7 @@ deps:
 
 # Main targets
 run: deps clean_log build
-	$(CARGO) run
+	PHASOR_ALSA_CAPTURE_DEVICE="$(AUDIO_CAPTURE_DEV)" PHASOR_ALSA_PLAYBACK_DEVICE="$(AUDIO_PLAYBACK_DEV)" $(CARGO) run
 
 run-oxi: deps clean_log build
 	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0"
@@ -116,8 +120,12 @@ play-wavs: deps
 	fi; \
 	for f in $$files; do \
 		echo "Playing $$f"; \
-		aplay "$$f"; \
+		aplay -D "$(AUDIO_PLAYBACK_DEV)" "$$f"; \
 	done
+	$(call success)
+
+sample-wav:
+	@python3 -c 'import os, math, struct, wave; os.makedirs("wav_files", exist_ok=True); sr=44100; dur=1.0; freq=440.0; amp=0.2; n=int(sr*dur); frames=b"".join(struct.pack("<hh", int(amp*32767*math.sin(2*math.pi*freq*i/sr)), int(amp*32767*math.sin(2*math.pi*freq*i/sr))) for i in range(n)); w=wave.open("wav_files/sample.wav","wb"); w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr); w.writeframes(frames); w.close()'
 	$(call success)
 
 test: clippy
@@ -158,3 +166,6 @@ clean::
 clean_log:
 	> app.log
 	$(call success)
+
+followlog:
+	tail -n 200 -f app.log

@@ -52,6 +52,10 @@ fn handle_midi_message(timestamp: u64, message: &[u8], engine_message_tx: &Sende
     }
 }
 
+fn port_name_matches_device(port_name: &str, device_name: &str) -> bool {
+    port_name.contains(device_name)
+}
+
 fn find_midi_port(midi_in: &mut MidiInput, device_name: &str) -> Option<MidiInputPort> {
     let in_ports = midi_in.ports();
     debug!("Available MIDI input ports:");
@@ -64,7 +68,7 @@ fn find_midi_port(midi_in: &mut MidiInput, device_name: &str) -> Option<MidiInpu
     match in_ports.iter().find(|port| {
         let port_name = midi_in.port_name(port).unwrap_or_default();
         debug!("Checking port: {}", port_name);
-        port_name.contains(device_name)
+        port_name_matches_device(&port_name, device_name)
     }) {
         Some(port) => Some(port.clone()),
         None => {
@@ -118,34 +122,19 @@ fn run_midi_connection(engine_tx: Sender<EngineMessage>, device_name: String) {
 mod tests {
     use super::*;
 
-    // This test verifies that a non-existent device produces an error
-    // Note: This test uses a modified approach to avoid actual process exit
     #[test]
-    fn test_device_not_found_handling() {
-        // Function to test device finding logic without exiting
-        fn find_device(
-            device_name: &str,
-            ports: &[MidiInputPort],
-            midi_in: &MidiInput,
-        ) -> Option<MidiInputPort> {
-            ports
-                .iter()
-                .find(|port| {
-                    let port_name = midi_in.port_name(port).unwrap_or_default();
-                    port_name.contains(device_name)
-                })
-                .cloned()
-        }
+    fn test_port_name_matches_device_positive() {
+        assert!(port_name_matches_device(
+            "OXI ONE:OXI ONE MIDI 1 20:0",
+            "OXI ONE"
+        ));
+    }
 
-        let midi_in = MidiInput::new("test-midi-input").unwrap();
-        let ports = midi_in.ports();
-        let non_existent_device = "NonExistentDevice12345";
-
-        // Verify the device is not found
-        let result = find_device(non_existent_device, &ports, &midi_in);
-        assert!(
-            result.is_none(),
-            "The non-existent device should not be found"
-        );
+    #[test]
+    fn test_port_name_matches_device_negative() {
+        assert!(!port_name_matches_device(
+            "UMC1820:UMC1820 MIDI 1 24:0",
+            "NonExistentDevice12345"
+        ));
     }
 }

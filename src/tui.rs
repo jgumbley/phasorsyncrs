@@ -186,19 +186,18 @@ pub fn run_hello_world_tui(
 mod tests {
     use super::*;
     use crate::state::SharedState;
+    use ratatui::backend::TestBackend;
 
     #[test]
     fn test_hello_world_tui_compiles_and_runs() {
         // Create a test shared state
         let shared_state = Arc::new(Mutex::new(SharedState::new(120)));
+        let backend = TestBackend::new(80, 24);
+        let mut terminal = Terminal::new(backend).expect("test terminal should initialize");
 
-        // Create a dummy channel
-        let (tx, _rx) = std::sync::mpsc::channel();
-
-        // Ensure that the TUI function executes without panicking.
-        if let Err(e) = run_hello_world_tui(shared_state, tx) {
-            panic!("TUI test failed: {}", e);
-        }
+        terminal
+            .draw(|frame| render_ui(frame, &shared_state))
+            .expect("render should succeed");
     }
 
     #[test]

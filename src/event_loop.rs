@@ -6,7 +6,9 @@ use chrono::Local;
 use log::{debug, error, info, trace, warn};
 use std::collections::VecDeque;
 use std::fs;
+use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
 use std::process::{Child, Command, Stdio};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -193,9 +195,91 @@ fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
 }
 
 struct AudioRecorder {
-    current: Option<Child>,
+    current: Option<AudioRecordingSession>,
     reference: String,
     enabled: bool,
+}
+
+struct AudioRecordingSession {
+    arecord: Child,
+    aplay: Child,
+    io_thread: Option<std::thread::JoinHandle<()>>,
+    stderr_threads: Vec<std::thread::JoinHandle<()>>,
+    stop_requested: Arc<AtomicBool>,
+}
+
+struct AudioSessionGuard {
+    arecord: Option<Child>,
+    aplay: Option<Child>,
+}
+
+impl AudioSessionGuard {
+    fn spawn(capture_device: &str, playback_device: &str) -> std::io::Result<Self> {
+        let mut arecord = spawn_arecord(capture_device)?;
+        let mut aplay = match spawn_aplay(playback_device) {
+            Ok(child) => child,
+            Err(err) => {
+                let _ = arecord.kill();
+                let _ = arecord.wait();
+                return Err(err);
+            }
+        };
+
+        if let Some(status) = arecord.try_wait()? {
+            let _ = aplay.kill();
+            let _ = aplay.wait();
+            return Err(std::io::Error::other(format!(
+                "arecord exited immediately (device={capture_device}, status={status})"
+            )));
+        }
+
+        if let Some(status) = aplay.try_wait()? {
+            let _ = arecord.kill();
+            let _ = arecord.wait();
+            return Err(std::io::Error::other(format!(
+                "aplay exited immediately (device={playback_device}, status={status})"
+            )));
+        }
+
+        Ok(Self {
+            arecord: Some(arecord),
+            aplay: Some(aplay),
+        })
+    }
+
+    fn arecord_mut(&mut self) -> &mut Child {
+        self.arecord
+            .as_mut()
+            .expect("AudioSessionGuard arecord missing")
+    }
+
+    fn aplay_mut(&mut self) -> &mut Child {
+        self.aplay
+            .as_mut()
+            .expect("AudioSessionGuard aplay missing")
+    }
+
+    fn into_children(mut self) -> (Child, Child) {
+        (
+            self.arecord
+                .take()
+                .expect("AudioSessionGuard arecord missing"),
+            self.aplay.take().expect("AudioSessionGuard aplay missing"),
+        )
+    }
+}
+
+impl Drop for AudioSessionGuard {
+    fn drop(&mut self) {
+        if let Some(child) = self.aplay.as_mut() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+        if let Some(child) = self.arecord.as_mut() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
 }
 
 impl AudioRecorder {
@@ -226,26 +310,19 @@ impl AudioRecorder {
         self.stop();
 
         let filename = self.build_target_path(bpm);
-        info!("Starting audio capture to {}", filename);
-
-        match Command::new("arecord")
-            .args(["-f", "cd", "-D", "default", &filename])
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn()
-        {
-            Ok(child) => self.current = Some(child),
-            Err(err) => error!("Failed to start arecord: {}", err),
+        info!("Starting audio capture and monitor to {}", filename);
+        match spawn_audio_recording_session(&filename) {
+            Ok(session) => self.current = Some(session),
+            Err(err) => error!("Failed to start audio capture/monitor: {}", err),
         }
     }
 
     fn stop(&mut self) {
-        if let Some(mut child) = self.current.take() {
-            if let Err(e) = child.kill() {
-                warn!("Failed to stop audio recorder cleanly: {}", e);
-            }
-            let _ = child.wait();
-        }
+        let Some(session) = self.current.take() else {
+            return;
+        };
+
+        Self::stop_recording_session(session);
     }
 
     fn build_target_path(&self, bpm: u32) -> String {
@@ -260,6 +337,243 @@ impl AudioRecorder {
             bpm_label, self.reference, timestamp
         )
     }
+
+    fn stop_recording_session(session: AudioRecordingSession) {
+        let AudioRecordingSession {
+            mut arecord,
+            mut aplay,
+            io_thread,
+            stderr_threads,
+            stop_requested,
+        } = session;
+
+        stop_requested.store(true, Ordering::Relaxed);
+        Self::stop_child_process(&mut aplay, "audio monitor");
+        Self::stop_child_process(&mut arecord, "audio recorder");
+        Self::join_optional_thread(io_thread, "Audio capture thread");
+        Self::join_threads(stderr_threads, "Audio stderr thread");
+    }
+
+    fn stop_child_process(child: &mut Child, label: &str) {
+        if let Err(err) = child.kill() {
+            warn!("Failed to stop {} cleanly: {}", label, err);
+        }
+        let _ = child.wait();
+    }
+
+    fn join_optional_thread(handle: Option<std::thread::JoinHandle<()>>, label: &str) {
+        if let Some(handle) = handle {
+            Self::join_thread(handle, label);
+        }
+    }
+
+    fn join_threads(handles: Vec<std::thread::JoinHandle<()>>, label: &str) {
+        for handle in handles {
+            Self::join_thread(handle, label);
+        }
+    }
+
+    fn join_thread(handle: std::thread::JoinHandle<()>, label: &str) {
+        if let Err(err) = handle.join() {
+            warn!("{} panicked: {:?}", label, err);
+        }
+    }
+}
+
+fn spawn_audio_recording_session(target_path: &str) -> std::io::Result<AudioRecordingSession> {
+    let capture_device = read_env_device_or_default("PHASOR_ALSA_CAPTURE_DEVICE", "default")?;
+    let playback_device = read_env_device_or_default("PHASOR_ALSA_PLAYBACK_DEVICE", "default")?;
+    info!("Audio capture device: {}", capture_device);
+    info!("Audio playback device: {}", playback_device);
+
+    let mut guard = AudioSessionGuard::spawn(&capture_device, &playback_device)?;
+
+    let arecord_stdout = guard.arecord_mut().stdout.take().ok_or_else(|| {
+        std::io::Error::other("arecord stdout unavailable (expected piped stdout)")
+    })?;
+    let aplay_stdin =
+        guard.aplay_mut().stdin.take().ok_or_else(|| {
+            std::io::Error::other("aplay stdin unavailable (expected piped stdin)")
+        })?;
+
+    let mut stderr_threads = Vec::new();
+    if let Some(stderr) = guard.arecord_mut().stderr.take() {
+        stderr_threads.push(spawn_child_stderr_logger("arecord", stderr));
+    }
+    if let Some(stderr) = guard.aplay_mut().stderr.take() {
+        stderr_threads.push(spawn_child_stderr_logger("aplay", stderr));
+    }
+    let file = fs::File::create(target_path)?;
+
+    let stop_requested = Arc::new(AtomicBool::new(false));
+    let stop_requested_for_thread = Arc::clone(&stop_requested);
+    let io_thread = Some(std::thread::spawn(move || {
+        if let Err(err) =
+            stream_and_record_cd_audio(file, arecord_stdout, aplay_stdin, stop_requested_for_thread)
+        {
+            error!("Audio capture/monitor pipeline failed: {}", err);
+        }
+    }));
+
+    let (arecord, aplay) = guard.into_children();
+    Ok(AudioRecordingSession {
+        arecord,
+        aplay,
+        io_thread,
+        stderr_threads,
+        stop_requested,
+    })
+}
+
+fn read_env_device_or_default(var: &str, default: &str) -> std::io::Result<String> {
+    match std::env::var(var) {
+        Ok(value) => {
+            if value.trim().is_empty() {
+                Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    format!("{var} is set but empty"),
+                ))
+            } else {
+                Ok(value)
+            }
+        }
+        Err(std::env::VarError::NotPresent) => Ok(default.to_string()),
+        Err(err) => Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            format!("Invalid {var}: {err}"),
+        )),
+    }
+}
+
+fn spawn_child_stderr_logger(
+    name: &'static str,
+    stderr: std::process::ChildStderr,
+) -> std::thread::JoinHandle<()> {
+    std::thread::spawn(move || {
+        let reader = BufReader::new(stderr);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => error!("{name}: {line}"),
+                Err(err) => {
+                    error!("{name}: failed to read stderr: {err}");
+                    break;
+                }
+            }
+        }
+    })
+}
+
+fn spawn_arecord(capture_device: &str) -> std::io::Result<Child> {
+    Command::new("arecord")
+        .args(["-q", "-f", "cd", "-t", "raw", "-D"])
+        .arg(capture_device)
+        .arg("-")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+}
+
+fn spawn_aplay(playback_device: &str) -> std::io::Result<Child> {
+    Command::new("aplay")
+        .args(["-q", "-f", "cd", "-D"])
+        .arg(playback_device)
+        .arg("-")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .spawn()
+}
+
+fn stream_and_record_cd_audio(
+    mut output_file: fs::File,
+    mut capture_stream: impl Read,
+    mut playback_stream: impl Write,
+    stop_requested: Arc<AtomicBool>,
+) -> std::io::Result<()> {
+    write_cd_wav_header(&mut output_file, 0)?;
+
+    let mut buffer = [0u8; 16 * 1024];
+    let mut bytes_written: u64 = 0;
+    let mut last_header_update = Instant::now();
+
+    loop {
+        let bytes_read = capture_stream.read(&mut buffer)?;
+        if bytes_read == 0 {
+            if stop_requested.load(Ordering::Relaxed) {
+                break;
+            }
+            return Err(std::io::Error::other(
+                "audio capture ended unexpectedly (arecord returned EOF)",
+            ));
+        }
+
+        output_file.write_all(&buffer[..bytes_read])?;
+        bytes_written += bytes_read as u64;
+
+        if let Err(err) = playback_stream.write_all(&buffer[..bytes_read]) {
+            if stop_requested.load(Ordering::Relaxed)
+                && err.kind() == std::io::ErrorKind::BrokenPipe
+            {
+                break;
+            }
+            return Err(err);
+        }
+
+        if last_header_update.elapsed() >= Duration::from_secs(1) {
+            update_cd_wav_header(&mut output_file, bytes_written)?;
+            last_header_update = Instant::now();
+        }
+    }
+
+    drop(playback_stream);
+
+    update_cd_wav_header(&mut output_file, bytes_written)?;
+
+    Ok(())
+}
+
+fn write_cd_wav_header(output_file: &mut fs::File, data_len: u32) -> std::io::Result<()> {
+    const SAMPLE_RATE: u32 = 44_100;
+    const CHANNELS: u16 = 2;
+    const BITS_PER_SAMPLE: u16 = 16;
+
+    let block_align = CHANNELS
+        .checked_mul(BITS_PER_SAMPLE / 8)
+        .ok_or_else(|| std::io::Error::other("wav header overflow: block_align"))?;
+    let byte_rate = SAMPLE_RATE
+        .checked_mul(u32::from(block_align))
+        .ok_or_else(|| std::io::Error::other("wav header overflow: byte_rate"))?;
+    let riff_chunk_size = 36u32
+        .checked_add(data_len)
+        .ok_or_else(|| std::io::Error::other("wav header overflow: riff_chunk_size"))?;
+
+    output_file.seek(SeekFrom::Start(0))?;
+    output_file.write_all(b"RIFF")?;
+    output_file.write_all(&riff_chunk_size.to_le_bytes())?;
+    output_file.write_all(b"WAVE")?;
+
+    output_file.write_all(b"fmt ")?;
+    output_file.write_all(&16u32.to_le_bytes())?;
+    output_file.write_all(&1u16.to_le_bytes())?;
+    output_file.write_all(&CHANNELS.to_le_bytes())?;
+    output_file.write_all(&SAMPLE_RATE.to_le_bytes())?;
+    output_file.write_all(&byte_rate.to_le_bytes())?;
+    output_file.write_all(&block_align.to_le_bytes())?;
+    output_file.write_all(&BITS_PER_SAMPLE.to_le_bytes())?;
+
+    output_file.write_all(b"data")?;
+    output_file.write_all(&data_len.to_le_bytes())?;
+
+    Ok(())
+}
+
+fn update_cd_wav_header(output_file: &mut fs::File, data_len: u64) -> std::io::Result<()> {
+    let data_len =
+        u32::try_from(data_len).map_err(|_| std::io::Error::other("wav data too large (>4GiB)"))?;
+    let current_pos = output_file.stream_position()?;
+    write_cd_wav_header(output_file, data_len)?;
+    output_file.seek(SeekFrom::Start(current_pos))?;
+    Ok(())
 }
 
 #[cfg(test)]
