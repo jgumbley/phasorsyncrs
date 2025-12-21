@@ -27,7 +27,7 @@ digest:
 	$(call success)
 
 ingest:
-	$(MAKE) digest | pbcopy
+	$(MAKE) digest | wl-copy
 	$(call success)
 
 clean::

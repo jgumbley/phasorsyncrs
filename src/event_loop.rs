@@ -2,15 +2,15 @@
 
 use crate::midi_output::{MidiMessage, MidiOutput, MidiOutputManager};
 use crate::state;
-use chrono::Local;
 use log::{debug, error, info, trace, warn};
 use std::collections::VecDeque;
+use std::env;
 use std::fs;
-use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
-use std::process::{Child, Command, Stdio};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::io;
+use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
+use std::thread;
 use std::time::{Duration, Instant};
 
 const TICK_HISTORY_SIZE: usize = 24 * 4; // Store last 4 beats (1 bar)
@@ -33,7 +33,7 @@ pub struct EventLoop {
     last_tick_time: Mutex<Option<Instant>>,
     tick_history: Mutex<VecDeque<Duration>>,
     midi_output: Option<MidiOutputManager>,
-    audio_recorder: AudioRecorder,
+    recording_manager: ArecordManager,
 }
 
 impl EventLoop {
@@ -41,7 +41,20 @@ impl EventLoop {
         shared_state: Arc<Mutex<state::SharedState>>,
         engine_rx: Receiver<EngineMessage>,
         midi_output: Option<MidiOutputManager>,
-        recording_reference: String,
+    ) -> Self {
+        Self::with_recorder_spawner(
+            shared_state,
+            engine_rx,
+            midi_output,
+            Box::new(SystemRecordingSpawner),
+        )
+    }
+
+    fn with_recorder_spawner(
+        shared_state: Arc<Mutex<state::SharedState>>,
+        engine_rx: Receiver<EngineMessage>,
+        midi_output: Option<MidiOutputManager>,
+        spawner: Box<dyn RecordingSpawner>,
     ) -> Self {
         EventLoop {
             shared_state,
@@ -49,7 +62,7 @@ impl EventLoop {
             last_tick_time: Mutex::new(None),
             tick_history: Mutex::new(VecDeque::with_capacity(TICK_HISTORY_SIZE)),
             midi_output,
-            audio_recorder: AudioRecorder::new(recording_reference),
+            recording_manager: ArecordManager::new(spawner),
         }
     }
 
@@ -137,26 +150,61 @@ impl EventLoop {
     }
 
     fn handle_transport_command(&mut self, action: TransportAction) {
-        let mut state = self.shared_state.lock().unwrap();
-        match action {
-            TransportAction::Start => {
-                state.transport_state = state::TransportState::Playing;
-                let bpm = state.get_bpm();
-                self.audio_recorder.start(bpm);
+        let current_state = self.shared_state.lock().unwrap().transport_state;
+
+        match (current_state, action) {
+            (state::TransportState::Stopped, TransportAction::Start) => {
+                {
+                    let mut state = self.shared_state.lock().unwrap();
+                    state.transport_state = state::TransportState::Playing;
+                }
+                self.start_recording();
             }
-            TransportAction::Stop => {
-                state.transport_state = state::TransportState::Stopped;
-                state.tick_count = 0;
-                // Reset bar/beat, etc.
-                state.current_beat = 0;
-                state.current_bar = 0;
+            (state::TransportState::Playing, TransportAction::Stop) => {
+                {
+                    let mut state = self.shared_state.lock().unwrap();
+                    state.transport_state = state::TransportState::Stopped;
+                    state.tick_count = 0;
+                    state.current_beat = 0;
+                    state.current_bar = 0;
+                }
 
-                // Reset the musical graph tick count
                 crate::musical_graph::reset_musical_tick_count();
-
-                self.audio_recorder.stop();
+                self.stop_recording();
+            }
+            (state::TransportState::Playing, TransportAction::Start) => {
+                warn!("Start command received while already playing - ignoring");
+            }
+            (state::TransportState::Stopped, TransportAction::Stop) => {
+                debug!("Stop command received while already stopped - ignoring");
             }
         }
+    }
+
+    fn start_recording(&mut self) {
+        match self.recording_manager.start() {
+            Ok(target) => {
+                let mut state = self.shared_state.lock().unwrap();
+                state.recording = true;
+                state.recording_target = Some(target);
+            }
+            Err(err) => {
+                error!("Failed to start arecord: {}", err);
+                let mut state = self.shared_state.lock().unwrap();
+                state.recording = false;
+                state.recording_target = None;
+            }
+        }
+    }
+
+    fn stop_recording(&mut self) {
+        if let Err(err) = self.recording_manager.stop() {
+            warn!("Failed to stop arecord cleanly: {}", err);
+        }
+
+        let mut state = self.shared_state.lock().unwrap();
+        state.recording = false;
+        state.recording_target = None;
     }
 }
 
@@ -194,401 +242,348 @@ fn calculate_bpm(tick_history: &VecDeque<Duration>) -> u32 {
     rounded_bpm
 }
 
-struct AudioRecorder {
-    current: Option<AudioRecordingSession>,
-    reference: String,
-    enabled: bool,
+const ARECORD_FILENAME_TEMPLATE: &str = "wav_files/take_%Y%m%d_%H%M%S_pair1.wav";
+const ARECORD_SAMPLE_RATE: &str = "48000";
+const ARECORD_CHANNELS: &str = "2";
+const ARECORD_FORMAT: &str = "S32_LE";
+const ARECORD_WAIT_ATTEMPTS: u32 = 20;
+const ARECORD_WAIT_STEP: Duration = Duration::from_millis(50);
+
+struct ArecordManager {
+    spawner: Box<dyn RecordingSpawner>,
+    child: Option<Box<dyn ManagedChild>>,
 }
 
-struct AudioRecordingSession {
-    arecord: Child,
-    aplay: Child,
-    io_thread: Option<std::thread::JoinHandle<()>>,
-    stderr_threads: Vec<std::thread::JoinHandle<()>>,
-    stop_requested: Arc<AtomicBool>,
-}
+impl ArecordManager {
+    fn new(spawner: Box<dyn RecordingSpawner>) -> Self {
+        Self {
+            spawner,
+            child: None,
+        }
+    }
 
-struct AudioSessionGuard {
-    arecord: Option<Child>,
-    aplay: Option<Child>,
-}
+    fn start(&mut self) -> io::Result<String> {
+        if self.child.is_some() {
+            return Err(io::Error::new(
+                io::ErrorKind::AlreadyExists,
+                "arecord already running",
+            ));
+        }
 
-impl AudioSessionGuard {
-    fn spawn(capture_device: &str, playback_device: &str) -> std::io::Result<Self> {
-        let mut arecord = spawn_arecord(capture_device)?;
-        let mut aplay = match spawn_aplay(playback_device) {
-            Ok(child) => child,
-            Err(err) => {
-                let _ = arecord.kill();
-                let _ = arecord.wait();
-                return Err(err);
+        ensure_pair_supported()?;
+
+        fs::create_dir_all("wav_files")?;
+        let device = read_capture_device()?;
+
+        info!(
+            "Starting arecord capture on device {} to template {}",
+            device, ARECORD_FILENAME_TEMPLATE
+        );
+
+        let mut child = self.spawner.spawn(&device, ARECORD_FILENAME_TEMPLATE)?;
+
+        if let Some(status) = child.try_wait()? {
+            return Err(io::Error::other(format!(
+                "arecord exited immediately with status {status}"
+            )));
+        }
+
+        self.child = Some(child);
+        Ok(ARECORD_FILENAME_TEMPLATE.to_string())
+    }
+
+    fn stop(&mut self) -> io::Result<()> {
+        let Some(mut child) = self.child.take() else {
+            debug!("Stop requested but arecord was not running");
+            return Ok(());
+        };
+
+        let pid = child.id();
+        if let Err(err) = self.spawner.send_signal(pid, Signal::Term) {
+            warn!("Failed to send SIGTERM to arecord (pid {pid}): {err}");
+        }
+
+        let mut exited = false;
+        for _ in 0..=ARECORD_WAIT_ATTEMPTS {
+            match child.try_wait()? {
+                Some(_status) => {
+                    exited = true;
+                    break;
+                }
+                None => thread::sleep(ARECORD_WAIT_STEP),
             }
-        };
-
-        if let Some(status) = arecord.try_wait()? {
-            let _ = aplay.kill();
-            let _ = aplay.wait();
-            return Err(std::io::Error::other(format!(
-                "arecord exited immediately (device={capture_device}, status={status})"
-            )));
         }
 
-        if let Some(status) = aplay.try_wait()? {
-            let _ = arecord.kill();
-            let _ = arecord.wait();
-            return Err(std::io::Error::other(format!(
-                "aplay exited immediately (device={playback_device}, status={status})"
-            )));
+        if !exited {
+            warn!(
+                "arecord (pid {}) did not exit after SIGTERM - sending SIGKILL (WAV may be damaged)",
+                pid
+            );
+            if let Err(err) = self.spawner.send_signal(pid, Signal::Kill) {
+                warn!("Failed to SIGKILL arecord (pid {}): {}", pid, err);
+            }
+            let _ = child.wait();
         }
 
-        Ok(Self {
-            arecord: Some(arecord),
-            aplay: Some(aplay),
-        })
-    }
-
-    fn arecord_mut(&mut self) -> &mut Child {
-        self.arecord
-            .as_mut()
-            .expect("AudioSessionGuard arecord missing")
-    }
-
-    fn aplay_mut(&mut self) -> &mut Child {
-        self.aplay
-            .as_mut()
-            .expect("AudioSessionGuard aplay missing")
-    }
-
-    fn into_children(mut self) -> (Child, Child) {
-        (
-            self.arecord
-                .take()
-                .expect("AudioSessionGuard arecord missing"),
-            self.aplay.take().expect("AudioSessionGuard aplay missing"),
-        )
+        Ok(())
     }
 }
 
-impl Drop for AudioSessionGuard {
+impl Drop for ArecordManager {
     fn drop(&mut self) {
-        if let Some(child) = self.aplay.as_mut() {
-            let _ = child.kill();
-            let _ = child.wait();
-        }
-        if let Some(child) = self.arecord.as_mut() {
-            let _ = child.kill();
-            let _ = child.wait();
-        }
+        let _ = self.stop();
     }
 }
 
-impl AudioRecorder {
-    fn new(reference: String) -> Self {
-        let sanitized_reference = reference
-            .chars()
-            .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
-            .collect();
+trait ManagedChild: Send {
+    fn id(&self) -> u32;
+    fn try_wait(&mut self) -> io::Result<Option<ExitStatus>>;
+    fn wait(&mut self) -> io::Result<ExitStatus>;
+}
 
-        AudioRecorder {
-            current: None,
-            reference: sanitized_reference,
-            enabled: !cfg!(test) && std::env::var("PHASOR_DISABLE_RECORDING").is_err(),
-        }
+struct RealChild {
+    inner: Child,
+}
+
+impl ManagedChild for RealChild {
+    fn id(&self) -> u32 {
+        self.inner.id()
     }
 
-    fn start(&mut self, bpm: u32) {
-        if !self.enabled {
-            debug!("Audio recording disabled - skipping start");
-            return;
-        }
-
-        if let Err(e) = fs::create_dir_all("wav_files") {
-            error!("Failed to create wav_files directory: {}", e);
-            return;
-        }
-
-        self.stop();
-
-        let filename = self.build_target_path(bpm);
-        info!("Starting audio capture and monitor to {}", filename);
-        match spawn_audio_recording_session(&filename) {
-            Ok(session) => self.current = Some(session),
-            Err(err) => error!("Failed to start audio capture/monitor: {}", err),
-        }
+    fn try_wait(&mut self) -> io::Result<Option<ExitStatus>> {
+        self.inner.try_wait()
     }
 
-    fn stop(&mut self) {
-        let Some(session) = self.current.take() else {
-            return;
+    fn wait(&mut self) -> io::Result<ExitStatus> {
+        self.inner.wait()
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+enum Signal {
+    Term,
+    Kill,
+}
+
+trait RecordingSpawner: Send {
+    fn spawn(&self, device: &str, filename_template: &str) -> io::Result<Box<dyn ManagedChild>>;
+    fn send_signal(&self, pid: u32, signal: Signal) -> io::Result<()>;
+}
+
+struct SystemRecordingSpawner;
+
+impl RecordingSpawner for SystemRecordingSpawner {
+    fn spawn(&self, device: &str, filename_template: &str) -> io::Result<Box<dyn ManagedChild>> {
+        let stderr_target = fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("wav_files/arecord.stderr.log")
+            .map(Stdio::from)
+            .unwrap_or_else(|err| {
+                warn!("Failed to open arecord stderr log: {}", err);
+                Stdio::null()
+            });
+
+        let child = Command::new("arecord")
+            .arg("-D")
+            .arg(device)
+            .args([
+                "-f",
+                ARECORD_FORMAT,
+                "-r",
+                ARECORD_SAMPLE_RATE,
+                "-c",
+                ARECORD_CHANNELS,
+                "-t",
+                "wav",
+                "-N",
+                "--use-strftime",
+            ])
+            .arg(filename_template)
+            .stdout(Stdio::null())
+            .stderr(stderr_target)
+            .spawn()?;
+
+        Ok(Box::new(RealChild { inner: child }))
+    }
+
+    fn send_signal(&self, pid: u32, signal: Signal) -> io::Result<()> {
+        let flag = match signal {
+            Signal::Term => "-TERM",
+            Signal::Kill => "-KILL",
         };
 
-        Self::stop_recording_session(session);
-    }
+        let status = Command::new("kill")
+            .args([flag, &pid.to_string()])
+            .status()?;
 
-    fn build_target_path(&self, bpm: u32) -> String {
-        let timestamp = Local::now().format("%Y%m%d-%H%M%S").to_string();
-        let bpm_label = if bpm == 0 {
-            "000".to_string()
+        if status.success() {
+            Ok(())
         } else {
-            format!("{:03}", bpm)
-        };
-        format!(
-            "wav_files/{}{}-{}.wav",
-            bpm_label, self.reference, timestamp
-        )
-    }
-
-    fn stop_recording_session(session: AudioRecordingSession) {
-        let AudioRecordingSession {
-            mut arecord,
-            mut aplay,
-            io_thread,
-            stderr_threads,
-            stop_requested,
-        } = session;
-
-        stop_requested.store(true, Ordering::Relaxed);
-        Self::stop_child_process(&mut aplay, "audio monitor");
-        Self::stop_child_process(&mut arecord, "audio recorder");
-        Self::join_optional_thread(io_thread, "Audio capture thread");
-        Self::join_threads(stderr_threads, "Audio stderr thread");
-    }
-
-    fn stop_child_process(child: &mut Child, label: &str) {
-        if let Err(err) = child.kill() {
-            warn!("Failed to stop {} cleanly: {}", label, err);
-        }
-        let _ = child.wait();
-    }
-
-    fn join_optional_thread(handle: Option<std::thread::JoinHandle<()>>, label: &str) {
-        if let Some(handle) = handle {
-            Self::join_thread(handle, label);
-        }
-    }
-
-    fn join_threads(handles: Vec<std::thread::JoinHandle<()>>, label: &str) {
-        for handle in handles {
-            Self::join_thread(handle, label);
-        }
-    }
-
-    fn join_thread(handle: std::thread::JoinHandle<()>, label: &str) {
-        if let Err(err) = handle.join() {
-            warn!("{} panicked: {:?}", label, err);
+            Err(io::Error::other(format!(
+                "kill {} {} exited with status {}",
+                flag, pid, status
+            )))
         }
     }
 }
 
-fn spawn_audio_recording_session(target_path: &str) -> std::io::Result<AudioRecordingSession> {
-    let capture_device = read_env_device_or_default("PHASOR_ALSA_CAPTURE_DEVICE", "default")?;
-    let playback_device = read_env_device_or_default("PHASOR_ALSA_PLAYBACK_DEVICE", "default")?;
-    info!("Audio capture device: {}", capture_device);
-    info!("Audio playback device: {}", playback_device);
-
-    let mut guard = AudioSessionGuard::spawn(&capture_device, &playback_device)?;
-
-    let arecord_stdout = guard.arecord_mut().stdout.take().ok_or_else(|| {
-        std::io::Error::other("arecord stdout unavailable (expected piped stdout)")
-    })?;
-    let aplay_stdin =
-        guard.aplay_mut().stdin.take().ok_or_else(|| {
-            std::io::Error::other("aplay stdin unavailable (expected piped stdin)")
-        })?;
-
-    let mut stderr_threads = Vec::new();
-    if let Some(stderr) = guard.arecord_mut().stderr.take() {
-        stderr_threads.push(spawn_child_stderr_logger("arecord", stderr));
-    }
-    if let Some(stderr) = guard.aplay_mut().stderr.take() {
-        stderr_threads.push(spawn_child_stderr_logger("aplay", stderr));
-    }
-    let file = fs::File::create(target_path)?;
-
-    let stop_requested = Arc::new(AtomicBool::new(false));
-    let stop_requested_for_thread = Arc::clone(&stop_requested);
-    let io_thread = Some(std::thread::spawn(move || {
-        if let Err(err) =
-            stream_and_record_cd_audio(file, arecord_stdout, aplay_stdin, stop_requested_for_thread)
-        {
-            error!("Audio capture/monitor pipeline failed: {}", err);
-        }
-    }));
-
-    let (arecord, aplay) = guard.into_children();
-    Ok(AudioRecordingSession {
-        arecord,
-        aplay,
-        io_thread,
-        stderr_threads,
-        stop_requested,
-    })
-}
-
-fn read_env_device_or_default(var: &str, default: &str) -> std::io::Result<String> {
-    match std::env::var(var) {
+fn read_capture_device() -> io::Result<String> {
+    match env::var("PHASOR_ALSA_CAPTURE_DEVICE") {
         Ok(value) => {
             if value.trim().is_empty() {
-                Err(std::io::Error::new(
-                    std::io::ErrorKind::InvalidInput,
-                    format!("{var} is set but empty"),
+                Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "PHASOR_ALSA_CAPTURE_DEVICE is set but empty",
                 ))
             } else {
                 Ok(value)
             }
         }
-        Err(std::env::VarError::NotPresent) => Ok(default.to_string()),
-        Err(err) => Err(std::io::Error::new(
-            std::io::ErrorKind::InvalidInput,
-            format!("Invalid {var}: {err}"),
+        Err(env::VarError::NotPresent) => Ok("default".to_string()),
+        Err(err) => Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("Invalid PHASOR_ALSA_CAPTURE_DEVICE: {err}"),
         )),
     }
 }
 
-fn spawn_child_stderr_logger(
-    name: &'static str,
-    stderr: std::process::ChildStderr,
-) -> std::thread::JoinHandle<()> {
-    std::thread::spawn(move || {
-        let reader = BufReader::new(stderr);
-        for line in reader.lines() {
-            match line {
-                Ok(line) => error!("{name}: {line}"),
-                Err(err) => {
-                    error!("{name}: failed to read stderr: {err}");
-                    break;
-                }
+fn read_stereo_pair() -> io::Result<u32> {
+    match env::var("PHASOR_ALSA_CAPTURE_STEREO_PAIR") {
+        Ok(value) => {
+            if value.trim().is_empty() {
+                return Ok(1);
             }
+            value.parse::<u32>().map_err(|err| {
+                io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!("Invalid PHASOR_ALSA_CAPTURE_STEREO_PAIR: {err}"),
+                )
+            })
         }
-    })
-}
-
-fn spawn_arecord(capture_device: &str) -> std::io::Result<Child> {
-    Command::new("arecord")
-        .args(["-q", "-f", "cd", "-t", "raw", "-D"])
-        .arg(capture_device)
-        .arg("-")
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-}
-
-fn spawn_aplay(playback_device: &str) -> std::io::Result<Child> {
-    Command::new("aplay")
-        .args(["-q", "-f", "cd", "-D"])
-        .arg(playback_device)
-        .arg("-")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::null())
-        .stderr(Stdio::piped())
-        .spawn()
-}
-
-fn stream_and_record_cd_audio(
-    mut output_file: fs::File,
-    mut capture_stream: impl Read,
-    mut playback_stream: impl Write,
-    stop_requested: Arc<AtomicBool>,
-) -> std::io::Result<()> {
-    write_cd_wav_header(&mut output_file, 0)?;
-
-    let mut buffer = [0u8; 16 * 1024];
-    let mut bytes_written: u64 = 0;
-    let mut last_header_update = Instant::now();
-
-    loop {
-        let bytes_read = capture_stream.read(&mut buffer)?;
-        if bytes_read == 0 {
-            if stop_requested.load(Ordering::Relaxed) {
-                break;
-            }
-            return Err(std::io::Error::other(
-                "audio capture ended unexpectedly (arecord returned EOF)",
-            ));
-        }
-
-        output_file.write_all(&buffer[..bytes_read])?;
-        bytes_written += bytes_read as u64;
-
-        if let Err(err) = playback_stream.write_all(&buffer[..bytes_read]) {
-            if stop_requested.load(Ordering::Relaxed)
-                && err.kind() == std::io::ErrorKind::BrokenPipe
-            {
-                break;
-            }
-            return Err(err);
-        }
-
-        if last_header_update.elapsed() >= Duration::from_secs(1) {
-            update_cd_wav_header(&mut output_file, bytes_written)?;
-            last_header_update = Instant::now();
-        }
+        Err(env::VarError::NotPresent) => Ok(1),
+        Err(err) => Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("Invalid PHASOR_ALSA_CAPTURE_STEREO_PAIR: {err}"),
+        )),
     }
-
-    drop(playback_stream);
-
-    update_cd_wav_header(&mut output_file, bytes_written)?;
-
-    Ok(())
 }
 
-fn write_cd_wav_header(output_file: &mut fs::File, data_len: u32) -> std::io::Result<()> {
-    const SAMPLE_RATE: u32 = 44_100;
-    const CHANNELS: u16 = 2;
-    const BITS_PER_SAMPLE: u16 = 16;
-
-    let block_align = CHANNELS
-        .checked_mul(BITS_PER_SAMPLE / 8)
-        .ok_or_else(|| std::io::Error::other("wav header overflow: block_align"))?;
-    let byte_rate = SAMPLE_RATE
-        .checked_mul(u32::from(block_align))
-        .ok_or_else(|| std::io::Error::other("wav header overflow: byte_rate"))?;
-    let riff_chunk_size = 36u32
-        .checked_add(data_len)
-        .ok_or_else(|| std::io::Error::other("wav header overflow: riff_chunk_size"))?;
-
-    output_file.seek(SeekFrom::Start(0))?;
-    output_file.write_all(b"RIFF")?;
-    output_file.write_all(&riff_chunk_size.to_le_bytes())?;
-    output_file.write_all(b"WAVE")?;
-
-    output_file.write_all(b"fmt ")?;
-    output_file.write_all(&16u32.to_le_bytes())?;
-    output_file.write_all(&1u16.to_le_bytes())?;
-    output_file.write_all(&CHANNELS.to_le_bytes())?;
-    output_file.write_all(&SAMPLE_RATE.to_le_bytes())?;
-    output_file.write_all(&byte_rate.to_le_bytes())?;
-    output_file.write_all(&block_align.to_le_bytes())?;
-    output_file.write_all(&BITS_PER_SAMPLE.to_le_bytes())?;
-
-    output_file.write_all(b"data")?;
-    output_file.write_all(&data_len.to_le_bytes())?;
-
-    Ok(())
-}
-
-fn update_cd_wav_header(output_file: &mut fs::File, data_len: u64) -> std::io::Result<()> {
-    let data_len =
-        u32::try_from(data_len).map_err(|_| std::io::Error::other("wav data too large (>4GiB)"))?;
-    let current_pos = output_file.stream_position()?;
-    write_cd_wav_header(output_file, data_len)?;
-    output_file.seek(SeekFrom::Start(current_pos))?;
+fn ensure_pair_supported() -> io::Result<()> {
+    let pair = read_stereo_pair()?;
+    if pair != 1 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "arecord backend currently supports only stereo pair 1/2; set AUDIO_CAPTURE_PAIR=1",
+        ));
+    }
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::mpsc;
+    use std::collections::HashMap;
+    use std::os::unix::process::ExitStatusExt;
+    use std::sync::atomic::{AtomicBool, AtomicU32, Ordering as AtomicOrdering};
+    use std::sync::{mpsc, Arc};
     use std::time::Duration;
 
-    // No mock needed, we're using the real MidiOutputManager
+    #[derive(Clone)]
+    struct MockSpawner {
+        starts: Arc<Mutex<Vec<(String, String)>>>,
+        signals: Arc<Mutex<Vec<(u32, Signal)>>>,
+        children: Arc<Mutex<HashMap<u32, Arc<AtomicBool>>>>,
+        next_pid: Arc<AtomicU32>,
+        exit_immediately: bool,
+    }
+
+    impl MockSpawner {
+        fn new() -> Self {
+            Self {
+                starts: Arc::new(Mutex::new(Vec::new())),
+                signals: Arc::new(Mutex::new(Vec::new())),
+                children: Arc::new(Mutex::new(HashMap::new())),
+                next_pid: Arc::new(AtomicU32::new(0)),
+                exit_immediately: false,
+            }
+        }
+
+        fn immediate_exit() -> Self {
+            let mut spawner = Self::new();
+            spawner.exit_immediately = true;
+            spawner
+        }
+    }
+
+    struct MockChild {
+        pid: u32,
+        should_exit: Arc<AtomicBool>,
+    }
+
+    impl ManagedChild for MockChild {
+        fn id(&self) -> u32 {
+            self.pid
+        }
+
+        fn try_wait(&mut self) -> io::Result<Option<ExitStatus>> {
+            if self.should_exit.swap(false, AtomicOrdering::SeqCst) {
+                Ok(Some(ExitStatusExt::from_raw(0)))
+            } else {
+                Ok(None)
+            }
+        }
+
+        fn wait(&mut self) -> io::Result<ExitStatus> {
+            self.should_exit.store(false, AtomicOrdering::SeqCst);
+            Ok(ExitStatusExt::from_raw(0))
+        }
+    }
+
+    impl RecordingSpawner for MockSpawner {
+        fn spawn(
+            &self,
+            device: &str,
+            filename_template: &str,
+        ) -> io::Result<Box<dyn ManagedChild>> {
+            self.starts
+                .lock()
+                .unwrap()
+                .push((device.to_string(), filename_template.to_string()));
+
+            let pid = self.next_pid.fetch_add(1, AtomicOrdering::SeqCst) + 1;
+            let should_exit = Arc::new(AtomicBool::new(self.exit_immediately));
+            self.children
+                .lock()
+                .unwrap()
+                .insert(pid, Arc::clone(&should_exit));
+
+            Ok(Box::new(MockChild { pid, should_exit }))
+        }
+
+        fn send_signal(&self, pid: u32, signal: Signal) -> io::Result<()> {
+            self.signals.lock().unwrap().push((pid, signal));
+            if let Some(flag) = self.children.lock().unwrap().get(&pid) {
+                flag.store(true, AtomicOrdering::SeqCst);
+            }
+            Ok(())
+        }
+    }
+
+    fn build_event_loop(
+        shared_state: Arc<Mutex<state::SharedState>>,
+        spawner: MockSpawner,
+    ) -> EventLoop {
+        let (_tx, rx) = mpsc::channel();
+        EventLoop::with_recorder_spawner(shared_state, rx, None, Box::new(spawner))
+    }
 
     #[test]
     fn test_handle_transport_command_start() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
-        let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let spawner = MockSpawner::new();
+        let start_calls = spawner.starts.clone();
+        let mut event_loop = build_event_loop(shared_state.clone(), spawner);
 
         // Initially, the transport state should be Stopped.
         assert_eq!(
@@ -604,25 +599,21 @@ mod tests {
             shared_state.lock().unwrap().transport_state,
             state::TransportState::Playing
         );
+        assert!(shared_state.lock().unwrap().recording);
+        assert_eq!(start_calls.lock().unwrap().len(), 1);
     }
 
     #[test]
     fn test_handle_transport_command_stop() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
-        let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let spawner = MockSpawner::new();
+        let signal_calls = spawner.signals.clone();
+        let mut event_loop = build_event_loop(shared_state.clone(), spawner);
 
-        // Initially, the transport state should be Stopped.
-        assert_eq!(
-            shared_state.lock().unwrap().transport_state,
-            state::TransportState::Stopped
-        );
-
-        // Set the transport state to Playing.
-        shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
-
-        // Send a Stop command.
+        event_loop.handle_transport_command(TransportAction::Start);
         event_loop.handle_transport_command(TransportAction::Stop);
+
+        assert_eq!(signal_calls.lock().unwrap().len(), 1);
 
         // The transport state should now be Stopped.
         assert_eq!(
@@ -632,13 +623,57 @@ mod tests {
 
         // Tick count should be reset to 0.
         assert_eq!(shared_state.lock().unwrap().tick_count, 0);
+        assert!(!shared_state.lock().unwrap().recording);
+    }
+
+    #[test]
+    fn test_start_command_only_runs_once() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let spawner = MockSpawner::new();
+        let start_calls = spawner.starts.clone();
+        let mut event_loop = build_event_loop(shared_state, spawner);
+
+        event_loop.handle_transport_command(TransportAction::Start);
+        event_loop.handle_transport_command(TransportAction::Start);
+
+        assert_eq!(start_calls.lock().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_stop_command_without_start_does_not_signal() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let spawner = MockSpawner::new();
+        let signal_calls = spawner.signals.clone();
+        let mut event_loop = build_event_loop(shared_state, spawner);
+
+        event_loop.handle_transport_command(TransportAction::Stop);
+        assert!(signal_calls.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_arecord_immediate_exit_surfaces_error() {
+        let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
+        let spawner = MockSpawner::immediate_exit();
+        let mut event_loop = build_event_loop(shared_state.clone(), spawner);
+
+        event_loop.handle_transport_command(TransportAction::Start);
+
+        assert!(
+            !shared_state.lock().unwrap().recording,
+            "recording flag should be false when arecord exits immediately"
+        );
     }
 
     #[test]
     fn test_handle_tick() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let mut event_loop = EventLoop::with_recorder_spawner(
+            shared_state.clone(),
+            rx,
+            None,
+            Box::new(MockSpawner::new()),
+        );
 
         // Call handle_tick
         let start_time = Instant::now();
@@ -653,7 +688,12 @@ mod tests {
     fn test_handle_tick_updates_state() {
         let shared_state = Arc::new(Mutex::new(state::SharedState::new(120)));
         let (_tx, rx) = mpsc::channel();
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let mut event_loop = EventLoop::with_recorder_spawner(
+            shared_state.clone(),
+            rx,
+            None,
+            Box::new(MockSpawner::new()),
+        );
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -747,7 +787,12 @@ mod tests {
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let mut event_loop = EventLoop::with_recorder_spawner(
+            shared_state.clone(),
+            rx,
+            None,
+            Box::new(MockSpawner::new()),
+        );
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -768,7 +813,12 @@ mod tests {
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let mut event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let mut event_loop = EventLoop::with_recorder_spawner(
+            shared_state.clone(),
+            rx,
+            None,
+            Box::new(MockSpawner::new()),
+        );
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -803,7 +853,12 @@ mod tests {
         let (_tx, rx) = mpsc::channel();
 
         // Create the event loop
-        let event_loop = EventLoop::new(shared_state.clone(), rx, None, "internal".to_string());
+        let event_loop = EventLoop::with_recorder_spawner(
+            shared_state.clone(),
+            rx,
+            None,
+            Box::new(MockSpawner::new()),
+        );
 
         // Set the transport state to Playing
         shared_state.lock().unwrap().transport_state = state::TransportState::Playing;
@@ -823,11 +878,11 @@ mod tests {
         let midi_output = Some(MidiOutputManager::new());
 
         // Create the event loop with the MIDI output
-        let mut event_loop = EventLoop::new(
+        let mut event_loop = EventLoop::with_recorder_spawner(
             shared_state.clone(),
             rx,
             midi_output,
-            "internal".to_string(),
+            Box::new(MockSpawner::new()),
         );
 
         // Set the transport state to Playing

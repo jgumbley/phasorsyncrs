@@ -7,8 +7,8 @@ use ratatui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
     style::{Color, Style},
-    text::Span,
-    widgets::{Block, Borders, Paragraph},
+    text::{Span, Spans},
+    widgets::{Block, Borders, Paragraph, Wrap},
     Terminal,
 };
 use std::sync::mpsc::Sender;
@@ -82,55 +82,104 @@ fn render_ui<B: ratatui::backend::Backend>(
     f: &mut ratatui::Frame<B>,
     shared_state: &Arc<Mutex<state::SharedState>>,
 ) {
-    let size = f.size();
-
-    // Create layout with multiple sections
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
             [
-                Constraint::Length(3), // Title area
-                Constraint::Length(5), // Transport state area
-                Constraint::Min(1),    // Instructions area
+                Constraint::Length(3),
+                Constraint::Min(1),
+                Constraint::Length(3),
             ]
             .as_ref(),
         )
-        .split(size);
+        .split(f.size());
 
-    // Title block
-    let title_block = Block::default()
+    f.render_widget(title_block(), chunks[0]);
+    f.render_widget(transport_paragraph(shared_state), chunks[1]);
+    f.render_widget(controls_paragraph(), chunks[2]);
+}
+
+fn title_block() -> Block<'static> {
+    Block::default()
         .title("PhasorSyncRS Terminal UI")
-        .borders(Borders::ALL);
-    f.render_widget(title_block, chunks[0]);
+        .borders(Borders::ALL)
+}
 
-    // Transport state display
-    let state_info = {
+fn transport_paragraph(shared_state: &Arc<Mutex<state::SharedState>>) -> Paragraph<'static> {
+    let lines = {
         let state = shared_state.lock().unwrap();
-        format!(
-            "BPM: {}\nTick Count: {}\nBar: {}\t Beat: {}\nTransport: {:?}",
-            state.get_bpm(),
-            state.get_tick_count(),
-            state.get_current_bar(),
-            state.get_current_beat(),
-            state.transport_state
-        )
+        build_transport_lines(&state)
     };
 
-    let transport_block = Block::default()
-        .title("Transport State")
-        .borders(Borders::ALL);
-    let transport_text = Paragraph::new(state_info)
-        .style(Style::default().fg(Color::Green))
-        .block(transport_block);
-    f.render_widget(transport_text, chunks[1]);
+    Paragraph::new(lines)
+        .style(Style::default().fg(Color::Gray))
+        .wrap(Wrap { trim: true })
+        .block(Block::default().title("Transport").borders(Borders::ALL))
+}
 
-    // Instructions area
-    let instructions = Paragraph::new(Span::styled(
-        "Press Space: Toggle Play/Stop | Press Q: Quit",
-        Style::default().fg(Color::Yellow),
-    ));
-    let instructions_block = Block::default().title("Controls").borders(Borders::ALL);
-    f.render_widget(instructions.block(instructions_block), chunks[2]);
+fn build_transport_lines(state: &state::SharedState) -> Vec<Spans<'static>> {
+    let recording_indicator = if state.recording {
+        Span::styled("● Recording", Style::default().fg(Color::Red))
+    } else {
+        Span::styled("○ Idle", Style::default().fg(Color::DarkGray))
+    };
+    let recording_target = state
+        .recording_target
+        .as_deref()
+        .unwrap_or("wav_files/take_%Y%m%d_%H%M%S_pair1.wav");
+
+    vec![
+        Spans::from(vec![
+            Span::raw("Transport: "),
+            Span::styled(
+                format!("{:?}", state.transport_state),
+                Style::default().fg(Color::Cyan),
+            ),
+        ]),
+        Spans::from(vec![
+            Span::raw("BPM: "),
+            Span::styled(
+                state.get_bpm().to_string(),
+                Style::default().fg(Color::Green),
+            ),
+            Span::raw("    Tick: "),
+            Span::styled(
+                state.get_tick_count().to_string(),
+                Style::default().fg(Color::Green),
+            ),
+        ]),
+        Spans::from(vec![
+            Span::raw("Bar: "),
+            Span::styled(
+                state.get_current_bar().to_string(),
+                Style::default().fg(Color::Yellow),
+            ),
+            Span::raw("    Beat: "),
+            Span::styled(
+                state.get_current_beat().to_string(),
+                Style::default().fg(Color::Yellow),
+            ),
+        ]),
+        Spans::from(vec![
+            recording_indicator,
+            Span::raw("  "),
+            Span::styled(
+                recording_target.to_string(),
+                Style::default().fg(Color::DarkGray),
+            ),
+        ]),
+    ]
+}
+
+fn controls_paragraph() -> Paragraph<'static> {
+    Paragraph::new(Spans::from(vec![
+        Span::styled("SPACE", Style::default().fg(Color::Yellow)),
+        Span::raw(": Start/Stop   "),
+        Span::styled("Q", Style::default().fg(Color::Yellow)),
+        Span::raw(": Quit"),
+    ]))
+    .style(Style::default().fg(Color::White))
+    .block(Block::default().borders(Borders::ALL).title("Controls"))
 }
 
 pub fn run_tui_event_loop(

@@ -75,6 +75,8 @@ mod tests {
             current_beat: 0,
             current_bar: 8, // 8 is a multiple of 8 and > 0.
             bpm: 120,
+            recording: false,
+            recording_target: None,
             transport_state: TransportState::Stopped,
         };
 
@@ -98,6 +100,8 @@ mod tests {
             current_beat: 0,
             current_bar: 0,
             bpm: 120,
+            recording: false,
+            recording_target: None,
             transport_state: TransportState::Playing,
         };
 

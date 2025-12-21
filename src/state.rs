@@ -13,6 +13,8 @@ pub struct SharedState {
     pub tick_count: u64,
     pub current_beat: u32,
     pub current_bar: u32,
+    pub recording: bool,
+    pub recording_target: Option<String>,
 
     // Add this
     pub transport_state: TransportState,
@@ -25,6 +27,8 @@ impl SharedState {
             tick_count: 0,
             current_beat: 0,
             current_bar: 0,
+            recording: false,
+            recording_target: None,
             transport_state: TransportState::Stopped,
         }
     }

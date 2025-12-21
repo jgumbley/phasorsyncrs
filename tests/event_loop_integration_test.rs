@@ -21,12 +21,7 @@ fn integration_test_event_loop_two_ticks() {
     let (engine_tx, engine_rx) = mpsc::channel();
 
     // Create the event loop instance.
-    let event_loop = EventLoop::new(
-        Arc::clone(&shared_state),
-        engine_rx,
-        None,
-        "internal".to_string(),
-    );
+    let event_loop = EventLoop::new(Arc::clone(&shared_state), engine_rx, None);
 
     // Spawn the event loop in a separate thread.
     let handle = thread::spawn(move || {

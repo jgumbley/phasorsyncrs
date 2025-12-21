@@ -1,10 +1,14 @@
 use log::{debug, error, info};
 use phasorsyncrs::{clock, config, event_loop, external_clock, logging, midi_output, state, tui};
-use std::io::{Read, Write};
+use std::cmp::Reverse;
+use std::fs;
+use std::io::{self, Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::path::Path;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::UNIX_EPOCH;
 
 use crate::event_loop::EngineMessage;
 
@@ -77,17 +81,6 @@ fn log_config_details(config: &config::Config) {
     }
 }
 
-fn recording_reference(config: &config::Config) -> String {
-    if let Some(device) = &config.bind_to_device {
-        return device.clone();
-    }
-
-    match config.clock_source {
-        config::ClockSource::External => "external".to_string(),
-        config::ClockSource::Internal => "internal".to_string(),
-    }
-}
-
 fn send_http_response(stream: &mut TcpStream, status_line: &str, content_type: &str, body: &str) {
     let response = format!(
         "{status}\r\nContent-Length: {len}\r\nContent-Type: {ctype}\r\nConnection: close\r\n\r\n{body}",
@@ -101,14 +94,101 @@ fn send_http_response(stream: &mut TcpStream, status_line: &str, content_type: &
     }
 }
 
+fn send_binary_response(
+    stream: &mut TcpStream,
+    status_line: &str,
+    content_type: &str,
+    body: &[u8],
+) {
+    let header = format!(
+        "{status}\r\nContent-Length: {len}\r\nContent-Type: {ctype}\r\nConnection: close\r\n\r\n",
+        status = status_line,
+        len = body.len(),
+        ctype = content_type
+    );
+
+    if let Err(e) = stream
+        .write_all(header.as_bytes())
+        .and_then(|_| stream.write_all(body))
+    {
+        error!("Failed to send binary HTTP response: {}", e);
+    }
+}
+
+fn escape_json_string(input: &str) -> String {
+    input
+        .replace('\\', "\\\\")
+        .replace('\"', "\\\"")
+        .replace('\n', "\\n")
+        .replace('\r', "\\r")
+}
+
+fn wav_modified_secs(path: &Path) -> Option<u64> {
+    let metadata = fs::metadata(path).ok()?;
+    let modified = metadata.modified().ok()?;
+    modified
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .map(|d| d.as_secs())
+}
+
+fn list_recent_recordings(limit: usize) -> io::Result<Vec<(String, u64)>> {
+    if limit == 0 || !Path::new("wav_files").exists() {
+        return Ok(Vec::new());
+    }
+
+    let sample_name = "sample.wav";
+    let sample_path = Path::new("wav_files").join(sample_name);
+    let sample_entry = wav_modified_secs(&sample_path).map(|ts| (sample_name.to_string(), ts));
+
+    let mut recordings: Vec<(String, u64)> = fs::read_dir("wav_files")?
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| {
+            let path = entry.path();
+            let is_wav = path
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .map(|ext| ext.eq_ignore_ascii_case("wav"))
+                .unwrap_or(false);
+            if !is_wav {
+                return None;
+            }
+            let name = path.file_name()?.to_string_lossy().into_owned();
+            wav_modified_secs(&path).map(|ts| (name, ts))
+        })
+        .filter(|(name, _)| name != sample_name)
+        .collect();
+
+    recordings.sort_by_key(|(_, ts)| Reverse(*ts));
+
+    let max_non_sample = if sample_entry.is_some() {
+        limit.saturating_sub(1)
+    } else {
+        limit
+    };
+    recordings.truncate(max_non_sample);
+
+    if let Some(sample) = sample_entry {
+        recordings.insert(0, sample);
+    }
+
+    Ok(recordings)
+}
+
 fn handle_status_request(stream: &mut TcpStream, shared_state: &Arc<Mutex<state::SharedState>>) {
     let state = shared_state.lock().unwrap();
     let transport = match state.transport_state {
         state::TransportState::Playing => "Playing",
         state::TransportState::Stopped => "Stopped",
     };
+    let recording = if state.recording { "true" } else { "false" };
+    let recording_target = state
+        .recording_target
+        .as_ref()
+        .map(|s| format!("\"{}\"", s))
+        .unwrap_or_else(|| "null".to_string());
     let body = format!(
-        "{{\"transport\":\"{transport}\",\"bpm\":{},\"bar\":{},\"beat\":{}}}",
+        "{{\"transport\":\"{transport}\",\"bpm\":{},\"bar\":{},\"beat\":{},\"recording\":{recording},\"recording_target\":{recording_target}}}",
         state.get_bpm(),
         state.get_current_bar(),
         state.get_current_beat(),
@@ -119,6 +199,75 @@ fn handle_status_request(stream: &mut TcpStream, shared_state: &Arc<Mutex<state:
         "application/json; charset=utf-8",
         &body,
     );
+}
+
+fn handle_recordings_request(stream: &mut TcpStream) {
+    match list_recent_recordings(6) {
+        Ok(recordings) => {
+            let entries: Vec<String> = recordings
+                .iter()
+                .map(|(name, modified)| {
+                    format!(
+                        "{{\"name\":\"{}\",\"modified\":{}}}",
+                        escape_json_string(name),
+                        modified
+                    )
+                })
+                .collect();
+            let body = format!("[{}]", entries.join(","));
+            send_http_response(
+                stream,
+                "HTTP/1.1 200 OK",
+                "application/json; charset=utf-8",
+                &body,
+            );
+        }
+        Err(e) => {
+            error!("Failed to list recordings: {}", e);
+            send_http_response(
+                stream,
+                "HTTP/1.1 500 INTERNAL SERVER ERROR",
+                "text/plain; charset=utf-8",
+                "failed to list recordings",
+            );
+        }
+    }
+}
+
+fn handle_wav_request(stream: &mut TcpStream, filename: &str) {
+    if filename.is_empty()
+        || filename.contains('/')
+        || filename.contains('\\')
+        || filename.contains("..")
+    {
+        send_http_response(
+            stream,
+            "HTTP/1.1 400 BAD REQUEST",
+            "text/plain; charset=utf-8",
+            "invalid file name",
+        );
+        return;
+    }
+
+    let path = Path::new("wav_files").join(filename);
+    match fs::read(&path) {
+        Ok(bytes) => send_binary_response(stream, "HTTP/1.1 200 OK", "audio/wav", &bytes),
+        Err(e) if e.kind() == io::ErrorKind::NotFound => send_http_response(
+            stream,
+            "HTTP/1.1 404 NOT FOUND",
+            "text/plain; charset=utf-8",
+            "file not found",
+        ),
+        Err(e) => {
+            error!("Failed to read wav file {}: {}", filename, e);
+            send_http_response(
+                stream,
+                "HTTP/1.1 500 INTERNAL SERVER ERROR",
+                "text/plain; charset=utf-8",
+                "failed to read file",
+            );
+        }
+    }
 }
 
 fn handle_toggle_request(
@@ -181,6 +330,12 @@ fn handle_web_request(
     let method = parts.next().unwrap_or("");
     let path = parts.next().unwrap_or("/");
 
+    if method == "GET" && path.starts_with("/wav/") {
+        let filename = path.trim_start_matches("/wav/");
+        handle_wav_request(&mut stream, filename);
+        return;
+    }
+
     match (method, path) {
         ("GET", "/") => {
             send_http_response(
@@ -191,6 +346,7 @@ fn handle_web_request(
             );
         }
         ("GET", "/status") => handle_status_request(&mut stream, shared_state),
+        ("GET", "/recordings") => handle_recordings_request(&mut stream),
         ("POST", "/toggle") => handle_toggle_request(&mut stream, shared_state, engine_tx),
         _ => send_http_response(
             &mut stream,
@@ -229,29 +385,42 @@ const WEB_UI_HTML: &str = r#"<!DOCTYPE html>
   <title>PhasorSyncRS Transport</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 1.5rem; background: #0b1021; color: #e6edf3; }
-    .card { background: #131a33; padding: 1.25rem; border-radius: 10px; max-width: 420px; box-shadow: 0 10px 35px rgba(0,0,0,0.35); }
+    .stack { display: flex; flex-direction: column; gap: 1rem; max-width: 520px; }
+    .card { background: #131a33; padding: 1.25rem; border-radius: 10px; box-shadow: 0 10px 35px rgba(0,0,0,0.35); }
     h1 { margin-top: 0; letter-spacing: 0.5px; }
+    h2 { margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #c8d6ff; }
     button { margin-top: 1rem; padding: 0.75rem 1.25rem; border: none; border-radius: 8px; background: #41d1ff; color: #031225; font-size: 1rem; cursor: pointer; font-weight: bold; }
     button.playing { background: #ff784d; color: #1c0f08; }
+    .recording-buttons button { display: block; width: 100%; margin-top: 0.5rem; text-align: left; }
     .status { font-size: 1.2rem; margin: 0.5rem 0; }
     .metrics { color: #9fb1d1; font-size: 0.95rem; }
+    audio { width: 100%; margin-top: 0.75rem; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Transport</h1>
-    <div id="transport" class="status">Loading...</div>
-    <div class="metrics">
-      <div id="bpm">BPM: --</div>
-      <div id="position">Bar: -- | Beat: --</div>
+  <div class="stack">
+    <div class="card">
+      <h1>Transport</h1>
+      <div id="transport" class="status">Loading...</div>
+      <div class="metrics">
+        <div id="bpm">BPM: --</div>
+        <div id="position">Bar: -- | Beat: --</div>
+      </div>
+      <button id="toggle">Toggle</button>
     </div>
-    <button id="toggle">Toggle</button>
+    <div class="card">
+      <h2>Recent Recordings</h2>
+      <div id="recordings" class="recording-buttons">Loading...</div>
+      <audio id="player" controls preload="none"></audio>
+    </div>
   </div>
   <script>
     const transportEl = document.getElementById('transport');
     const bpmEl = document.getElementById('bpm');
     const posEl = document.getElementById('position');
     const toggleBtn = document.getElementById('toggle');
+    const recordingsEl = document.getElementById('recordings');
+    const playerEl = document.getElementById('player');
 
     async function refreshStatus() {
       try {
@@ -277,9 +446,44 @@ const WEB_UI_HTML: &str = r#"<!DOCTYPE html>
       }
     }
 
+    function formatTimestamp(epochSeconds) {
+      const date = new Date(epochSeconds * 1000);
+      return date.toLocaleString();
+    }
+
+    async function refreshRecordings() {
+      try {
+        const res = await fetch('/recordings');
+        if (!res.ok) {
+          recordingsEl.textContent = 'Unable to load recordings';
+          return;
+        }
+        const data = await res.json();
+        recordingsEl.innerHTML = '';
+        if (!Array.isArray(data) || data.length === 0) {
+          recordingsEl.textContent = 'No recordings yet.';
+          return;
+        }
+        data.forEach(item => {
+          const btn = document.createElement('button');
+          const when = typeof item.modified === 'number' ? formatTimestamp(item.modified) : '';
+          btn.textContent = when ? `${item.name} — ${when}` : item.name;
+          btn.addEventListener('click', () => {
+            playerEl.src = `/wav/${item.name}`;
+            playerEl.play().catch(() => {});
+          });
+          recordingsEl.appendChild(btn);
+        });
+      } catch (_) {
+        recordingsEl.textContent = 'Unable to load recordings';
+      }
+    }
+
     toggleBtn.addEventListener('click', toggleTransport);
     refreshStatus();
+    refreshRecordings();
     setInterval(refreshStatus, 500);
+    setInterval(refreshRecordings, 4000);
   </script>
 </body>
 </html>
@@ -289,8 +493,6 @@ const WEB_UI_HTML: &str = r#"<!DOCTYPE html>
 fn initialize_components(
     config: config::Config,
 ) -> (Arc<Mutex<state::SharedState>>, Sender<EngineMessage>) {
-    let recording_ref = recording_reference(&config);
-
     // Create shared state
     let shared_state = Arc::new(Mutex::new(state::SharedState::new(config.bpm)));
     info!("Shared state initialized with BPM: {}", config.bpm);
@@ -323,15 +525,10 @@ fn initialize_components(
 
     // Start the event loop thread with MIDI output
     let event_loop_shared_state = Arc::clone(&shared_state);
-    let recording_ref_for_loop = recording_ref.clone();
     info!("Starting event loop thread");
     thread::spawn(move || {
-        let mut event_loop = event_loop::EventLoop::new(
-            event_loop_shared_state,
-            engine_rx,
-            midi_output,
-            recording_ref_for_loop,
-        );
+        let mut event_loop =
+            event_loop::EventLoop::new(event_loop_shared_state, engine_rx, midi_output);
         event_loop.run();
     });
 

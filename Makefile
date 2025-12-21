@@ -18,7 +18,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog run-oxi run-bind run-direct-test deps play-wavs sample-wav umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer
+.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog user-shell run-oxi run-bind run-direct-test deps play-wavs sample-wav umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer arecord-app-capture arecord-umc1820 run-umc1820
 
 UMC1820_DEV ?= hw:UMC1820,0
 UMC1820_PLUG_DEV ?= plughw:UMC1820,0
@@ -31,6 +31,26 @@ UMC1820_OUT ?= wav_files/umc1820_$(UMC1820_CHANNELS)ch_$(UMC1820_RATE)Hz.wav
 # Audio monitor/capture devices used by the runtime (ALSA -D arguments)
 AUDIO_CAPTURE_DEV ?= default
 AUDIO_PLAYBACK_DEV ?= default
+
+# User-facing ALSA capture knobs (mirrors app defaults; mapped to PHASOR_* envs internally)
+ALSA_CAPTURE_DEVICE ?= $(AUDIO_CAPTURE_DEV)
+ALSA_CAPTURE_STEREO_PAIR ?= 1
+ALSA_ARECORD_SECONDS ?= 15
+ALSA_ARECORD_SAMPLE_RATE ?= 48000
+ALSA_ARECORD_CHANNELS ?= 2
+ALSA_ARECORD_FORMAT ?= S32_LE
+ALSA_ARECORD_TEMPLATE ?= wav_files/take_%Y%m%d_%H%M%S_pair1.wav
+BPM ?= 120
+
+# Map ALSA_* -> PHASOR_* so the runtime picks up the same settings
+export PHASOR_ALSA_CAPTURE_DEVICE=$(ALSA_CAPTURE_DEVICE)
+export PHASOR_ALSA_CAPTURE_STEREO_PAIR=$(ALSA_CAPTURE_STEREO_PAIR)
+export PHASOR_ARECORD_SECONDS=$(ALSA_ARECORD_SECONDS)
+export PHASOR_ARECORD_SAMPLE_RATE=$(ALSA_ARECORD_SAMPLE_RATE)
+export PHASOR_ARECORD_CHANNELS=$(ALSA_ARECORD_CHANNELS)
+export PHASOR_ARECORD_FORMAT=$(ALSA_ARECORD_FORMAT)
+export PHASOR_ARECORD_TEMPLATE=$(ALSA_ARECORD_TEMPLATE)
+export AUDIO_CAPTURE_DEV
 
 deps:
 	@if command -v pkg-config >/dev/null 2>&1 && pkg-config --exists alsa; then \
@@ -51,7 +71,7 @@ deps:
 
 # Main targets
 run: deps clean_log build
-	PHASOR_ALSA_CAPTURE_DEVICE="$(AUDIO_CAPTURE_DEV)" PHASOR_ALSA_PLAYBACK_DEVICE="$(AUDIO_PLAYBACK_DEV)" $(CARGO) run
+	PHASOR_ALSA_CAPTURE_DEVICE="$(ALSA_CAPTURE_DEVICE)" PHASOR_ALSA_CAPTURE_STEREO_PAIR="$(ALSA_CAPTURE_STEREO_PAIR)" PHASOR_ALSA_PLAYBACK_DEVICE="$(AUDIO_PLAYBACK_DEV)" $(CARGO) run -- --bpm "$(BPM)"
 
 run-oxi: deps clean_log build
 	$(CARGO) run -- --bind-to-device "OXI ONE:OXI ONE MIDI 1 20:0"
@@ -88,6 +108,29 @@ list-devices:
 	@echo "ALSA sequencer clients:"
 	@if command -v aconnect >/dev/null 2>&1; then aconnect -l || true; else echo "aconnect not available"; fi
 	$(call success)
+
+arecord-app-capture: deps
+	@mkdir -p wav_files
+	@pair="$${ALSA_CAPTURE_STEREO_PAIR:-$(ALSA_CAPTURE_STEREO_PAIR)}"; \
+	device="$${ALSA_CAPTURE_DEVICE:-$(ALSA_CAPTURE_DEVICE)}"; \
+	seconds="$${ALSA_ARECORD_SECONDS:-$(ALSA_ARECORD_SECONDS)}"; \
+	if [ "$$pair" != "1" ]; then \
+		echo "arecord backend currently supports only stereo pair 1/2; set ALSA_CAPTURE_STEREO_PAIR=1"; \
+		exit 1; \
+	fi; \
+	if [ -z "$$device" ]; then \
+	echo "ALSA_CAPTURE_DEVICE is empty; set it to an ALSA device string (e.g. default, plughw:Card,Device)"; \
+	exit 1; \
+fi; \
+echo "Recording $$device for $$seconds seconds to $(ALSA_ARECORD_TEMPLATE)"; \
+arecord -D "$$device" -f $(ALSA_ARECORD_FORMAT) -r $(ALSA_ARECORD_SAMPLE_RATE) -c $(ALSA_ARECORD_CHANNELS) -t wav -N --use-strftime -d "$$seconds" "$(ALSA_ARECORD_TEMPLATE)"
+	$(call success)
+
+arecord-umc1820:
+	ALSA_CAPTURE_DEVICE=plughw:UMC1820,0 ALSA_CAPTURE_STEREO_PAIR=1 $(MAKE) arecord-app-capture
+
+run-umc1820:
+	ALSA_CAPTURE_DEVICE=plughw:UMC1820,0 AUDIO_PLAYBACK_DEV=plughw:UMC1820,0 BPM=$(BPM) $(MAKE) run
 
 umc1820-hw-params: deps
 	arecord -D $(UMC1820_DEV) --dump-hw-params -f $(UMC1820_FORMAT) -r $(UMC1820_RATE) -c $(UMC1820_CHANNELS) /dev/null
@@ -169,3 +212,6 @@ clean_log:
 
 followlog:
 	tail -n 200 -f app.log
+
+user-shell:
+	@bash
