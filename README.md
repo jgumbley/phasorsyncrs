@@ -53,6 +53,7 @@ make run-bind MIDI_IN="UMC1820"
 
 # UMC1820 helpers (recordings land in wav_files/, which is gitignored)
 make umc1820-hw-params
+make record                # press Enter to stop
 make umc1820-record UMC1820_SECONDS=5
 make umc1820-record-stereo UMC1820_SECONDS=5
 ```

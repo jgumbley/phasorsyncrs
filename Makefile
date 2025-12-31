@@ -18,7 +18,7 @@ CARGO ?= cargo
 
 # Targets
 
-.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog user-shell run-oxi run-bind run-direct-test deps play-wavs sample-wav umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer arecord-app-capture arecord-umc1820 run-umc1820
+.PHONY: run build test check fmt clippy doc lint clean ci clean_log list-devices followlog user-shell run-oxi run-bind run-direct-test deps play-wavs sample-wav umc1820-hw-params umc1820-record umc1820-record-stereo umc1820-mixer arecord-app-capture arecord-umc1820 record run-umc1820
 
 UMC1820_DEV ?= hw:UMC1820,0
 UMC1820_PLUG_DEV ?= plughw:UMC1820,0
@@ -126,8 +126,41 @@ echo "Recording $$device for $$seconds seconds to $(ALSA_ARECORD_TEMPLATE)"; \
 arecord -D "$$device" -f $(ALSA_ARECORD_FORMAT) -r $(ALSA_ARECORD_SAMPLE_RATE) -c $(ALSA_ARECORD_CHANNELS) -t wav -N --use-strftime -d "$$seconds" "$(ALSA_ARECORD_TEMPLATE)"
 	$(call success)
 
-arecord-umc1820:
-	ALSA_CAPTURE_DEVICE=plughw:UMC1820,0 ALSA_CAPTURE_STEREO_PAIR=1 $(MAKE) arecord-app-capture
+arecord-umc1820: record
+
+record: deps
+	@mkdir -p wav_files
+	@if [ ! -t 0 ]; then \
+		echo "error: this target needs an interactive terminal (stdin)"; \
+		exit 1; \
+	fi
+	@device="$(UMC1820_PLUG_DEV)"; \
+	if [ -z "$$device" ]; then \
+		echo "error: UMC1820_PLUG_DEV is empty"; \
+		exit 1; \
+	fi; \
+	echo ""; \
+	echo "Recording from $$device to $(ALSA_ARECORD_TEMPLATE)"; \
+	echo "Press Enter to stop and finalize the WAV file."; \
+	arecord -D "$$device" -f $(ALSA_ARECORD_FORMAT) -r $(ALSA_ARECORD_SAMPLE_RATE) -c $(ALSA_ARECORD_CHANNELS) -t wav -N --use-strftime "$(ALSA_ARECORD_TEMPLATE)" & \
+	pid=$$!; \
+	sleep 0.1; \
+	if ! kill -0 $$pid 2>/dev/null; then \
+		wait $$pid; \
+		rc=$$?; \
+		echo "arecord exited immediately with status $$rc"; \
+		exit $$rc; \
+	fi; \
+	read -r _; \
+	echo "Stopping..."; \
+	if kill -0 $$pid 2>/dev/null; then kill -TERM $$pid; fi; \
+	wait $$pid; \
+	rc=$$?; \
+	if [ $$rc -ne 0 ] && [ $$rc -ne 143 ]; then \
+		echo "arecord exited with status $$rc"; \
+		exit $$rc; \
+	fi
+	$(call success)
 
 run-umc1820:
 	ALSA_CAPTURE_DEVICE=plughw:UMC1820,0 AUDIO_PLAYBACK_DEV=plughw:UMC1820,0 BPM=$(BPM) $(MAKE) run
